@@ -1,20 +1,30 @@
 #!/usr/bin/env bash
 # Cloudflare Pages build — installs Flutter, syncs marketing, builds web with dart-defines.
 # Required env: SUPABASE_URL, SUPABASE_ANON_KEY
-# Optional env: GOOGLE_WEB_CLIENT_ID, VG_USE_SUPABASE (default true), VG_USE_MOCK_ANALYSIS (default false)
+# Optional env: GOOGLE_WEB_CLIENT_ID
 
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$ROOT"
 
-if [[ -z "${SUPABASE_URL:-}" || -z "${SUPABASE_ANON_KEY:-}" ]]; then
+# Cloudflare dashboard multiline fields sometimes inject CR/LF/tabs into values.
+sanitize_env() {
+  printf '%s' "${1:-}" | tr -d '\r\n\t'
+}
+
+SUPABASE_URL="$(sanitize_env "${SUPABASE_URL:-}")"
+SUPABASE_ANON_KEY="$(sanitize_env "${SUPABASE_ANON_KEY:-}")"
+GOOGLE_WEB_CLIENT_ID="$(sanitize_env "${GOOGLE_WEB_CLIENT_ID:-}")"
+
+if [[ -z "${SUPABASE_URL}" || -z "${SUPABASE_ANON_KEY}" ]]; then
   echo "ERROR: Set SUPABASE_URL and SUPABASE_ANON_KEY in Cloudflare Pages environment variables." >&2
   exit 1
 fi
 
-VG_USE_SUPABASE="${VG_USE_SUPABASE:-true}"
-VG_USE_MOCK_ANALYSIS="${VG_USE_MOCK_ANALYSIS:-false}"
+# Production Cloudflare builds always use live Supabase + real analysis.
+VG_USE_SUPABASE="true"
+VG_USE_MOCK_ANALYSIS="false"
 
 echo "==> Sync marketing site (website/ -> web/marketing/)"
 if [[ ! -d website ]]; then
@@ -69,7 +79,7 @@ BUILD_ARGS=(
   "--dart-define=VG_USE_SUPABASE=${VG_USE_SUPABASE}"
   "--dart-define=VG_USE_MOCK_ANALYSIS=${VG_USE_MOCK_ANALYSIS}"
 )
-if [[ -n "${GOOGLE_WEB_CLIENT_ID:-}" ]]; then
+if [[ -n "${GOOGLE_WEB_CLIENT_ID}" ]]; then
   BUILD_ARGS+=("--dart-define=GOOGLE_WEB_CLIENT_ID=${GOOGLE_WEB_CLIENT_ID}")
 fi
 flutter "${BUILD_ARGS[@]}"

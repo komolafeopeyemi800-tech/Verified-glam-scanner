@@ -28,8 +28,8 @@ Set for **Production** (and **Preview** if you use PR previews):
 | `SUPABASE_URL` | Yes | `https://qmivgvctmxvpnbouqslj.supabase.co` |
 | `SUPABASE_ANON_KEY` | Yes | Publishable/anon key from Supabase → Project Settings → API |
 | `GOOGLE_WEB_CLIENT_ID` | If using Google sign-in | `….apps.googleusercontent.com` |
-| `VG_USE_SUPABASE` | Yes | `true` |
-| `VG_USE_MOCK_ANALYSIS` | Yes | `false` (live AI in production) |
+
+`VG_USE_SUPABASE` and `VG_USE_MOCK_ANALYSIS` are **hardcoded** in [`scripts/cloudflare-build.sh`](../scripts/cloudflare-build.sh) (`true` / `false`) — you do not need to set them in Cloudflare. If you previously added them, remove any line breaks in other values (paste as a single line).
 
 **Never** put these in Cloudflare:
 
