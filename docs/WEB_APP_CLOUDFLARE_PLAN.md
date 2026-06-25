@@ -58,9 +58,11 @@ SPA deep links: [`web/_redirects`](../web/_redirects) (`/* /index.html 200`) is 
 
 ## Alternative: GitHub Actions deploy
 
-[`.github/workflows/deploy-web.yml`](../.github/workflows/deploy-web.yml) is **disabled by default** (manual `workflow_dispatch` only) to avoid double-deploy when Cloudflare builds from Git.
+[`docs/deploy-web-workflow.yml.example`](../docs/deploy-web-workflow.yml.example) is an optional workflow (copy to `.github/workflows/deploy-web.yml`). It uses **manual `workflow_dispatch` only** to avoid double-deploy when Cloudflare builds from Git.
 
 If you use GitHub Actions instead of Cloudflare build, set **GitHub Secrets**: `SUPABASE_URL`, `SUPABASE_ANON_KEY`, `GOOGLE_WEB_CLIENT_ID`, `CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID` — and leave Cloudflare Pages build command empty or use “Direct Upload” from the Action.
+
+**Note:** Pushing workflow files requires a GitHub token with the `workflow` scope. The example file lives under `docs/` so the initial repo push works without that scope.
 
 ## Local development
 

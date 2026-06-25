@@ -19,3 +19,7 @@ build/
 **/key.properties
 **/*.jks
 **/*.keystore
+
+# Android Gradle cache (never commit)
+android/.gradle/
+.gradle/
