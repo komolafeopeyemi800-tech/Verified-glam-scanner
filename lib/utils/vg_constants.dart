@@ -1,0 +1,56 @@
+import 'dart:ui';
+
+/// When true: bypass paywall / ads before results. Does not affect Supabase backend.
+const bool kVGLocalDevMode = true;
+
+/// When true: use Supabase for auth, storage, scans, and Edge Function analysis.
+const bool kVGUseSupabase = bool.fromEnvironment('VG_USE_SUPABASE', defaultValue: true);
+
+/// When true: use local mock payloads instead of OpenAI Edge Function (offline dev).
+const bool kVGUseMockAnalysis = bool.fromEnvironment('VG_USE_MOCK_ANALYSIS', defaultValue: false);
+
+/// Portrait photo frames: width : height = 3 : 4 (Flutter [AspectRatio] width/height).
+const double vgPortraitAspectRatio = 3 / 4;
+
+Size vgPortraitSizeForWidth(double width) => Size(width, width / vgPortraitAspectRatio);
+
+const String vgAppName = 'Verified Glam';
+const String vgTagline = 'Beauty Made Perfect';
+const String vgTaglineAlt = 'Pretty in Every Way';
+const String vgSupportEmail = 'support@verifiedglam.app';
+
+const String vgWalkthroughCompleteKey = 'vg_walkthrough_complete';
+const String vgPostAuthRedirectKey = 'vg_post_auth_redirect';
+const String vgOnboardingCompleteKey = 'vg_onboarding_complete';
+const String vgOnboardingProfileKey = 'vg_onboarding_profile';
+const String vgGuideTipsCacheKey = 'vg_guide_tips_cache';
+
+const String vgSubscriptionIsProKey = 'vg_subscription_is_pro';
+const String vgSubscriptionPlanKey = 'vg_subscription_plan';
+const String vgSubscriptionFreeScanCountKey = 'vg_subscription_free_scan_count';
+const String vgSubscriptionPostOnboardingPaywallShownKey = 'vg_subscription_post_onboarding_paywall_shown';
+const String vgSubscriptionPromoExpiryKey = 'vg_subscription_promo_expiry';
+const String vgSubscriptionPromoShownSessionKey = 'vg_subscription_promo_shown_session';
+const String vgSubscriptionLastDailyPromptKey = 'vg_subscription_last_daily_prompt';
+
+const String vgReferralCodeKey = 'vg_referral_code';
+const String vgReferralDownloadCountKey = 'vg_referral_download_count';
+const String vgReferralBonusRedeemedKey = 'vg_referral_bonus_redeemed';
+const String vgReferralBonusScansKey = 'vg_referral_bonus_scans';
+const String vgUnilinkBaseUrl = 'https://YOUR-UNILINK-SUBDOMAIN.unilink.io/verifiedglam';
+const int vgReferralRewardThreshold = 3;
+const int vgReferralBonusScanAmount = 5;
+
+class VGFeatureTypes {
+  static const faceBeautyAnalysis = 'FACE_BEAUTY_ANALYSIS';
+  static const bestFacePart = 'BEST_FACE_PART';
+  static const beautyTips = 'BEAUTY_TIPS';
+  static const celebrityLookalike = 'CELEBRITY_LOOKALIKE';
+  static const facialSymmetry = 'FACIAL_SYMMETRY';
+  static const beautyScoreShowdown = 'BEAUTY_SCORE_SHOWDOWN';
+  static const facialResemblance = 'FACIAL_RESEMBLANCE';
+  static const faceReading = 'FACE_READING';
+  static const goldenRatio = 'GOLDEN_RATIO';
+  static const colorAnalysis = 'COLOR_ANALYSIS';
+  static const glowUpGuide = 'GLOW_UP_GUIDE';
+}

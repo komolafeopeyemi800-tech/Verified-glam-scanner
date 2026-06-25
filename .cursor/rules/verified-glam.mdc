@@ -1,0 +1,53 @@
+---
+description: Verified Glam product and locked Beauty Master UI — read docs before UI or feature work
+alwaysApply: true
+---
+
+# Verified Glam project context
+
+This repository is **Verified Glam** (AI beauty analysis) built inside the **Beauty Master** CodeCanyon Flutter template. The UI shell is locked; product content comes from project docs.
+
+## Required reading (in order)
+
+1. [docs/DESIGN_SYSTEM_LOCKED.md](docs/DESIGN_SYSTEM_LOCKED.md) — colors, walkthrough, layout (non-negotiable shell)
+2. [docs/HYBRID_DESIGN_RULES.md](docs/HYBRID_DESIGN_RULES.md) — template shell vs competitor UI patterns (default for new screens)
+3. [docs/DESIGN_SYSTEM_COMPETITOR_REFERENCE.md](docs/DESIGN_SYSTEM_COMPETITOR_REFERENCE.md) — competitor buttons, cards, icons, paywall, onboarding
+4. [docs/RESULT_UI_COMPETITOR_REFERENCE.md](docs/RESULT_UI_COMPETITOR_REFERENCE.md) — **result screens:** user photo hero + face overlays (required for Phase 6)
+5. [docs/VERIFIED_GLAM_PRODUCT.md](docs/VERIFIED_GLAM_PRODUCT.md) — product summary
+6. [docs/TEMPLATE_TO_VERIFIED_GLAM_MAP.md](docs/TEMPLATE_TO_VERIFIED_GLAM_MAP.md) — screen mapping
+7. [docs/DEVELOPMENT_ROADMAP.md](docs/DEVELOPMENT_ROADMAP.md) — implementation phases
+8. [docs/source/VERIFIED_GLAM_FULL_SPEC.md](docs/source/VERIFIED_GLAM_FULL_SPEC.md) — full specification when detail is needed
+
+Index: [docs/README.md](docs/README.md)
+
+## Stack
+
+- **UI:** Flutter (this repo) — not React Native from the original spec
+- **Backend (target):** Convex, OpenAI via server functions only, AdMob, RevenueCat
+- **Never** put OpenAI API keys in the Flutter app
+
+## UI/UX rules
+
+- **Preserve** burgundy (`#872B3F`) + dusty rose (`#C79A9A`, `#F6E3E3`) palette from `lib/utils/BMColors.dart`
+- **Preserve** walkthrough full-bleed images: `images/model_one.jpg`, `model_two.jpg`, `model_three.jpg` — text may change, photos must not be replaced without explicit user approval
+- **Preserve** `upperContainer` / `lowerContainer` patterns in `lib/utils/BMWidgets.dart`
+- **Preserve** 5-tab bottom navigation shell unless user approves a redesign
+- **Do not** apply generic ui-ux-pro-max palettes that override the locked design system
+- **New screens (not walkthrough):** Use hybrid rules — competitor component patterns with `BMColors` tokens; see `HYBRID_DESIGN_RULES.md` and screenshot archive at `docs/reference/competitor-screenshots/`
+- **Result / analysis screens (Phase 6+):** Must show the user's uploaded photo as hero with at least one face overlay (lines, dots, regions, callouts, or score rings) — **never** icon-only result heroes. Read `docs/RESULT_UI_COMPETITOR_REFERENCE.md` and `docs/reference/competitor-results/` before implementing `vg_results_screen.dart` or per-feature result widgets.
+- **Do not** use competitor coral pink (`#FF6B8B` etc.) or “Glam Up” branding in implementation
+
+## Default change scope
+
+- **Allowed without asking:** Copy/strings, mock data in `BMDataGenerator`, navigation targets, new Convex logic, feature flags
+- **Requires explicit user approval:** Layout redesign, color changes, removing walkthrough photos, reducing tabs, replacing component library
+
+## Implementation guidance
+
+- Reuse existing screens/components per `TEMPLATE_TO_VERIFIED_GLAM_MAP.md` before creating new widgets
+- Follow `DEVELOPMENT_ROADMAP.md` phase order unless user directs otherwise
+- Salon/booking flows map to **scan pipeline** (guidelines → upload → process → results), not calendar booking
+
+## Open decisions
+
+Check the decision table at the bottom of `TEMPLATE_TO_VERIFIED_GLAM_MAP.md` before assuming Chat tab, Tab 1, or Map FAB behavior.

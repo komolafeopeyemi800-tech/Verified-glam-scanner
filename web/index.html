@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <base href="$FLUTTER_BASE_HREF">
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta content="IE=Edge" http-equiv="X-UA-Compatible">
+  <meta name="description" content="Verified Glam — AI beauty analysis. Upload a photo, get personalized insights.">
+
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="apple-mobile-web-app-title" content="Verified Glam">
+  <link rel="apple-touch-icon" href="icons/Icon-192.png">
+  <link rel="icon" type="image/png" href="favicon.png"/>
+
+  <title>Verified Glam</title>
+  <link rel="manifest" href="manifest.json">
+</head>
+<body>
+  <style>
+    #vg-loading {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 1rem;
+      background: #F6E3E3;
+      color: #872B3F;
+      font-family: system-ui, sans-serif;
+      z-index: 9999;
+      padding: 1.5rem;
+      text-align: center;
+    }
+    #vg-loading p { margin: 0; font-size: 1rem; }
+    #vg-loading small { color: #6b4a52; max-width: 28rem; }
+    #vg-loading.error { background: #fff5f5; color: #8b1a1a; }
+  </style>
+  <div id="vg-loading">
+    <p><strong>Loading Verified Glam…</strong></p>
+    <small id="vg-loading-hint">First load may take a moment while the app starts.</small>
+  </div>
+  <script>
+    (function () {
+      var loading = document.getElementById('vg-loading');
+      var hint = document.getElementById('vg-loading-hint');
+
+      function showError(msg) {
+        if (!loading) return;
+        loading.classList.add('error');
+        loading.innerHTML = '<p><strong>Could not load the app</strong></p><small>' + msg + '</small>';
+      }
+
+      window.addEventListener('flutter-first-frame', function () {
+        if (loading) loading.remove();
+      });
+
+      window.addEventListener('error', function (e) {
+        var msg = e.message || 'Unknown error';
+        if (msg.indexOf('PasskeyAuthenticator') >= 0 || msg.indexOf("'init'") >= 0) {
+          msg = 'Passkeys web SDK failed to load. Ensure js/passkeys-bundle.js is present and rebuild with .\\scripts\\build-web.ps1.';
+        }
+        showError(msg + ' Press Ctrl+Shift+R to hard refresh.');
+      });
+
+      window.addEventListener('unhandledrejection', function (e) {
+        var reason = e.reason && (e.reason.message || e.reason.toString());
+        if (reason) showError(reason);
+      });
+
+      setTimeout(function () {
+        if (loading && document.body.contains(loading)) {
+          hint.textContent = 'Still loading… If this takes more than 2 minutes, hard refresh (Ctrl+Shift+R) or use Chrome/Edge.';
+        }
+      }, 45000);
+
+      setTimeout(function () {
+        if (loading && document.body.contains(loading)) {
+          showError('Startup timed out. Clear site data for this host, then reload. Use Chrome or Edge (not Cursor Simple Browser).');
+        }
+      }, 120000);
+
+      // Stale Flutter service workers often cause infinite loading on localhost.
+      var h = location.hostname;
+      if (h === 'localhost' || h === '127.0.0.1') {
+        if ('serviceWorker' in navigator) {
+          navigator.serviceWorker.getRegistrations().then(function (regs) {
+            regs.forEach(function (r) { r.unregister(); });
+          });
+        }
+        if (window.caches) {
+          caches.keys().then(function (keys) { keys.forEach(function (k) { caches.delete(k); }); });
+        }
+      }
+    })();
+  </script>
+  <script src="js/passkeys-bundle.js"></script>
+  <script src="flutter_bootstrap.js" async></script>
+</body>
+</html>

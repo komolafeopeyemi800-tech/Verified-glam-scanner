@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "152442037169",
+    "project_id": "verified-glam",
+    "storage_bucket": "verified-glam.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:152442037169:android:3a51350a8ff678219fd390",
+        "android_client_info": {
+          "package_name": "com.verifiedglam.beauty_scanner"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD9XYSJ4QjECTgRLn7eQ6IgI6pA6_L1jXk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

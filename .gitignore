@@ -1,0 +1,21 @@
+.env
+.env.local
+*.env.local
+
+# Firebase Admin SDK (never commit)
+*firebase-adminsdk*.json
+**/verified-glam-firebase*.json
+
+# Flutter / Dart
+.dart_tool/
+.packages
+build/
+
+# IDE
+.idea/
+*.iml
+
+# Android signing
+**/key.properties
+**/*.jks
+**/*.keystore

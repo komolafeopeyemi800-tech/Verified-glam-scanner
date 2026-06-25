@@ -1,0 +1,35 @@
+{
+    "name": "Verified Glam",
+    "short_name": "Verified Glam",
+    "start_url": ".",
+    "display": "standalone",
+    "background_color": "#872B3F",
+    "theme_color": "#872B3F",
+    "description": "AI beauty analysis — upload a photo, get personalized insights.",
+    "orientation": "portrait-primary",
+    "prefer_related_applications": false,
+    "icons": [
+        {
+            "src": "icons/Icon-192.png",
+            "sizes": "192x192",
+            "type": "image/png"
+        },
+        {
+            "src": "icons/Icon-512.png",
+            "sizes": "512x512",
+            "type": "image/png"
+        },
+        {
+            "src": "icons/Icon-maskable-192.png",
+            "sizes": "192x192",
+            "type": "image/png",
+            "purpose": "maskable"
+        },
+        {
+            "src": "icons/Icon-maskable-512.png",
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "maskable"
+        }
+    ]
+}

@@ -1,0 +1,32 @@
+# Supabase local config — see https://supabase.com/docs/guides/cli/config
+project_id = "verified-glam"
+
+[api]
+enabled = true
+
+[db]
+major_version = 15
+
+[auth]
+enabled = true
+site_url = "io.supabase.verifiedglam://login-callback"
+additional_redirect_urls = ["io.supabase.verifiedglam://login-callback"]
+
+[auth.external.google]
+enabled = false
+# Configure Google OAuth in Supabase Dashboard for production.
+
+[storage]
+enabled = true
+
+[functions.analyze-scan]
+verify_jwt = true
+
+[functions.guide-recommendations]
+verify_jwt = true
+
+[functions.send-challenge-push]
+verify_jwt = false
+
+[functions.dispatch-challenge-notifications]
+verify_jwt = false
