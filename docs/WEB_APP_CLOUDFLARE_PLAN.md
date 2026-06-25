@@ -53,14 +53,38 @@ Go to **Workers & Pages → your project → Settings → Builds** (or **Build c
 | Build command | **Build command** | `bash scripts/cloudflare-build.sh` |
 | Build output directory | **Build output directory** (NOT “Build watch paths”) | `build/web` |
 | Root directory | Root directory | `/` (repo root) |
-| Deploy command | **Deploy command** | **Leave empty / delete `npx wrangler deploy`** |
-| Build watch paths | Build watch paths (optional) | Leave empty or default — this only controls *when* to rebuild, not where output lives |
+| Deploy command | **Deploy command** | See **Workers build UI** below if the field is required |
+| Non-production deploy command | Non-production branch deploy command | Leave empty, or same as production |
+| Path | Path | `/` (repo root) |
+| Build watch paths | Build watch paths (optional) | Leave empty or default |
 
-**“Build watch paths” is not the output folder.** It is an optional filter (e.g. `lib/**`) for triggering rebuilds. The compiled site must be published from **`build/web`**.
+**“Build watch paths” is not the output folder.** It is an optional filter (e.g. `lib/**`) for triggering rebuilds.
 
-**Do not use `npx wrangler deploy`.** Your logs show that command uploading the raw `web/` source folder (51 files, no `main.dart.js`) instead of the Flutter build. After the build succeeds, Pages should publish **`build/web`** automatically with no deploy command.
+### If your dashboard looks like “Build command + Deploy command + Path” (no “Build output directory”)
 
-If you only see a **Worker** project with a mandatory deploy step, create a **Pages** project instead: **Workers & Pages → Create → Pages → Connect to Git**.
+You are on Cloudflare’s **Workers build + deploy** flow (your screenshot). That is OK — **one Git repo with Android + web is correct**; separation is not the problem.
+
+The bug: `npx wrangler deploy` without config auto-uploads the source **`web/`** folder → `flutter_bootstrap.js` 404.
+
+**Fix (repo now includes [`wrangler.toml`](../wrangler.toml)):**
+
+| Setting | Value |
+|---------|--------|
+| Build command | `bash scripts/cloudflare-build.sh` |
+| Deploy command | `npx wrangler deploy` (**no extra `)`**) |
+| Non-production branch deploy command | Leave **empty** (delete `npx wrangler versions upload`) |
+| Path | `/` |
+
+`wrangler.toml` tells deploy to publish **`build/web`** (compiled Flutter), not `web/`.
+
+After save → **Retry deployment** → open `https://YOUR-URL/flutter_bootstrap.js` — must return **200**, not 404.
+
+### If you have “Build output directory” (classic Pages)
+
+| Build output directory | `build/web` |
+| Deploy command | **Leave empty** |
+
+Pages publishes `build/web` automatically after the build; no wrangler deploy needed.
 
 SPA deep links: the build script copies `index.html` → `404.html` in `build/web/` (Cloudflare Pages serves it for unknown routes). Do not add `web/_redirects` rules pointing to `/index.html` — wrangler rejects them as infinite loops.
 

@@ -1,0 +1,7 @@
+# Cloudflare deploy — serve compiled Flutter output (NOT source web/).
+# Used when the dashboard requires a Deploy command: npx wrangler deploy
+name = "verified-glam-scanner"
+compatibility_date = "2026-06-25"
+
+[assets]
+directory = "build/web"
