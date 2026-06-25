@@ -1,4 +1,4 @@
-# Beauty Master (beauty_master)
+# Verified Glam (beauty_master)
 
 Flutter UI template for a beauty salon booking app.
 
