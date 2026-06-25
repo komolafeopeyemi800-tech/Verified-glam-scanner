@@ -46,12 +46,15 @@
     (function () {
       var loading = document.getElementById('vg-loading');
       var hint = document.getElementById('vg-loading-hint');
+      var bootFailed = false;
 
       function showError(msg) {
-        if (!loading) return;
+        if (!loading || bootFailed) return;
+        bootFailed = true;
         loading.classList.add('error');
         loading.innerHTML = '<p><strong>Could not load the app</strong></p><small>' + msg + '</small>';
       }
+      window.__vgShowBootError = showError;
 
       window.addEventListener('flutter-first-frame', function () {
         if (loading) loading.remove();
@@ -60,7 +63,7 @@
       window.addEventListener('error', function (e) {
         var msg = e.message || 'Unknown error';
         if (msg.indexOf('PasskeyAuthenticator') >= 0 || msg.indexOf("'init'") >= 0) {
-          msg = 'Passkeys web SDK failed to load. Ensure js/passkeys-bundle.js is present and rebuild with .\\scripts\\build-web.ps1.';
+          msg = 'Passkeys web SDK failed to load. Ensure js/passkeys-bundle.js is present in the deployed build.';
         }
         showError(msg + ' Press Ctrl+Shift+R to hard refresh.');
       });
@@ -71,20 +74,24 @@
       });
 
       setTimeout(function () {
-        if (loading && document.body.contains(loading)) {
-          hint.textContent = 'Still loading… If this takes more than 2 minutes, hard refresh (Ctrl+Shift+R) or use Chrome/Edge.';
+        if (loading && document.body.contains(loading) && !bootFailed) {
+          hint.textContent = 'Still loading… large first download can take 1–2 minutes on slow networks.';
         }
       }, 45000);
 
       setTimeout(function () {
-        if (loading && document.body.contains(loading)) {
-          showError('Startup timed out. Clear site data for this host, then reload. Use Chrome or Edge (not Cursor Simple Browser).');
+        if (loading && document.body.contains(loading) && !bootFailed) {
+          showError(
+            'Startup timed out. Open DevTools → Network and confirm flutter_bootstrap.js and main.dart.js return 200. ' +
+            'In Cloudflare: build output must be build/web (not web/), deploy command must be empty. ' +
+            'Then clear site data for this host and reload in Chrome or Edge.'
+          );
         }
-      }, 120000);
+      }, 180000);
 
-      // Stale Flutter service workers often cause infinite loading on localhost.
-      var h = location.hostname;
-      if (h === 'localhost' || h === '127.0.0.1') {
+      // Stale Flutter service workers cause infinite loading on static hosts.
+      var swKey = 'vg-sw-cleared-v2';
+      if (!sessionStorage.getItem(swKey)) {
         if ('serviceWorker' in navigator) {
           navigator.serviceWorker.getRegistrations().then(function (regs) {
             regs.forEach(function (r) { r.unregister(); });
@@ -93,10 +100,29 @@
         if (window.caches) {
           caches.keys().then(function (keys) { keys.forEach(function (k) { caches.delete(k); }); });
         }
+        sessionStorage.setItem(swKey, '1');
       }
+
+      function checkAsset(path, help) {
+        fetch(path, { method: 'HEAD', cache: 'no-store' }).then(function (res) {
+          if (!res.ok && !bootFailed) {
+            showError(path + ' returned HTTP ' + res.status + '. ' + help);
+          }
+        }).catch(function () {
+          if (!bootFailed) showError('Could not reach ' + path + '. ' + help);
+        });
+      }
+
+      checkAsset(
+        'flutter_bootstrap.js',
+        'Cloudflare is probably serving the web/ source folder instead of build/web/. Set Build output directory to build/web and remove any deploy command.'
+      );
+      setTimeout(function () {
+        checkAsset('main.dart.js', 'Flutter build output is missing from the deployed site.');
+      }, 3000);
     })();
   </script>
   <script src="js/passkeys-bundle.js"></script>
-  <script src="flutter_bootstrap.js" async></script>
+  <script src="flutter_bootstrap.js" async onerror="window.__vgShowBootError && window.__vgShowBootError('flutter_bootstrap.js failed to load. Deploy build/web, not web/.')"></script>
 </body>
 </html>

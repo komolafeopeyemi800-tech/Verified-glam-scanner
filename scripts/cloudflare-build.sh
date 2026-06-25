@@ -106,4 +106,18 @@ if [[ -f build/web/index.html ]]; then
   cp -f build/web/index.html build/web/404.html
 fi
 
+echo "==> Verify build output"
+for required in build/web/index.html build/web/flutter_bootstrap.js build/web/main.dart.js; do
+  if [[ ! -f "${required}" ]]; then
+    echo "ERROR: Missing ${required} — Flutter web build incomplete." >&2
+    exit 1
+  fi
+done
+MAIN_SIZE="$(wc -c < build/web/main.dart.js | tr -d ' ')"
+echo "    main.dart.js size: ${MAIN_SIZE} bytes"
+if [[ "${MAIN_SIZE}" -lt 100000 ]]; then
+  echo "ERROR: main.dart.js looks too small — build may have failed silently." >&2
+  exit 1
+fi
+
 echo "==> Build complete: build/web/"
