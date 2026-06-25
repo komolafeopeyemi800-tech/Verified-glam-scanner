@@ -1,0 +1,14 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "verified-glam-scanner",
+  "compatibility_date": "2026-06-25",
+  "observability": {
+    "enabled": true
+  },
+  "assets": {
+    "directory": "web"
+  },
+  "compatibility_flags": [
+    "nodejs_compat"
+  ]
+}
