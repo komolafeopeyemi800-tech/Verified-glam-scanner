@@ -50,11 +50,14 @@ Cloudflare’s build image does **not** include Flutter. The repo provides [`scr
 | **Production branch** | `main` |
 | **Build command** | `bash scripts/cloudflare-build.sh` |
 | **Build output directory** | `build/web` |
+| **Deploy command** | **Leave empty** — do not use `npx wrangler deploy` |
 | **Root directory** | `/` (repo root) |
+
+**Important:** If you set a deploy command like `npx wrangler deploy`, Cloudflare uploads the raw `web/` source folder (not the compiled Flutter output) and the deploy will fail or serve an empty shell without `main.dart.js`.
 
 **Connect Git:** Workers & Pages → Create → Pages → Connect to Git → `komolafeopeyemi800-tech/Verified-glam-scanner`.
 
-SPA deep links: [`web/_redirects`](../web/_redirects) (`/* /index.html 200`) is copied into the Flutter web build.
+SPA deep links: [`web/_redirects`](../web/_redirects) lists explicit Flutter routes (avoid `/* → /index.html`, which Cloudflare rejects as an infinite loop).
 
 ## Alternative: GitHub Actions deploy
 
