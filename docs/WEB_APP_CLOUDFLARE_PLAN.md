@@ -45,19 +45,24 @@ Set for **Production** (and **Preview** if you use PR previews):
 
 Cloudflare’s build image does **not** include Flutter. The repo provides [`scripts/cloudflare-build.sh`](../scripts/cloudflare-build.sh).
 
-| Setting | Value |
-|---------|--------|
-| **Production branch** | `main` |
-| **Build command** | `bash scripts/cloudflare-build.sh` |
-| **Build output directory** | `build/web` |
-| **Deploy command** | **Leave empty** — do not use `npx wrangler deploy` |
-| **Root directory** | `/` (repo root) |
+Go to **Workers & Pages → your project → Settings → Builds** (or **Build configuration** during setup).
 
-**Important:** If you set a deploy command like `npx wrangler deploy`, Cloudflare uploads the raw `web/` source folder (not the compiled Flutter output) and the deploy will fail or serve an empty shell without `main.dart.js`.
+| Setting | Cloudflare UI label | Value |
+|---------|----------------------|--------|
+| Production branch | Production branch | `main` |
+| Build command | **Build command** | `bash scripts/cloudflare-build.sh` |
+| Build output directory | **Build output directory** (NOT “Build watch paths”) | `build/web` |
+| Root directory | Root directory | `/` (repo root) |
+| Deploy command | **Deploy command** | **Leave empty / delete `npx wrangler deploy`** |
+| Build watch paths | Build watch paths (optional) | Leave empty or default — this only controls *when* to rebuild, not where output lives |
 
-**Connect Git:** Workers & Pages → Create → Pages → Connect to Git → `komolafeopeyemi800-tech/Verified-glam-scanner`.
+**“Build watch paths” is not the output folder.** It is an optional filter (e.g. `lib/**`) for triggering rebuilds. The compiled site must be published from **`build/web`**.
 
-SPA deep links: [`web/_redirects`](../web/_redirects) lists explicit Flutter routes (avoid `/* → /index.html`, which Cloudflare rejects as an infinite loop).
+**Do not use `npx wrangler deploy`.** Your logs show that command uploading the raw `web/` source folder (51 files, no `main.dart.js`) instead of the Flutter build. After the build succeeds, Pages should publish **`build/web`** automatically with no deploy command.
+
+If you only see a **Worker** project with a mandatory deploy step, create a **Pages** project instead: **Workers & Pages → Create → Pages → Connect to Git**.
+
+SPA deep links: the build script copies `index.html` → `404.html` in `build/web/` (Cloudflare Pages serves it for unknown routes). Do not add `web/_redirects` rules pointing to `/index.html` — wrangler rejects them as infinite loops.
 
 ## Alternative: GitHub Actions deploy
 
@@ -133,7 +138,7 @@ After first deploy: Pages → **Custom domains** → e.g. `app.verifiedglam.com`
 | Build fails: Flutter not found | Build command must be `bash scripts/cloudflare-build.sh` |
 | `SUPABASE_URL` missing in app | Cloudflare env vars set; rebuild |
 | Startup crash / `PasskeyAuthenticator.init` | `web/js/passkeys-bundle.js` in repo |
-| 404 on refresh `/app/...` | `web/_redirects` present in build output |
+| 404 on refresh `/app/...` | `404.html` in `build/web/` (created by build script) |
 | Google sign-in fails | Supabase redirect URLs + `GOOGLE_WEB_CLIENT_ID` |
 | 401 on analyze-scan | User signed in; Edge Function deployed |
 

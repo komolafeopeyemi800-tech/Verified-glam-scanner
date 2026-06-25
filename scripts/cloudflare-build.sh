@@ -100,4 +100,10 @@ if [[ -d web/marketing ]]; then
   cp -r web/marketing build/web/marketing
 fi
 
+# SPA deep links on Cloudflare Pages: serve index.html for unknown routes.
+# Do not use web/_redirects (wrangler rejects /* and /app/* -> /index.html loops).
+if [[ -f build/web/index.html ]]; then
+  cp -f build/web/index.html build/web/404.html
+fi
+
 echo "==> Build complete: build/web/"
