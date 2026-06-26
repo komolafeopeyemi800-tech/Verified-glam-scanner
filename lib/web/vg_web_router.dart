@@ -7,26 +7,30 @@ import '../services/supabase/vg_supabase_auth_service.dart';
 import '../services/supabase/vg_supabase_config.dart';
 import '../services/supabase/vg_supabase_init.dart';
 import '../utils/vg_constants.dart';
-import 'screens/vg_web_about_screen.dart';
-import 'screens/vg_web_privacy_screen.dart';
-import 'screens/vg_web_terms_screen.dart';
-import 'screens/vg_tool_landing_screen.dart';
 import 'screens/vg_web_app_screen.dart';
 import 'screens/vg_web_forgot_password_screen.dart';
-import 'screens/vg_web_marketing_home_screen.dart';
-import 'screens/vg_web_tools_index_screen.dart';
-import 'screens/vg_web_login_screen.dart';
-import 'screens/vg_web_pricing_screen.dart';
-import 'screens/vg_web_register_screen.dart';
-import 'vg_feature_slugs.dart';
 import 'vg_web_app_prefs.dart';
+import 'vg_web_page_nav_stub.dart'
+    if (dart.library.html) 'package:verified_glam/web/vg_web_page_nav_web.dart' as page_nav;
 import 'widgets/vg_web_tool_sidebar.dart';
 
-/// Browser path at first router attach (must run after [usePathUrlStrategy] in main).
 String vgWebEntryLocation() {
   final path = Uri.base.path;
   if (path.isEmpty) return '/';
   return path;
+}
+
+/// Maps legacy /marketing/* paths to clean static URLs (one-time hard redirect).
+String? _legacyMarketingRedirect(String path) {
+  if (path == '/marketing' || path == '/marketing/' || path == '/marketing/index.html') {
+    return '/';
+  }
+  const map = {
+    '/marketing/about.html': '/about',
+    '/marketing/privacy.html': '/privacy',
+    '/marketing/terms.html': '/terms',
+  };
+  return map[path];
 }
 
 final GoRouter vgWebRouter = GoRouter(
@@ -35,15 +39,20 @@ final GoRouter vgWebRouter = GoRouter(
   overridePlatformDefaultLocation: true,
   redirect: (context, state) {
     final path = state.uri.path;
+
     if (path == '/walkthrough' || path == '/splash') {
-      return '/';
+      page_nav.vgWebHardRedirect('/');
+      return path;
     }
 
     if (path.startsWith('/marketing')) {
-      if (path.endsWith('about.html')) return '/about';
-      if (path.endsWith('privacy.html')) return '/privacy';
-      if (path.endsWith('terms.html')) return '/terms';
-      return '/';
+      final legacy = _legacyMarketingRedirect(path);
+      if (legacy != null) {
+        page_nav.vgWebHardRedirect(legacy);
+      } else {
+        page_nav.vgWebHardRedirect('/');
+      }
+      return path;
     }
 
     final signedIn = kVGUseSupabase &&
@@ -51,13 +60,14 @@ final GoRouter vgWebRouter = GoRouter(
         VGSupabaseInit.isReady &&
         VGSupabaseAuthService.isSignedIn;
 
-    if (signedIn && (path == '/login' || path == '/register' || path == '/forgot-password')) {
-      return vgWebDefaultAppPath();
-    }
-
     if (!signedIn && path.startsWith('/app')) {
       final redirect = Uri.encodeComponent(path);
-      return '/login?redirect=$redirect';
+      page_nav.vgWebHardRedirect('/login?redirect=$redirect');
+      return path;
+    }
+
+    if (signedIn && path == '/forgot-password') {
+      return vgWebDefaultAppPath();
     }
 
     if (path == '/dashboard') {
@@ -71,31 +81,12 @@ final GoRouter vgWebRouter = GoRouter(
     return null;
   },
   routes: [
-    GoRoute(path: '/', builder: (_, __) => const VGWebMarketingHomeScreen()),
-    GoRoute(path: '/about', builder: (_, __) => const VGWebAboutScreen()),
-    GoRoute(path: '/privacy', builder: (_, __) => const VGWebPrivacyScreen()),
-    GoRoute(path: '/terms', builder: (_, __) => const VGWebTermsScreen()),
-    GoRoute(
-      path: '/marketing/:rest(.*)',
-      redirect: (_, state) {
-        final rest = state.pathParameters['rest'] ?? '';
-        if (rest == 'about.html') return '/about';
-        if (rest == 'privacy.html') return '/privacy';
-        if (rest == 'terms.html') return '/terms';
-        return '/';
-      },
-    ),
-    GoRoute(path: '/marketing', redirect: (_, __) => '/'),
-    GoRoute(path: '/tools', builder: (_, __) => const VGWebToolsIndexScreen()),
-    GoRoute(path: '/pricing', builder: (_, __) => const VGWebPricingScreen()),
-    GoRoute(path: '/login', builder: (_, __) => const VGWebLoginScreen()),
-    GoRoute(path: '/register', builder: (_, __) => const VGWebRegisterScreen()),
-    GoRoute(path: '/forgot-password', builder: (_, __) => const VGWebForgotPasswordScreen()),
     GoRoute(
       path: '/dashboard',
       redirect: (_, __) => vgWebDefaultAppPath(),
     ),
     GoRoute(path: '/onboarding', builder: (_, __) => const VGOnboardingFlow()),
+    GoRoute(path: '/forgot-password', builder: (_, __) => const VGWebForgotPasswordScreen()),
     GoRoute(
       path: '/app/profile/challenge/day/:day',
       builder: (_, state) {
@@ -132,19 +123,6 @@ final GoRouter vgWebRouter = GoRouter(
         return VGWebAppScreen(slug: slug, section: VGWebAppSection.tool);
       },
     ),
-    GoRoute(
-      path: '/walkthrough',
-      redirect: (_, __) => '/',
-    ),
-    GoRoute(
-      path: '/splash',
-      redirect: (_, __) => '/',
-    ),
-    for (final slug in vgAllToolSlugs)
-      GoRoute(
-        path: '/$slug',
-        builder: (_, __) => VGToolLandingScreen(slug: slug),
-      ),
   ],
   errorBuilder: (_, state) => Scaffold(
     body: Center(child: Text('Page not found: ${state.uri}')),

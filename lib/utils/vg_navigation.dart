@@ -20,6 +20,7 @@ import '../utils/vg_copy.dart';
 import '../web/screens/subscription/vg_web_paywall_dialog.dart';
 import '../web/vg_feature_slugs.dart';
 import '../web/vg_web_app_prefs.dart';
+import '../web/vg_web_auth_helpers.dart';
 import '../web/vg_web_breakpoints.dart';
 
 Future<void> vgNavigateAfterWalkthrough(BuildContext context) async {
@@ -58,8 +59,7 @@ Future<void> vgStartAnalysis(BuildContext context, VGFeatureModel feature) async
         !VGSupabaseAuthService.isSignedIn) {
       toast('Sign in to run analyses');
       final slug = slugForFeatureType(feature.featureType);
-      final redirect = Uri.encodeComponent('/app/$slug');
-      context.go('/login?redirect=$redirect');
+      vgWebGoLogin(redirect: '/app/$slug');
       return;
     }
     if (feature.isPro && await VGSubscriptionStore.shouldBlockProFeature()) {
@@ -79,8 +79,7 @@ Future<void> vgStartAnalysis(BuildContext context, VGFeatureModel feature) async
     toast('Sign in to run analyses');
     if (kIsWeb) {
       final path = GoRouterState.of(context).uri.path;
-      final redirect = Uri.encodeComponent(path);
-      context.go('/login?redirect=$redirect');
+      vgWebGoLogin(redirect: path);
     } else {
       BMLoginScreen().launch(context);
     }

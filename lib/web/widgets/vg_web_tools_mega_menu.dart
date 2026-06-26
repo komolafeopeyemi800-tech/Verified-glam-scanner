@@ -12,8 +12,8 @@ import '../../utils/vg_copy.dart';
 import '../../utils/vg_feature_data.dart';
 import '../vg_feature_slugs.dart';
 import '../vg_web_breakpoints.dart';
-import 'vg_marketing_iframe_stub.dart'
-    if (dart.library.html) 'vg_marketing_iframe_web.dart' as marketing_iframe;
+import '../vg_web_page_nav_stub.dart'
+    if (dart.library.html) '../vg_web_page_nav_web.dart' as page_nav;
 
 /// Airbrush-style mega menu — featured column + categorized tool columns.
 class VGWebToolsMegaMenu extends StatefulWidget {
@@ -60,7 +60,7 @@ class _VGWebToolsMegaMenuState extends State<VGWebToolsMegaMenu> {
   @override
   void dispose() {
     _closeTimer?.cancel();
-    _removeOverlay(restoreIframe: true);
+    _removeOverlay();
     super.dispose();
   }
 
@@ -89,26 +89,26 @@ class _VGWebToolsMegaMenuState extends State<VGWebToolsMegaMenu> {
     }
     _overlay = _buildOverlay();
     Overlay.of(context).insert(_overlay!);
-    marketing_iframe.setMarketingIframePointerEvents(false);
     setState(() => _open = true);
   }
 
   void _close() {
-    _removeOverlay(restoreIframe: true);
+    _removeOverlay();
     if (mounted) setState(() => _open = false);
   }
 
-  void _removeOverlay({bool restoreIframe = false}) {
+  void _removeOverlay() {
     _overlay?.remove();
     _overlay = null;
-    if (restoreIframe) {
-      marketing_iframe.setMarketingIframePointerEvents(true);
-    }
   }
 
   void _navigate(String path) {
     _close();
-    context.go(path);
+    if (path.startsWith('/app')) {
+      context.go(path);
+    } else {
+      page_nav.vgOpenMarketingPage(path);
+    }
   }
 
   void _showMobileSheet() {

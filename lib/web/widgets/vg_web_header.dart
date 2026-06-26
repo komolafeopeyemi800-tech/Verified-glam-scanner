@@ -6,7 +6,10 @@ import '../../services/supabase/vg_supabase_auth_service.dart';
 import '../../utils/BMColors.dart';
 import '../../utils/vg_constants.dart';
 import '../../utils/vg_copy.dart';
+import '../vg_web_auth_helpers.dart';
 import '../vg_web_breakpoints.dart';
+import '../vg_web_page_nav_stub.dart'
+    if (dart.library.html) '../vg_web_page_nav_web.dart' as page_nav;
 import 'vg_web_tools_mega_menu.dart';
 
 class VGWebHeader extends StatelessWidget implements PreferredSizeWidget {
@@ -31,7 +34,7 @@ class VGWebHeader extends StatelessWidget implements PreferredSizeWidget {
     }
   }
 
-  void _openAbout(BuildContext context) => context.go('/about');
+  void _openAbout() => page_nav.vgOpenMarketingPage('/about');
 
   @override
   Widget build(BuildContext context) {
@@ -71,7 +74,7 @@ class VGWebHeader extends StatelessWidget implements PreferredSizeWidget {
                     ),
                     _NavLink(
                       label: VGCopy.webNavAbout,
-                      onTap: () => _openAbout(context),
+                      onTap: _openAbout,
                     ),
                   ],
                   const Spacer(),
@@ -82,13 +85,13 @@ class VGWebHeader extends StatelessWidget implements PreferredSizeWidget {
                     ),
                   if (!desktop && !pricingActive)
                     IconButton(
-                      onPressed: () => context.go('/pricing'),
+                      onPressed: () => page_nav.vgOpenMarketingPage('/pricing'),
                       icon: const Icon(Icons.payments_outlined, color: bmSpecialColor),
                       tooltip: VGCopy.webNavPricing,
                     ),
                   if (!desktop)
                     IconButton(
-                      onPressed: () => _openAbout(context),
+                      onPressed: _openAbout,
                       icon: const Icon(Icons.info_outline, color: bmSpecialColor),
                       tooltip: VGCopy.webNavAbout,
                     ),
@@ -123,7 +126,7 @@ class VGWebHeader extends StatelessWidget implements PreferredSizeWidget {
                         label: 'Log in',
                         filled: false,
                         compact: false,
-                        onTap: () => context.go('/login'),
+                        onTap: vgWebGoLogin,
                       ),
                     if (desktop) const SizedBox(width: 8),
                     Flexible(
@@ -131,7 +134,7 @@ class VGWebHeader extends StatelessWidget implements PreferredSizeWidget {
                         label: desktop ? 'Sign up' : (phone ? 'Join' : 'Get started'),
                         filled: true,
                         compact: phone,
-                        onTap: () => context.go('/register'),
+                        onTap: () => page_nav.vgOpenMarketingPage('/register'),
                       ),
                     ),
                   ],
@@ -153,7 +156,7 @@ class _LogoLink extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return InkWell(
-      onTap: () => context.go('/'),
+      onTap: () => page_nav.vgOpenMarketingPage('/'),
       borderRadius: BorderRadius.circular(8),
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
@@ -197,7 +200,8 @@ class _NavLink extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.only(left: 4),
       child: InkWell(
-        onTap: onTap ?? (path != null ? () => context.go(path!) : null),
+        onTap: onTap ??
+            (path != null ? () => page_nav.vgOpenMarketingPage(path!) : null),
         borderRadius: BorderRadius.circular(8),
         hoverColor: bmLightScaffoldBackgroundColor,
         child: Padding(

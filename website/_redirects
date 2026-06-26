@@ -5,3 +5,22 @@
 /marketing/privacy.html /privacy        301
 /marketing/terms.html   /terms          301
 /marketing/*            /               301
+
+/                       /index.html                         200
+/about                  /about/index.html                   200
+/privacy                /privacy/index.html                 200
+/terms                  /terms/index.html                   200
+/tools                  /tools/index.html                   200
+/pricing                /pricing/index.html                 200
+/login                  /login/index.html                   200
+/register               /register/index.html                200
+/face-beauty-analysis   /face-beauty-analysis/index.html    200
+/seasonal-color-palette /seasonal-color-palette/index.html  200
+/beauty-routine-challenge /beauty-routine-challenge/index.html 200
+/beauty-tips            /beauty-tips/index.html             200
+/celebrity-look-alike   /celebrity-look-alike/index.html    200
+/facial-symmetry        /facial-symmetry/index.html         200
+/beauty-score-showdown  /beauty-score-showdown/index.html   200
+/face-comparison        /face-comparison/index.html         200
+/attractiveness-test    /attractiveness-test/index.html     200
+/face-golden-ratio      /face-golden-ratio/index.html       200

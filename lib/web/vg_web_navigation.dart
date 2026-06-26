@@ -1,8 +1,15 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:nb_utils/nb_utils.dart';
 
-import '../../models/vg_feature_model.dart';
+import '../components/vg/vg_paywall_promo_sheet.dart';
+import '../models/vg_feature_model.dart';
+import '../screens/subscription/vg_paywall_screen.dart';
+import '../services/vg_subscription_store.dart';
+import '../utils/vg_copy.dart';
+import '../utils/vg_constants.dart';
+import 'screens/subscription/vg_web_paywall_dialog.dart';
 import 'vg_web_breakpoints.dart';
 import 'vg_web_profile_nav.dart';
 
@@ -31,4 +38,31 @@ void vgWebPopOrProfile(BuildContext context) {
   } else {
     vgWebGoProfile(context);
   }
+}
+
+Future<void> vgWebShowPaywall(
+  BuildContext context, {
+  VGPaywallEntry entry = VGPaywallEntry.feature,
+  VoidCallback? onDismiss,
+}) async {
+  if (VGWebBreakpoints.isDesktop(context)) {
+    await showVGWebPaywallDialog(context, onDismiss: onDismiss);
+    return;
+  }
+  await VGPaywallScreen(entry: entry, onDismiss: onDismiss).launch(context);
+}
+
+Future<void> vgWebShowPaywallPromo(BuildContext context) async {
+  await showVGPaywallPromoSheet(context);
+}
+
+Future<void> vgWebMaybeShowAdBeforeResults(BuildContext context) async {
+  if (kVGLocalDevMode) return;
+  if (await VGSubscriptionStore.isPro()) return;
+  if (await VGSubscriptionStore.shouldShowPaywallBeforeResults()) {
+    await vgWebShowPaywallPromo(context);
+  } else {
+    toast(VGCopy.adInterstitialStub);
+  }
+  await VGSubscriptionStore.incrementFreeScanCount();
 }

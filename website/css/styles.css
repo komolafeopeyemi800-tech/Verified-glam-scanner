@@ -1443,3 +1443,180 @@ html.vg-embedded body {
     top: 10%;
   }
 }
+
+/* Static auth pages (matches Flutter auth layout colors) */
+.auth-page {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  min-height: calc(100vh - 72px);
+}
+
+.auth-page__brand {
+  background: linear-gradient(135deg, #872B3F 0%, #C79A9A 100%);
+  color: #fff;
+  padding: 3rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 1rem;
+}
+
+.auth-page__brand h2 {
+  font-size: 2rem;
+  margin: 0;
+}
+
+.auth-page__form-wrap {
+  padding: 3rem 2rem;
+  max-width: 440px;
+  margin: 0 auto;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.auth-page__sub {
+  color: #5A5C5E;
+  margin-bottom: 1.5rem;
+}
+
+.auth-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.auth-field span {
+  font-weight: 600;
+  font-size: 0.875rem;
+}
+
+.auth-field input {
+  padding: 0.875rem 1rem;
+  border-radius: 12px;
+  border: 1px solid rgba(135, 43, 63, 0.35);
+  background: #F6E3E3;
+  font-size: 1rem;
+}
+
+.auth-forgot {
+  text-align: right;
+  margin: -0.5rem 0 1rem;
+}
+
+.auth-forgot a {
+  color: #872B3F;
+}
+
+.auth-submit {
+  width: 100%;
+  margin-top: 0.5rem;
+}
+
+.auth-error {
+  color: #8b1a1a;
+  margin-top: 0.75rem;
+  font-size: 0.875rem;
+}
+
+.auth-divider {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin: 1.25rem 0;
+  color: #5A5C5E;
+}
+
+.auth-divider::before,
+.auth-divider::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: rgba(135, 43, 63, 0.2);
+}
+
+.auth-google {
+  width: 100%;
+}
+
+.auth-footer {
+  text-align: center;
+  margin-top: 1.5rem;
+  color: #5A5C5E;
+}
+
+.auth-footer a {
+  color: #872B3F;
+  font-weight: 700;
+}
+
+.tools-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.5rem;
+}
+
+.tool-card {
+  display: block;
+  padding: 1rem;
+  border-radius: 16px;
+  border: 1px solid rgba(135, 43, 63, 0.15);
+  text-decoration: none;
+  color: inherit;
+  transition: box-shadow 0.2s;
+}
+
+.tool-card:hover {
+  box-shadow: 0 8px 24px rgba(135, 43, 63, 0.12);
+}
+
+.tool-card img {
+  width: 100%;
+  height: auto;
+  border-radius: 12px;
+  margin-bottom: 0.75rem;
+}
+
+.pricing-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 1.5rem;
+  margin-top: 2rem;
+}
+
+.pricing-card {
+  padding: 2rem;
+  border-radius: 16px;
+  border: 1px solid rgba(135, 43, 63, 0.2);
+  background: #fff;
+}
+
+.pricing-card--featured {
+  border-color: #872B3F;
+  box-shadow: 0 8px 32px rgba(135, 43, 63, 0.12);
+}
+
+.pricing-card__price {
+  font-size: 2rem;
+  font-weight: 800;
+  color: #872B3F;
+}
+
+.pricing-card__price span {
+  font-size: 1rem;
+  font-weight: 500;
+  color: #5A5C5E;
+}
+
+@media (max-width: 768px) {
+  .auth-page {
+    grid-template-columns: 1fr;
+  }
+
+  .auth-page__brand {
+    min-height: 180px;
+    padding: 2rem;
+  }
+}

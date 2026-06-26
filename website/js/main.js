@@ -1,37 +1,5 @@
 (function () {
-  const appUrl = window.VG_APP_URL || "http://localhost:8080";
-
-  var embedded =
-    document.documentElement.classList.contains("vg-embedded") ||
-    /[?&]embed=1(?:&|$)/.test(location.search) ||
-    window.self !== window.top;
-  if (embedded) {
-    document.documentElement.classList.add("vg-embedded");
-  }
-
-  function navigateTop(href) {
-    if (window.VG_INTEGRATED_APP && window.top !== window.self) {
-      try {
-        window.top.postMessage(
-          JSON.stringify({ type: "vg-navigate", path: href }),
-          window.location.origin
-        );
-        return true;
-      } catch (err) {
-        window.top.location.assign(href);
-        return true;
-      }
-    }
-    return false;
-  }
-
-  function wireTopNav(link, href) {
-    if (!href || !href.startsWith("/") || href.startsWith("//")) return;
-    link.setAttribute("target", "_top");
-    link.addEventListener("click", function (e) {
-      if (navigateTop(href)) e.preventDefault();
-    });
-  }
+  const appUrl = window.VG_APP_URL || "/login";
 
   document.querySelectorAll(".vg-app-link").forEach(function (link) {
     var href = link.getAttribute("href") || "";
@@ -40,27 +8,16 @@
       link.classList.contains("nav-signup") ||
       /sign up|register|create free|create an account/.test(label);
 
-    if (window.VG_INTEGRATED_APP) {
-      if (!href.startsWith("/") || /localhost|127\.0\.0\.1/.test(href) || href === "/") {
-        href = isSignup
-          ? window.VG_REGISTER_URL || "/register"
-          : window.VG_APP_URL || "/login";
-        link.setAttribute("href", href);
-      }
-      wireTopNav(link, href);
-      return;
+    if (!href.startsWith("/") || /localhost|127\.0\.0\.1/.test(href)) {
+      href = isSignup
+        ? window.VG_REGISTER_URL || "/register"
+        : window.VG_APP_URL || "/login";
+      link.setAttribute("href", href);
     }
-    link.setAttribute("href", appUrl);
-  });
-
-  document.querySelectorAll(".vg-tool-link").forEach(function (link) {
-    var href = link.getAttribute("href");
-    if (!href) return;
-    wireTopNav(link, href);
   });
 
   const devBanner = document.getElementById("dev-banner");
-  if (devBanner && !window.VG_INTEGRATED_APP && /localhost|127\.0\.0\.1/.test(appUrl)) {
+  if (devBanner && /localhost|127\.0\.0\.1/.test(window.location.hostname)) {
     devBanner.hidden = false;
   }
 

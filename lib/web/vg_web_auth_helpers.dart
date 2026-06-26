@@ -1,9 +1,12 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:nb_utils/nb_utils.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../utils/vg_constants.dart';
+import 'vg_web_page_nav_stub.dart'
+    if (dart.library.html) 'vg_web_page_nav_web.dart' as page_nav;
 
 const _emailPattern = r'^[^@\s]+@[^@\s]+\.[^@\s]+$';
 
@@ -47,4 +50,13 @@ void vgCaptureRedirectFromUri(BuildContext context) {
   if (vgIsSafeRedirectPath(redirect)) {
     setValue(vgPostAuthRedirectKey, redirect!);
   }
+}
+
+/// Full-page navigation to static HTML login (marketing tier).
+void vgWebGoLogin({String? redirect}) {
+  if (!kIsWeb) return;
+  final q = vgIsSafeRedirectPath(redirect)
+      ? '?redirect=${Uri.encodeComponent(redirect!)}'
+      : '';
+  page_nav.vgWebHardRedirect('/login$q');
 }

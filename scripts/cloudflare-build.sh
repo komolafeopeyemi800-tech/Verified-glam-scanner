@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Cloudflare Pages build — installs Flutter, builds web with dart-defines.
+# Cloudflare Pages build — installs Flutter, builds web app shell, overlays static marketing HTML.
 # Required env: SUPABASE_URL, SUPABASE_ANON_KEY
 # Optional env: GOOGLE_WEB_CLIENT_ID
 
@@ -8,7 +8,6 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$ROOT"
 
-# Cloudflare dashboard multiline fields sometimes inject CR/LF/tabs into values.
 sanitize_env() {
   printf '%s' "${1:-}" | tr -d '\r\n\t'
 }
@@ -22,7 +21,6 @@ if [[ -z "${SUPABASE_URL}" || -z "${SUPABASE_ANON_KEY}" ]]; then
   exit 1
 fi
 
-# Production Cloudflare builds always use live Supabase + real analysis.
 VG_USE_SUPABASE="true"
 VG_USE_MOCK_ANALYSIS="false"
 
@@ -39,12 +37,12 @@ flutter precache --web
 echo "==> flutter pub get"
 flutter pub get
 
-echo "==> flutter build web"
+echo "==> flutter build web (app-only entry)"
 BUILD_ARGS=(
   build web
   --release
   --no-wasm-dry-run
-  --no-tree-shake-icons
+  -t lib/main_web.dart
   "--dart-define=SUPABASE_URL=${SUPABASE_URL}"
   "--dart-define=SUPABASE_ANON_KEY=${SUPABASE_ANON_KEY}"
   "--dart-define=VG_USE_SUPABASE=${VG_USE_SUPABASE}"
@@ -62,61 +60,13 @@ if [[ -f "${BOOTSTRAP}" ]]; then
     sed -i '' 's/serviceWorkerSettings: {[^}]*}/serviceWorkerSettings: null/g' "${BOOTSTRAP}" 2>/dev/null || true
 fi
 
-if [[ -f web/serve.json ]]; then
-  cp -f web/serve.json build/web/serve.json
-fi
-
-echo "==> Sync homepage embed (_static/home)"
-if [[ -f "${ROOT}/scripts/sync-marketing-web.ps1" ]] && command -v pwsh >/dev/null 2>&1; then
-  pwsh -NoProfile -File "${ROOT}/scripts/sync-marketing-web.ps1"
-elif [[ -d website ]]; then
-  rm -rf web/_static/home
-  mkdir -p web/_static/home
-  for item in index.html css assets js; do
-    cp -R "website/${item}" "web/_static/home/${item}"
-  done
-  cat > web/_static/home/js/config.js <<'EOF'
-window.VG_APP_URL = "/login";
-window.VG_REGISTER_URL = "/register";
-window.VG_INTEGRATED_APP = true;
-EOF
-  cat > web/_static/home/_headers <<'EOF'
-/_static/*
-  X-Frame-Options: SAMEORIGIN
-  X-Robots-Tag: noindex, nofollow
-  X-Content-Type-Options: nosniff
-  Referrer-Policy: strict-origin-when-cross-origin
-  Permissions-Policy: camera=(), microphone=(), geolocation=()
-
-/*
-  X-Frame-Options: DENY
-  X-Content-Type-Options: nosniff
-  Referrer-Policy: strict-origin-when-cross-origin
-  Permissions-Policy: camera=(), microphone=(), geolocation=()
-EOF
-  rm -rf web/marketing
-fi
-rm -rf build/web/marketing
-rm -rf build/web/_static/home
-mkdir -p build/web/_static
-cp -R web/_static/home build/web/_static/home
-
-for seo_file in sitemap.xml robots.txt llms.txt _redirects; do
-  if [[ -f "website/${seo_file}" ]]; then
-    cp -f "website/${seo_file}" "build/web/${seo_file}"
-  fi
-done
-
-# SPA deep links on Cloudflare Pages: serve index.html for unknown routes.
-# Do not use web/_redirects (wrangler rejects /* and /app/* -> /index.html loops).
-if [[ -f build/web/index.html ]]; then
-  cp -f build/web/index.html build/web/404.html
-fi
+echo "==> Overlay static marketing site"
+bash "${ROOT}/scripts/sync-static-site.sh"
 
 echo "==> Verify build output"
-for required in build/web/index.html build/web/flutter_bootstrap.js build/web/main.dart.js; do
+for required in build/web/index.html build/web/flutter_bootstrap.js build/web/main.dart.js build/web/login/index.html; do
   if [[ ! -f "${required}" ]]; then
-    echo "ERROR: Missing ${required} — Flutter web build incomplete." >&2
+    echo "ERROR: Missing ${required} — build incomplete." >&2
     exit 1
   fi
 done

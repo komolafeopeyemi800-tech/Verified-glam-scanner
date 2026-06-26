@@ -67,7 +67,7 @@ Future<void> vgNavigateAfterWalkthroughWithAuth(BuildContext context) async {
     await setValue(vgWalkthroughCompleteKey, true);
     if (kVGUseSupabase && VGSupabaseConfig.isConfigured && VGSupabaseInit.isReady) {
       if (!VGSupabaseAuthService.isSignedIn) {
-        context.go('/login');
+        vgWebGoLogin();
         return;
       }
       await vgNavigateAfterAuth(context);
@@ -80,7 +80,7 @@ Future<void> vgNavigateAfterWalkthroughWithAuth(BuildContext context) async {
   if (kVGUseSupabase && VGSupabaseConfig.isConfigured && VGSupabaseInit.isReady) {
     if (!VGSupabaseAuthService.isSignedIn) {
       if (kIsWeb) {
-        context.go('/login');
+        vgWebGoLogin();
       } else {
         BMLoginScreen().launch(context, isNewTask: true);
       }

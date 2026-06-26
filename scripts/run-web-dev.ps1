@@ -43,6 +43,8 @@ $flutterArgs = @(
   "run",
   "-d",
   "chrome",
+  "-t",
+  "lib/main_web.dart",
   "--web-port=8080",
   "--web-hostname=127.0.0.1",
   "--dart-define=SUPABASE_URL=$supabaseUrl",

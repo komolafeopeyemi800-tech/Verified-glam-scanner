@@ -4,3 +4,8 @@ import 'package:web/web.dart' as web;
 void vgOpenMarketingPage(String path) {
   web.window.location.href = path;
 }
+
+/// Full-page redirect (e.g. unsigned user → static /login).
+void vgWebHardRedirect(String path) {
+  web.window.location.assign(path);
+}

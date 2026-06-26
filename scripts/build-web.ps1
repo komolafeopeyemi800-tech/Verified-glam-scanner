@@ -44,7 +44,8 @@ $flutterArgs = @(
   "web",
   "--release",
   "--no-wasm-dry-run",
-  "--no-tree-shake-icons",
+  "-t",
+  "lib/main_web.dart",
   "--dart-define=SUPABASE_URL=$supabaseUrl",
   "--dart-define=SUPABASE_ANON_KEY=$supabaseKey",
   "--dart-define=VG_USE_SUPABASE=true",
@@ -57,12 +58,11 @@ if ($vars.ContainsKey("GOOGLE_WEB_CLIENT_ID") -and $vars["GOOGLE_WEB_CLIENT_ID"]
 
 $flutterArgs += $ExtraArgs
 
-Write-Host "Building web with Supabase: $supabaseUrl"
+Write-Host "Building web (app-only) with Supabase: $supabaseUrl"
 Set-Location $Root
 & $flutter @flutterArgs
 if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
-# Disable service worker in local/release static serves (avoids infinite loading on localhost).
 $bootstrap = Join-Path $Root "build\web\flutter_bootstrap.js"
 if (Test-Path $bootstrap) {
   $content = Get-Content $bootstrap -Raw
@@ -72,28 +72,6 @@ if (Test-Path $bootstrap) {
   Move-Item -Force $tmp $bootstrap
 }
 
-# SPA fallback for static serve (deep links like /facial-symmetry).
-$serveJson = Join-Path $Root "web\serve.json"
-if (Test-Path $serveJson) {
-  Copy-Item -Force $serveJson (Join-Path $Root "build\web\serve.json")
-}
-
-# Homepage embed bundle (internal _static/home — not public /marketing/).
-& (Join-Path $Root "scripts\sync-marketing-web.ps1")
-$staticSrc = Join-Path $Root "web\_static\home"
-$staticDest = Join-Path $Root "build\web\_static\home"
-$legacyMarketing = Join-Path $Root "build\web\marketing"
-if (Test-Path $legacyMarketing) { Remove-Item $legacyMarketing -Recurse -Force }
-if (Test-Path $staticDest) { Remove-Item $staticDest -Recurse -Force }
-New-Item -ItemType Directory -Path (Split-Path $staticDest) -Force | Out-Null
-Copy-Item $staticSrc $staticDest -Recurse
-
-# Copy SEO + redirect files to build output.
-foreach ($seoFile in @("sitemap.xml", "robots.txt", "llms.txt", "_redirects")) {
-  $src = Join-Path $Root "website\$seoFile"
-  if (Test-Path $src) {
-    Copy-Item -Force $src (Join-Path $Root "build\web\$seoFile")
-  }
-}
+& (Join-Path $Root "scripts\sync-static-site.ps1") -EnvFile $EnvFile
 
 Write-Host "Output: build/web/"

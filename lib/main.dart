@@ -14,8 +14,6 @@ import 'package:verified_glam/utils/AppTheme.dart';
 import 'package:verified_glam/utils/BMConstants.dart';
 import 'package:verified_glam/utils/BMDataGenerator.dart';
 import 'package:verified_glam/utils/vg_constants.dart';
-import 'package:verified_glam/web/vg_marketing_iframe_nav_stub.dart'
-    if (dart.library.html) 'package:verified_glam/web/vg_marketing_iframe_nav_web.dart';
 import 'package:verified_glam/web/vg_web_router.dart';
 
 AppStore appStore = AppStore();
@@ -68,7 +66,6 @@ class _VGBootAppState extends State<VGBootApp> {
       if (kIsWeb) {
         // Mobile walkthrough ("Pretty Up Now" slides) is not shown on web.
         await setValue(vgWalkthroughCompleteKey, true);
-        registerMarketingIframeNavListener();
       }
 
       await VGScanHistoryStore.clearLegacyLocalHistoryOnce();

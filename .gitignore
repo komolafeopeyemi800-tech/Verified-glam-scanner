@@ -10,6 +10,7 @@
 .dart_tool/
 .packages
 build/
+website/generated/
 
 # IDE
 .idea/

@@ -11,7 +11,7 @@ import '../../services/vg_connectivity_service.dart';
 import '../../screens/scan/vg_results_screen.dart';
 import '../../utils/vg_copy.dart';
 import '../../utils/vg_error_utils.dart';
-import '../../utils/vg_navigation.dart';
+import '../vg_web_navigation.dart';
 
 /// Runs analysis from the web workspace (same backend as [VGProcessingScreen]).
 Future<bool> vgRunWebScanAnalysis(
@@ -63,7 +63,7 @@ Future<bool> vgRunWebScanAnalysis(
   if (!context.mounted) return false;
 
   try {
-    await vgMaybeShowAdBeforeResults(context);
+    await vgWebMaybeShowAdBeforeResults(context);
   } catch (_) {}
 
   if (!context.mounted) return false;
