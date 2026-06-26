@@ -7,6 +7,9 @@ import '../services/supabase/vg_supabase_auth_service.dart';
 import '../services/supabase/vg_supabase_config.dart';
 import '../services/supabase/vg_supabase_init.dart';
 import '../utils/vg_constants.dart';
+import 'screens/vg_web_about_screen.dart';
+import 'screens/vg_web_privacy_screen.dart';
+import 'screens/vg_web_terms_screen.dart';
 import 'screens/vg_tool_landing_screen.dart';
 import 'screens/vg_web_app_screen.dart';
 import 'screens/vg_web_forgot_password_screen.dart';
@@ -36,6 +39,13 @@ final GoRouter vgWebRouter = GoRouter(
       return '/';
     }
 
+    if (path.startsWith('/marketing')) {
+      if (path.endsWith('about.html')) return '/about';
+      if (path.endsWith('privacy.html')) return '/privacy';
+      if (path.endsWith('terms.html')) return '/terms';
+      return '/';
+    }
+
     final signedIn = kVGUseSupabase &&
         VGSupabaseConfig.isConfigured &&
         VGSupabaseInit.isReady &&
@@ -62,6 +72,20 @@ final GoRouter vgWebRouter = GoRouter(
   },
   routes: [
     GoRoute(path: '/', builder: (_, __) => const VGWebMarketingHomeScreen()),
+    GoRoute(path: '/about', builder: (_, __) => const VGWebAboutScreen()),
+    GoRoute(path: '/privacy', builder: (_, __) => const VGWebPrivacyScreen()),
+    GoRoute(path: '/terms', builder: (_, __) => const VGWebTermsScreen()),
+    GoRoute(
+      path: '/marketing/:rest(.*)',
+      redirect: (_, state) {
+        final rest = state.pathParameters['rest'] ?? '';
+        if (rest == 'about.html') return '/about';
+        if (rest == 'privacy.html') return '/privacy';
+        if (rest == 'terms.html') return '/terms';
+        return '/';
+      },
+    ),
+    GoRoute(path: '/marketing', redirect: (_, __) => '/'),
     GoRoute(path: '/tools', builder: (_, __) => const VGWebToolsIndexScreen()),
     GoRoute(path: '/pricing', builder: (_, __) => const VGWebPricingScreen()),
     GoRoute(path: '/login', builder: (_, __) => const VGWebLoginScreen()),

@@ -326,6 +326,8 @@ class VGCopy {
   // Web mega menu
   static const webNavAiTools = 'AI Tools';
   static const webNavPricing = 'Pricing';
+  static const webNavAbout = 'About';
+  static const webNavPlayStore = 'Get on Google Play';
   static const webMegaMenuFeaturedTitle = 'AI Beauty Analysis';
   static const webMegaMenuFeaturedBody =
       'Upload a photo and get personalized face analysis, symmetry insights, and actionable beauty tips — all in your browser.';

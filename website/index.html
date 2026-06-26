@@ -59,16 +59,17 @@
               <li role="none"><a class="vg-tool-link" href="/face-golden-ratio" role="menuitem">Face Golden Ratio</a></li>
             </ul>
           </li>
-          <li><a class="vg-app-link" href="/pricing">Pricing</a></li>
+          <li><a class="vg-tool-link" href="/pricing">Pricing</a></li>
           <li><a href="#features">Features</a></li>
+          <li><a class="vg-tool-link" href="/about">About</a></li>
           <li><a href="#reviews">Reviews</a></li>
           <li><a href="#faq">FAQ</a></li>
           <li><a href="#contact">Contact</a></li>
-          <li><a class="vg-app-link" href="http://localhost:8080">Log in</a></li>
+          <li><a class="vg-app-link" href="/login">Log in</a></li>
         </ul>
         <div class="nav-actions">
-          <a class="nav-auth-link nav-auth-link--mobile vg-app-link" href="http://localhost:8080">Log in</a>
-          <a class="btn btn-ghost nav-signup vg-app-link" href="http://localhost:8080">Sign up</a>
+          <a class="nav-auth-link nav-auth-link--mobile vg-app-link" href="/login">Log in</a>
+          <a class="btn btn-ghost nav-signup vg-app-link" href="/register">Sign up</a>
           <a class="btn btn-primary nav-play-cta" href="https://play.google.com/store/apps/details?id=com.verifiedglam.beauty_scanner" rel="noopener noreferrer">Get on Google Play</a>
           <button class="menu-toggle" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="mobile-nav">
             <span></span><span></span><span></span>
@@ -87,10 +88,11 @@
         <a class="vg-tool-link" href="/face-comparison">Face Comparison</a>
         <a class="vg-tool-link" href="/attractiveness-test">Attractiveness Test</a>
         <a class="vg-tool-link" href="/face-golden-ratio">Face Golden Ratio</a>
-        <a class="vg-app-link" href="http://localhost:8080">Log in</a>
-        <a class="vg-app-link" href="http://localhost:8080">Sign up</a>
-        <a class="vg-app-link" href="/pricing">Pricing</a>
+        <a class="vg-app-link" href="/login">Log in</a>
+        <a class="vg-app-link" href="/register">Sign up</a>
+        <a class="vg-tool-link" href="/pricing">Pricing</a>
         <a href="#features">Features</a>
+        <a class="vg-tool-link" href="/about">About</a>
         <a href="#reviews">Reviews</a>
         <a href="#faq">FAQ</a>
         <a href="#contact">Contact</a>
@@ -115,8 +117,8 @@
             <img src="assets/google-play-badge.svg" alt="Get it on Google Play" width="180" height="53">
           </a>
           <div class="hero-ctas">
-            <a class="btn btn-primary vg-app-link" href="http://localhost:8080">Log in on web</a>
-            <a class="btn btn-ghost vg-app-link" href="http://localhost:8080">Create free account</a>
+            <a class="btn btn-primary vg-app-link" href="/login">Log in on web</a>
+            <a class="btn btn-ghost vg-app-link" href="/register">Create free account</a>
           </div>
         </div>
 
@@ -277,6 +279,9 @@
           <div class="feature-copy">
             <h3>Face Beauty Analysis</h3>
             <p>Get an overall beauty score with detailed breakdowns across facial features. Your uploaded photo stays front and center with overlays that highlight what the AI detected.</p>
+            <div class="feature-ctas">
+              <a class="btn btn-primary vg-tool-link" href="/app/face-beauty-analysis">Try it now</a>
+            </div>
           </div>
           <div class="feature-visual">
             <img src="assets/features/face-beauty.jpg" alt="Face beauty analysis with score ring overlay" width="480" height="360" loading="lazy">
@@ -287,6 +292,9 @@
           <div class="feature-copy">
             <h3>Facial Symmetry</h3>
             <p>Understand balance and proportion with a dedicated symmetry scan. Pro users unlock the full symmetry report with visual guides on their selfie.</p>
+            <div class="feature-ctas">
+              <a class="btn btn-primary vg-tool-link" href="/app/facial-symmetry">Check your symmetry</a>
+            </div>
           </div>
           <div class="feature-visual">
             <img src="assets/features/facial-symmetry.jpg" alt="Facial symmetry guide lines on portrait" width="480" height="360" loading="lazy">
@@ -297,6 +305,9 @@
           <div class="feature-copy">
             <h3>Celebrity Look-Alike</h3>
             <p>See which celebrities share your facial traits — a fun, shareable result powered by AI face analysis. Entertainment only, not identity verification.</p>
+            <div class="feature-ctas">
+              <a class="btn btn-primary vg-tool-link" href="/app/celebrity-look-alike">Find your match</a>
+            </div>
           </div>
           <div class="feature-visual">
             <img src="assets/features/celebrity-match.jpg" alt="Celebrity look-alike comparison visual" width="480" height="360" loading="lazy">
@@ -307,6 +318,9 @@
           <div class="feature-copy">
             <h3>Attractiveness Test</h3>
             <p>Explore attractiveness scoring with trait breakdowns and personality-style signals. Results include clear disclaimers — for fun and self-discovery, not medical judgment.</p>
+            <div class="feature-ctas">
+              <a class="btn btn-primary vg-tool-link" href="/app/attractiveness-test">Take the test</a>
+            </div>
           </div>
           <div class="feature-visual">
             <img src="assets/features/attractiveness.jpg" alt="Attractiveness test with trait chips" width="480" height="360" loading="lazy">
@@ -365,7 +379,7 @@
           <div class="faq-item">
             <button class="faq-question" type="button" aria-expanded="false">How does Verified Glam use my photos?</button>
             <div class="faq-answer">
-              <p>You upload a selfie for the scan you choose. Your photo is stored securely and sent to our servers for AI analysis. We do not embed OpenAI or other AI API keys in the app — processing happens server-side only. See our <a href="privacy.html">Privacy Policy</a> for details.</p>
+              <p>You upload a selfie for the scan you choose. Your photo is stored securely and sent to our servers for AI analysis. We do not embed OpenAI or other AI API keys in the app — processing happens server-side only. See our <a class="vg-tool-link" href="/privacy">Privacy Policy</a> for details.</p>
             </div>
           </div>
           <div class="faq-item">
@@ -407,7 +421,8 @@
         <h2>Download Verified Glam</h2>
         <p>Get AI beauty insights on Android — or log in on the web to upload a photo and sync your scan history.</p>
         <div class="cta-final-actions">
-          <a class="btn btn-primary vg-app-link" href="http://localhost:8080">Log in / Sign up on web</a>
+          <a class="btn btn-primary vg-app-link" href="/login">Log in on web</a>
+          <a class="btn btn-ghost vg-app-link" href="/register">Create free account</a>
           <a class="play-badge" href="https://play.google.com/store/apps/details?id=com.verifiedglam.beauty_scanner" rel="noopener noreferrer" aria-label="Download Verified Glam on Google Play">
             <img src="assets/google-play-badge.svg" alt="Get it on Google Play" width="180" height="53">
           </a>
@@ -426,16 +441,22 @@
           <p>AI-powered beauty analysis for Android. Beauty made perfect.</p>
         </div>
         <div>
+          <h4>Company</h4>
+          <ul>
+            <li><a class="vg-tool-link" href="/about">About Us</a></li>
+          </ul>
+        </div>
+        <div>
           <h4>Legal</h4>
           <ul>
-            <li><a href="privacy.html">Privacy Policy</a></li>
-            <li><a href="terms.html">Terms of Use</a></li>
+            <li><a class="vg-tool-link" href="/privacy">Privacy Policy</a></li>
+            <li><a class="vg-tool-link" href="/terms">Terms of Use</a></li>
           </ul>
         </div>
         <div>
           <h4>Support</h4>
           <ul>
-            <li><a class="vg-app-link" href="http://localhost:8080">Web app — Log in</a></li>
+            <li><a class="vg-app-link" href="/login">Web app — Log in</a></li>
             <li><a href="mailto:support@verifiedglam.com">support@verifiedglam.com</a></li>
             <li><a href="https://play.google.com/store/apps/details?id=com.verifiedglam.beauty_scanner" rel="noopener noreferrer">Google Play</a></li>
           </ul>

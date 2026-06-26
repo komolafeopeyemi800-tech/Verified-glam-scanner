@@ -42,7 +42,7 @@ $supabaseKey = $vars["SUPABASE_ANON_KEY"]
 $flutterArgs = @(
   "run",
   "-d",
-  "web-server",
+  "chrome",
   "--web-port=8080",
   "--web-hostname=127.0.0.1",
   "--dart-define=SUPABASE_URL=$supabaseUrl",
@@ -58,12 +58,12 @@ if ($vars.ContainsKey("GOOGLE_WEB_CLIENT_ID") -and $vars["GOOGLE_WEB_CLIENT_ID"]
 $flutterArgs += $ExtraArgs
 
 Write-Host ""
-Write-Host "Open in your browser (wait 30-60s on first compile):"
+Write-Host "Chrome will open automatically (wait 1-3 min on first compile):"
 Write-Host "  http://127.0.0.1:8080"
 Write-Host "  http://localhost:8080"
 Write-Host ""
-Write-Host "Tip: If Cursor Simple Browser stays blank, use Chrome or Edge."
+Write-Host "Alternative (faster, release build): .\\scripts\\build-web.ps1 then .\\scripts\\serve-web.ps1"
+Write-Host ""
 Write-Host "Running web dev with Supabase: $supabaseUrl"
 Set-Location $Root
-& (Join-Path $Root "scripts\sync-marketing-web.ps1")
 & $flutter @flutterArgs

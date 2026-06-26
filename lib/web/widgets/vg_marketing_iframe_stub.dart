@@ -4,3 +4,5 @@ import 'package:flutter/material.dart';
 Widget buildMarketingHomeIframeBody() {
   return const Center(child: Text('Marketing homepage is web-only.'));
 }
+
+void setMarketingIframePointerEvents(bool enabled) {}

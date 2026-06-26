@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../services/supabase/vg_supabase_auth_service.dart';
 import '../../utils/BMColors.dart';
@@ -22,6 +23,15 @@ class VGWebHeader extends StatelessWidget implements PreferredSizeWidget {
 
   @override
   Size get preferredSize => const Size.fromHeight(72);
+
+  Future<void> _openPlayStore() async {
+    final uri = Uri.parse(vgGooglePlayUrl);
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(uri, mode: LaunchMode.externalApplication);
+    }
+  }
+
+  void _openAbout(BuildContext context) => context.go('/about');
 
   @override
   Widget build(BuildContext context) {
@@ -59,6 +69,10 @@ class VGWebHeader extends StatelessWidget implements PreferredSizeWidget {
                       path: '/pricing',
                       active: pricingActive,
                     ),
+                    _NavLink(
+                      label: VGCopy.webNavAbout,
+                      onTap: () => _openAbout(context),
+                    ),
                   ],
                   const Spacer(),
                   if (!desktop)
@@ -71,6 +85,28 @@ class VGWebHeader extends StatelessWidget implements PreferredSizeWidget {
                       onPressed: () => context.go('/pricing'),
                       icon: const Icon(Icons.payments_outlined, color: bmSpecialColor),
                       tooltip: VGCopy.webNavPricing,
+                    ),
+                  if (!desktop)
+                    IconButton(
+                      onPressed: () => _openAbout(context),
+                      icon: const Icon(Icons.info_outline, color: bmSpecialColor),
+                      tooltip: VGCopy.webNavAbout,
+                    ),
+                  if (desktop)
+                    Padding(
+                      padding: const EdgeInsets.only(right: 8),
+                      child: _HeaderButton(
+                        label: VGCopy.webNavPlayStore,
+                        filled: false,
+                        compact: true,
+                        onTap: _openPlayStore,
+                      ),
+                    )
+                  else
+                    IconButton(
+                      onPressed: _openPlayStore,
+                      icon: const Icon(Icons.shop_outlined, color: bmSpecialColor),
+                      tooltip: VGCopy.webNavPlayStore,
                     ),
                   if (signedIn)
                     Flexible(
@@ -128,7 +164,7 @@ class _LogoLink extends StatelessWidget {
             if (showWordmark) ...[
               const SizedBox(width: 10),
               Text(
-                vgAppName,
+                vgWebProductName,
                 style: const TextStyle(
                   fontWeight: FontWeight.w700,
                   fontSize: 18,
@@ -145,17 +181,23 @@ class _LogoLink extends StatelessWidget {
 
 class _NavLink extends StatelessWidget {
   final String label;
-  final String path;
+  final String? path;
+  final VoidCallback? onTap;
   final bool active;
 
-  const _NavLink({required this.label, required this.path, this.active = false});
+  const _NavLink({
+    required this.label,
+    this.path,
+    this.onTap,
+    this.active = false,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.only(left: 4),
       child: InkWell(
-        onTap: () => context.go(path),
+        onTap: onTap ?? (path != null ? () => context.go(path!) : null),
         borderRadius: BorderRadius.circular(8),
         hoverColor: bmLightScaffoldBackgroundColor,
         child: Padding(
@@ -197,7 +239,7 @@ class _HeaderButton extends StatelessWidget {
         borderRadius: BorderRadius.circular(999),
         child: Container(
           constraints: BoxConstraints(minHeight: compact ? 40 : 44),
-          padding: EdgeInsets.symmetric(horizontal: compact ? 14 : 20, vertical: compact ? 8 : 10),
+          padding: EdgeInsets.symmetric(horizontal: compact ? 12 : 20, vertical: compact ? 8 : 10),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(999),
             border: filled ? null : Border.all(color: bmSpecialColor),
@@ -206,9 +248,10 @@ class _HeaderButton extends StatelessWidget {
             label,
             textAlign: TextAlign.center,
             overflow: TextOverflow.ellipsis,
+            maxLines: 1,
             style: TextStyle(
               fontWeight: FontWeight.w600,
-              fontSize: compact ? 13 : 14,
+              fontSize: compact ? 12 : 14,
               color: filled ? Colors.white : bmSpecialColor,
             ),
           ),

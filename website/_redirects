@@ -1,0 +1,7 @@
+/marketing              /               301
+/marketing/             /               301
+/marketing/index.html   /               301
+/marketing/about.html   /about          301
+/marketing/privacy.html /privacy        301
+/marketing/terms.html   /terms          301
+/marketing/*            /               301

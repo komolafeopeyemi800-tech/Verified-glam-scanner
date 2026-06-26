@@ -11,26 +11,43 @@
 
   function navigateTop(href) {
     if (window.VG_INTEGRATED_APP && window.top !== window.self) {
-      window.top.location.href = href;
-      return true;
+      try {
+        window.top.postMessage(
+          JSON.stringify({ type: "vg-navigate", path: href }),
+          window.location.origin
+        );
+        return true;
+      } catch (err) {
+        window.top.location.assign(href);
+        return true;
+      }
     }
     return false;
   }
 
+  function wireTopNav(link, href) {
+    if (!href || !href.startsWith("/") || href.startsWith("//")) return;
+    link.setAttribute("target", "_top");
+    link.addEventListener("click", function (e) {
+      if (navigateTop(href)) e.preventDefault();
+    });
+  }
+
   document.querySelectorAll(".vg-app-link").forEach(function (link) {
+    var href = link.getAttribute("href") || "";
+    var label = (link.textContent || "").toLowerCase();
+    var isSignup =
+      link.classList.contains("nav-signup") ||
+      /sign up|register|create free|create an account/.test(label);
+
     if (window.VG_INTEGRATED_APP) {
-      var label = (link.textContent || "").toLowerCase();
-      var isSignup =
-        link.classList.contains("nav-signup") ||
-        /sign up|register|create free/.test(label);
-      var href = isSignup
-        ? window.VG_REGISTER_URL || "/register"
-        : window.VG_APP_URL || "/login";
-      link.setAttribute("href", href);
-      link.setAttribute("target", "_top");
-      link.addEventListener("click", function (e) {
-        if (navigateTop(href)) e.preventDefault();
-      });
+      if (!href.startsWith("/") || /localhost|127\.0\.0\.1/.test(href) || href === "/") {
+        href = isSignup
+          ? window.VG_REGISTER_URL || "/register"
+          : window.VG_APP_URL || "/login";
+        link.setAttribute("href", href);
+      }
+      wireTopNav(link, href);
       return;
     }
     link.setAttribute("href", appUrl);
@@ -39,10 +56,7 @@
   document.querySelectorAll(".vg-tool-link").forEach(function (link) {
     var href = link.getAttribute("href");
     if (!href) return;
-    link.setAttribute("target", "_top");
-    link.addEventListener("click", function (e) {
-      if (navigateTop(href)) e.preventDefault();
-    });
+    wireTopNav(link, href);
   });
 
   const devBanner = document.getElementById("dev-banner");

@@ -59,7 +59,6 @@ $flutterArgs += $ExtraArgs
 
 Write-Host "Building web with Supabase: $supabaseUrl"
 Set-Location $Root
-& (Join-Path $Root "scripts\sync-marketing-web.ps1")
 & $flutter @flutterArgs
 if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
@@ -79,12 +78,22 @@ if (Test-Path $serveJson) {
   Copy-Item -Force $serveJson (Join-Path $Root "build\web\serve.json")
 }
 
-# Marketing HTML (exact website/) inside release output.
-$marketingSrc = Join-Path $Root "web\marketing"
-$marketingDest = Join-Path $Root "build\web\marketing"
-if (Test-Path $marketingSrc) {
-  if (Test-Path $marketingDest) { Remove-Item $marketingDest -Recurse -Force }
-  Copy-Item $marketingSrc $marketingDest -Recurse
+# Homepage embed bundle (internal _static/home — not public /marketing/).
+& (Join-Path $Root "scripts\sync-marketing-web.ps1")
+$staticSrc = Join-Path $Root "web\_static\home"
+$staticDest = Join-Path $Root "build\web\_static\home"
+$legacyMarketing = Join-Path $Root "build\web\marketing"
+if (Test-Path $legacyMarketing) { Remove-Item $legacyMarketing -Recurse -Force }
+if (Test-Path $staticDest) { Remove-Item $staticDest -Recurse -Force }
+New-Item -ItemType Directory -Path (Split-Path $staticDest) -Force | Out-Null
+Copy-Item $staticSrc $staticDest -Recurse
+
+# Copy SEO + redirect files to build output.
+foreach ($seoFile in @("sitemap.xml", "robots.txt", "llms.txt", "_redirects")) {
+  $src = Join-Path $Root "website\$seoFile"
+  if (Test-Path $src) {
+    Copy-Item -Force $src (Join-Path $Root "build\web\$seoFile")
+  }
 }
 
 Write-Host "Output: build/web/"

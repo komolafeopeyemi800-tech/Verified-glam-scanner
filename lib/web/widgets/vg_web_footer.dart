@@ -41,7 +41,7 @@ class VGWebFooter extends StatelessWidget {
                               Image.asset('images/verified_glam_logo.png', height: 40),
                               const SizedBox(width: 10),
                               Text(
-                                vgAppName,
+                                vgWebProductName,
                                 style: const TextStyle(
                                   fontWeight: FontWeight.w700,
                                   fontSize: 18,
@@ -122,7 +122,10 @@ class VGWebFooter extends StatelessWidget {
                   spacing: 16,
                   runSpacing: 8,
                   children: [
-                    Text('© ${DateTime.now().year} $vgAppName', style: secondaryTextStyle()),
+                    Text('© ${DateTime.now().year} $vgWebProductName', style: secondaryTextStyle()),
+                    _FooterLink(label: 'About', onTap: () => context.go('/about')),
+                    _FooterLink(label: 'Privacy', onTap: () => context.go('/privacy')),
+                    _FooterLink(label: 'Terms', onTap: () => context.go('/terms')),
                     _FooterLink(label: 'Pricing', onTap: () => context.go('/pricing')),
                     _FooterLink(label: 'Support', onTap: () {}),
                     _FooterLink(label: vgSupportEmail, onTap: () {}),

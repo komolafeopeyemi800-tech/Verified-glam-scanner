@@ -1,4 +1,11 @@
 User-agent: *
 Allow: /
+Disallow: /_static/
+Disallow: /app/
+Disallow: /login
+Disallow: /register
+Disallow: /forgot-password
+Disallow: /onboarding
+Disallow: /dashboard
 
-Sitemap: https://verifiedglam.com/sitemap.xml
+Sitemap: https://scanner.verifiedglam.com/sitemap.xml

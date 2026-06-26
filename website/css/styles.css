@@ -381,6 +381,18 @@ html.vg-embedded body {
   padding: 0.7rem 1.35rem;
 }
 
+.feature-ctas {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 1.25rem;
+}
+
+.feature-ctas .btn {
+  padding: 0.65rem 1.25rem;
+}
+
 .cta-final-actions {
   display: flex;
   flex-direction: column;

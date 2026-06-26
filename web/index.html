@@ -4,17 +4,28 @@
   <base href="$FLUTTER_BASE_HREF">
 
   <meta charset="UTF-8">
+  <meta name="google-site-verification" content="3X6CKX1jNWFpqLNkDQPvIQ5j6ANkC1MDaqGmLKCVABI" />
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta content="IE=Edge" http-equiv="X-UA-Compatible">
-  <meta name="description" content="Verified Glam — AI beauty analysis. Upload a photo, get personalized insights.">
+  <meta name="description" content="Verified Glam Scanner analyzes your selfie with AI for face beauty scores, symmetry, celebrity look-alikes, and personalized glow-up tips. Download on Google Play for Android.">
+  <link rel="canonical" href="https://scanner.verifiedglam.com/">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Verified Glam Scanner — AI Beauty Insights from Your Selfie">
+  <meta property="og:description" content="Verified Glam Scanner analyzes your selfie with AI for face beauty scores, symmetry, celebrity look-alikes, and personalized glow-up tips.">
+  <meta property="og:url" content="https://scanner.verifiedglam.com/">
+  <meta property="og:image" content="https://scanner.verifiedglam.com/icons/Icon-512.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Verified Glam Scanner — AI Beauty Insights from Your Selfie">
+  <meta name="twitter:description" content="Personalized AI beauty analysis from your selfie. Android on Google Play.">
+  <meta name="twitter:image" content="https://scanner.verifiedglam.com/icons/Icon-512.png">
 
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black">
-  <meta name="apple-mobile-web-app-title" content="Verified Glam">
+  <meta name="apple-mobile-web-app-title" content="Verified Glam Scanner">
   <link rel="apple-touch-icon" href="icons/Icon-192.png">
   <link rel="icon" type="image/png" href="favicon.png"/>
 
-  <title>Verified Glam</title>
+  <title>Verified Glam Scanner — AI Beauty Insights from Your Selfie</title>
   <link rel="manifest" href="manifest.json">
 </head>
 <body>
@@ -39,7 +50,7 @@
     #vg-loading.error { background: #fff5f5; color: #8b1a1a; }
   </style>
   <div id="vg-loading">
-    <p><strong>Loading Verified Glam…</strong></p>
+    <p><strong>Loading Verified Glam Scanner…</strong></p>
     <small id="vg-loading-hint">First load may take a moment while the app starts.</small>
   </div>
   <script>
@@ -47,23 +58,49 @@
       var loading = document.getElementById('vg-loading');
       var hint = document.getElementById('vg-loading-hint');
       var bootFailed = false;
+      var isLocalHost =
+        location.hostname === 'localhost' ||
+        location.hostname === '127.0.0.1';
+
+      function flutterMounted() {
+        return !!document.querySelector(
+          'flt-glass-pane, flutter-view, flt-scene-host, flt-scene'
+        );
+      }
+
+      function hideLoading() {
+        if (loading && document.body.contains(loading)) {
+          loading.remove();
+        }
+      }
 
       function showError(msg) {
         if (!loading || bootFailed) return;
+        if (flutterMounted()) {
+          hideLoading();
+          return;
+        }
         bootFailed = true;
         loading.classList.add('error');
         loading.innerHTML = '<p><strong>Could not load the app</strong></p><small>' + msg + '</small>';
       }
       window.__vgShowBootError = showError;
 
-      window.addEventListener('flutter-first-frame', function () {
-        if (loading) loading.remove();
+      window.addEventListener('flutter-first-frame', hideLoading);
+
+      // flutter run -d web-server often skips flutter-first-frame; watch for Flutter DOM.
+      var mountObserver = new MutationObserver(function () {
+        if (flutterMounted()) {
+          hideLoading();
+          mountObserver.disconnect();
+        }
       });
+      mountObserver.observe(document.body, { childList: true, subtree: true });
 
       window.addEventListener('error', function (e) {
         var msg = e.message || 'Unknown error';
         if (msg.indexOf('PasskeyAuthenticator') >= 0 || msg.indexOf("'init'") >= 0) {
-          msg = 'Passkeys web SDK failed to load. Ensure js/passkeys-bundle.js is present in the deployed build.';
+          msg = 'Passkeys web SDK failed to load. Ensure js/passkeys-bundle.js is present.';
         }
         showError(msg + ' Press Ctrl+Shift+R to hard refresh.');
       });
@@ -75,54 +112,63 @@
 
       setTimeout(function () {
         if (loading && document.body.contains(loading) && !bootFailed) {
-          hint.textContent = 'Still loading… large first download can take 1–2 minutes on slow networks.';
+          hint.textContent = isLocalHost
+            ? 'Still compiling… first debug load can take 1–3 minutes.'
+            : 'Still loading… large first download can take 1–2 minutes on slow networks.';
         }
       }, 45000);
 
       setTimeout(function () {
-        if (loading && document.body.contains(loading) && !bootFailed) {
-          showError(
-            'Startup timed out. Open DevTools → Network and confirm flutter_bootstrap.js and main.dart.js return 200. ' +
-            'In Cloudflare: build output must be build/web (not web/), deploy command must be empty. ' +
-            'Then clear site data for this host and reload in Chrome or Edge.'
-          );
+        if (!loading || !document.body.contains(loading) || bootFailed) return;
+        if (flutterMounted()) {
+          hideLoading();
+          return;
         }
-      }, 180000);
+        showError(
+          isLocalHost
+            ? 'Startup timed out. Stop any old server (port 8080), run .\\scripts\\run-web-dev.ps1 again, wait for Chrome to open, or use .\\scripts\\serve-web.ps1 after .\\scripts\\build-web.ps1.'
+            : 'Startup timed out. Open DevTools → Network and confirm flutter_bootstrap.js and main.dart.js return 200. ' +
+              'In Cloudflare: build output must be build/web (not web/), deploy command must be empty. ' +
+              'Then clear site data for this host and reload in Chrome or Edge.'
+        );
+      }, isLocalHost ? 300000 : 180000);
 
       // Stale Flutter service workers cause infinite loading on static hosts.
-      var swKey = 'vg-sw-cleared-v2';
-      if (!sessionStorage.getItem(swKey)) {
-        if ('serviceWorker' in navigator) {
-          navigator.serviceWorker.getRegistrations().then(function (regs) {
-            regs.forEach(function (r) { r.unregister(); });
+      if (!isLocalHost) {
+        var swKey = 'vg-sw-cleared-v2';
+        if (!sessionStorage.getItem(swKey)) {
+          if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.getRegistrations().then(function (regs) {
+              regs.forEach(function (r) { r.unregister(); });
+            });
+          }
+          if (window.caches) {
+            caches.keys().then(function (keys) { keys.forEach(function (k) { caches.delete(k); }); });
+          }
+          sessionStorage.setItem(swKey, '1');
+        }
+
+        function checkAsset(path, help) {
+          fetch(path, { method: 'GET', cache: 'no-store' }).then(function (res) {
+            if (!res.ok && !bootFailed) {
+              showError(path + ' returned HTTP ' + res.status + '. ' + help);
+            }
+          }).catch(function () {
+            if (!bootFailed) showError('Could not reach ' + path + '. ' + help);
           });
         }
-        if (window.caches) {
-          caches.keys().then(function (keys) { keys.forEach(function (k) { caches.delete(k); }); });
-        }
-        sessionStorage.setItem(swKey, '1');
-      }
 
-      function checkAsset(path, help) {
-        fetch(path, { method: 'HEAD', cache: 'no-store' }).then(function (res) {
-          if (!res.ok && !bootFailed) {
-            showError(path + ' returned HTTP ' + res.status + '. ' + help);
-          }
-        }).catch(function () {
-          if (!bootFailed) showError('Could not reach ' + path + '. ' + help);
-        });
+        checkAsset(
+          'flutter_bootstrap.js',
+          'Cloudflare is probably serving the web/ source folder instead of build/web/. Set Build output directory to build/web and remove any deploy command.'
+        );
+        setTimeout(function () {
+          checkAsset('main.dart.js', 'Flutter build output is missing from the deployed site.');
+        }, 3000);
       }
-
-      checkAsset(
-        'flutter_bootstrap.js',
-        'Cloudflare is probably serving the web/ source folder instead of build/web/. Set Build output directory to build/web and remove any deploy command.'
-      );
-      setTimeout(function () {
-        checkAsset('main.dart.js', 'Flutter build output is missing from the deployed site.');
-      }, 3000);
     })();
   </script>
   <script src="js/passkeys-bundle.js"></script>
-  <script src="flutter_bootstrap.js" async onerror="window.__vgShowBootError && window.__vgShowBootError('flutter_bootstrap.js failed to load. Deploy build/web, not web/.')"></script>
+  <script src="flutter_bootstrap.js" async onerror="window.__vgShowBootError && window.__vgShowBootError('flutter_bootstrap.js failed to load.')"></script>
 </body>
 </html>

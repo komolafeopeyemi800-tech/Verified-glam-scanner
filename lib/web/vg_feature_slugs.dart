@@ -30,6 +30,7 @@ const Set<String> vgReservedWebPaths = {
   'settings',
   'privacy',
   'terms',
+  'about',
 };
 
 List<String> get vgAllToolSlugs => vgFeatureSlugByType.values.toList();

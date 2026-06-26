@@ -144,7 +144,7 @@ class _VGWebToolWorkspaceState extends State<VGWebToolWorkspace> {
                       children: [
                         LayoutBuilder(
                           builder: (context, constraints) {
-                            final stack = constraints.maxWidth < VGWebBreakpoints.compact;
+                            final stack = VGWebBreakpoints.stackToolWorkspace(context);
                             final upload = VGWebUploadPanel(
                               feature: feature,
                               photoPath: _photoPath,

@@ -10,6 +10,7 @@ import '../../utils/vg_navigation.dart';
 import '../content/vg_tool_landing_content.dart';
 import '../vg_web_breakpoints.dart';
 import '../vg_web_seo.dart';
+import '../vg_web_seo_schema.dart';
 import '../widgets/vg_web_faq_section.dart';
 import '../widgets/vg_web_footer.dart';
 import '../widgets/vg_web_header.dart';
@@ -29,6 +30,8 @@ class _VGWebPricingScreenState extends State<VGWebPricingScreen> {
     vgWebSetPageMeta(
       title: VGCopy.pricingMetaTitle,
       description: VGCopy.pricingMetaDescription,
+      canonicalPath: '/pricing',
+      jsonLd: vgSeoPricingJsonLd(),
     );
   }
 

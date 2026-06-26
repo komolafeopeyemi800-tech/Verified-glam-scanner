@@ -18,6 +18,13 @@ const String vgAppName = 'Verified Glam';
 const String vgTagline = 'Beauty Made Perfect';
 const String vgTaglineAlt = 'Pretty in Every Way';
 const String vgSupportEmail = 'support@verifiedglam.app';
+const String vgGooglePlayUrl =
+    'https://play.google.com/store/apps/details?id=com.verifiedglam.beauty_scanner';
+const String vgWebProductName = 'Verified Glam Scanner';
+const String vgMarketingSiteUrl = 'https://scanner.verifiedglam.com';
+const String vgParentCompanyUrl = 'https://verifiedglam.com';
+const String vgLegalSupportEmail = 'support@verifiedglam.com';
+const String vgMarketingAssetsPrefix = 'images/vg/marketing/';
 
 const String vgWalkthroughCompleteKey = 'vg_walkthrough_complete';
 const String vgPostAuthRedirectKey = 'vg_post_auth_redirect';

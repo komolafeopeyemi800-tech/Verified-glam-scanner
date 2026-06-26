@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:nb_utils/nb_utils.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../models/vg_feature_model.dart';
 import '../../utils/BMColors.dart';
@@ -11,6 +12,8 @@ import '../../utils/vg_copy.dart';
 import '../../utils/vg_feature_data.dart';
 import '../vg_feature_slugs.dart';
 import '../vg_web_breakpoints.dart';
+import 'vg_marketing_iframe_stub.dart'
+    if (dart.library.html) 'vg_marketing_iframe_web.dart' as marketing_iframe;
 
 /// Airbrush-style mega menu — featured column + categorized tool columns.
 class VGWebToolsMegaMenu extends StatefulWidget {
@@ -57,7 +60,7 @@ class _VGWebToolsMegaMenuState extends State<VGWebToolsMegaMenu> {
   @override
   void dispose() {
     _closeTimer?.cancel();
-    _removeOverlay();
+    _removeOverlay(restoreIframe: true);
     super.dispose();
   }
 
@@ -86,17 +89,21 @@ class _VGWebToolsMegaMenuState extends State<VGWebToolsMegaMenu> {
     }
     _overlay = _buildOverlay();
     Overlay.of(context).insert(_overlay!);
+    marketing_iframe.setMarketingIframePointerEvents(false);
     setState(() => _open = true);
   }
 
   void _close() {
-    _removeOverlay();
+    _removeOverlay(restoreIframe: true);
     if (mounted) setState(() => _open = false);
   }
 
-  void _removeOverlay() {
+  void _removeOverlay({bool restoreIframe = false}) {
     _overlay?.remove();
     _overlay = null;
+    if (restoreIframe) {
+      marketing_iframe.setMarketingIframePointerEvents(true);
+    }
   }
 
   void _navigate(String path) {
@@ -362,6 +369,31 @@ class _VGWebToolsMegaMenuState extends State<VGWebToolsMegaMenu> {
                 ),
                 const SizedBox(width: 4),
                 const Icon(Icons.arrow_forward, size: 16, color: bmSpecialColor),
+              ],
+            ),
+          ),
+        ),
+        const SizedBox(height: 6),
+        InkWell(
+          onTap: () async {
+            _close();
+            final uri = Uri.parse(vgGooglePlayUrl);
+            if (await canLaunchUrl(uri)) {
+              await launchUrl(uri, mode: LaunchMode.externalApplication);
+            }
+          },
+          borderRadius: BorderRadius.circular(8),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 6),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(Icons.shop_outlined, size: 16, color: bmSpecialColor),
+                const SizedBox(width: 6),
+                Text(
+                  VGCopy.webNavPlayStore,
+                  style: const TextStyle(fontWeight: FontWeight.w600, color: bmSpecialColor, fontSize: 14),
+                ),
               ],
             ),
           ),

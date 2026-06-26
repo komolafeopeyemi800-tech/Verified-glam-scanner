@@ -31,6 +31,9 @@ class VGWebBreakpoints {
   /// Use drawer instead of persistent sidebar in the web app shell.
   static bool useDrawerNav(BuildContext context) => widthOf(context) < desktop;
 
+  /// Stack upload/tips in tool workspace when using drawer nav (phone + tablet).
+  static bool stackToolWorkspace(BuildContext context) => useDrawerNav(context);
+
   /// Content area width inside the app shell (subtracts sidebar when visible).
   static double mainContentWidth(BuildContext context, {double sidebar = sidebarWidth}) {
     final w = widthOf(context);

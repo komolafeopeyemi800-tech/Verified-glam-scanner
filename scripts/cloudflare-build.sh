@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Cloudflare Pages build — installs Flutter, syncs marketing, builds web with dart-defines.
+# Cloudflare Pages build — installs Flutter, builds web with dart-defines.
 # Required env: SUPABASE_URL, SUPABASE_ANON_KEY
 # Optional env: GOOGLE_WEB_CLIENT_ID
 
@@ -25,35 +25,6 @@ fi
 # Production Cloudflare builds always use live Supabase + real analysis.
 VG_USE_SUPABASE="true"
 VG_USE_MOCK_ANALYSIS="false"
-
-echo "==> Sync marketing site (website/ -> web/marketing/)"
-if [[ ! -d website ]]; then
-  echo "ERROR: Missing website/ folder." >&2
-  exit 1
-fi
-rm -rf web/marketing
-cp -r website web/marketing
-cat > web/marketing/js/config.js << 'EOF'
-/**
- * Flutter web app (integrated) — Log in / Sign up stay on same origin.
- */
-window.VG_APP_URL = "/login";
-window.VG_REGISTER_URL = "/register";
-window.VG_INTEGRATED_APP = true;
-EOF
-cat > web/marketing/_headers << 'EOF'
-/marketing/*
-  X-Frame-Options: SAMEORIGIN
-  X-Content-Type-Options: nosniff
-  Referrer-Policy: strict-origin-when-cross-origin
-  Permissions-Policy: camera=(), microphone=(), geolocation=()
-
-/*
-  X-Frame-Options: DENY
-  X-Content-Type-Options: nosniff
-  Referrer-Policy: strict-origin-when-cross-origin
-  Permissions-Policy: camera=(), microphone=(), geolocation=()
-EOF
 
 echo "==> Install Flutter stable"
 FLUTTER_DIR="${HOME}/flutter"
@@ -95,10 +66,46 @@ if [[ -f web/serve.json ]]; then
   cp -f web/serve.json build/web/serve.json
 fi
 
-if [[ -d web/marketing ]]; then
-  rm -rf build/web/marketing
-  cp -r web/marketing build/web/marketing
+echo "==> Sync homepage embed (_static/home)"
+if [[ -f "${ROOT}/scripts/sync-marketing-web.ps1" ]] && command -v pwsh >/dev/null 2>&1; then
+  pwsh -NoProfile -File "${ROOT}/scripts/sync-marketing-web.ps1"
+elif [[ -d website ]]; then
+  rm -rf web/_static/home
+  mkdir -p web/_static/home
+  for item in index.html css assets js; do
+    cp -R "website/${item}" "web/_static/home/${item}"
+  done
+  cat > web/_static/home/js/config.js <<'EOF'
+window.VG_APP_URL = "/login";
+window.VG_REGISTER_URL = "/register";
+window.VG_INTEGRATED_APP = true;
+EOF
+  cat > web/_static/home/_headers <<'EOF'
+/_static/*
+  X-Frame-Options: SAMEORIGIN
+  X-Robots-Tag: noindex, nofollow
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: camera=(), microphone=(), geolocation=()
+
+/*
+  X-Frame-Options: DENY
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: camera=(), microphone=(), geolocation=()
+EOF
+  rm -rf web/marketing
 fi
+rm -rf build/web/marketing
+rm -rf build/web/_static/home
+mkdir -p build/web/_static
+cp -R web/_static/home build/web/_static/home
+
+for seo_file in sitemap.xml robots.txt llms.txt _redirects; do
+  if [[ -f "website/${seo_file}" ]]; then
+    cp -f "website/${seo_file}" "build/web/${seo_file}"
+  fi
+done
 
 # SPA deep links on Cloudflare Pages: serve index.html for unknown routes.
 # Do not use web/_redirects (wrangler rejects /* and /app/* -> /index.html loops).
