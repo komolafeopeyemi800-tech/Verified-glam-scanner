@@ -46,24 +46,34 @@ class _VGWebCreditsChipState extends State<VGWebCreditsChip> {
     }
 
     if (widget.compact) {
-      return IconButton(
-        onPressed: _openProfile,
-        tooltip: VGCopy.creditsBalanceTitle(snapshot.balance),
-        icon: Stack(
-          clipBehavior: Clip.none,
-          children: [
-            const Icon(Icons.monetization_on_outlined, color: bmSpecialColor),
-            if (snapshot.balance <= 0)
-              Positioned(
-                right: -2,
-                top: -2,
-                child: Container(
-                  width: 8,
-                  height: 8,
-                  decoration: const BoxDecoration(color: bmSpecialColor, shape: BoxShape.circle),
+      return Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: _openProfile,
+          borderRadius: BorderRadius.circular(999),
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+            decoration: BoxDecoration(
+              color: bmSecondBackgroundColorLight,
+              borderRadius: BorderRadius.circular(999),
+              border: Border.all(color: bmPrimaryColor.withValues(alpha: 0.2)),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(Icons.monetization_on_outlined, color: bmSpecialColor, size: 16),
+                const SizedBox(width: 4),
+                Text(
+                  '${snapshot.balance}',
+                  style: const TextStyle(
+                    fontWeight: FontWeight.w700,
+                    fontSize: 12,
+                    color: bmSpecialColorDark,
+                  ),
                 ),
-              ),
-          ],
+              ],
+            ),
+          ),
         ),
       );
     }

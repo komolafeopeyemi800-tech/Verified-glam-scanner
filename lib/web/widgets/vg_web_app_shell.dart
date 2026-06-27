@@ -41,13 +41,14 @@ class _VGWebAppShellState extends State<VGWebAppShell> {
     final drawerNav = VGWebBreakpoints.useDrawerNav(context);
     final pad = VGWebBreakpoints.contentPadding(context);
     final phone = VGWebBreakpoints.isPhone(context);
+    final compactTitle = phone ? 'Verified Glam' : vgAppName;
 
     return Scaffold(
       key: _scaffoldKey,
       backgroundColor: bmLightScaffoldBackgroundColor,
       drawer: drawerNav
           ? Drawer(
-              width: 280,
+              width: phone ? 300 : 280,
               child: VGWebToolNav(
                 activeSlug: widget.activeSlug,
                 section: widget.section,
@@ -66,9 +67,9 @@ class _VGWebAppShellState extends State<VGWebAppShell> {
               child: SafeArea(
                 bottom: false,
                 child: SizedBox(
-                  height: 56,
+                  height: phone ? 52 : 56,
                   child: Padding(
-                    padding: EdgeInsets.symmetric(horizontal: pad),
+                    padding: EdgeInsets.symmetric(horizontal: phone ? 8 : pad),
                     child: Row(
                       children: [
                         if (drawerNav)
@@ -76,10 +77,11 @@ class _VGWebAppShellState extends State<VGWebAppShell> {
                             onPressed: () => _scaffoldKey.currentState?.openDrawer(),
                             icon: const Icon(Icons.menu, color: bmSpecialColor),
                             tooltip: 'Menu',
+                            visualDensity: phone ? VisualDensity.compact : VisualDensity.standard,
                           ),
                         if (!drawerNav)
                           Text(
-                            vgAppName,
+                            compactTitle,
                             style: const TextStyle(
                               fontWeight: FontWeight.w700,
                               fontSize: 17,
@@ -89,7 +91,7 @@ class _VGWebAppShellState extends State<VGWebAppShell> {
                         else
                           Expanded(
                             child: Text(
-                              vgAppName,
+                              compactTitle,
                               style: TextStyle(
                                 fontWeight: FontWeight.w700,
                                 fontSize: phone ? 15 : 17,
@@ -101,30 +103,46 @@ class _VGWebAppShellState extends State<VGWebAppShell> {
                         if (!drawerNav) const Spacer(),
                         if (signedIn) ...[
                           VGWebCreditsChip(compact: phone),
-                          const SizedBox(width: 4),
-                          VGWebProfileMenu(section: widget.section),
-                          const SizedBox(width: 4),
-                          phone
-                              ? IconButton(
-                                  onPressed: () => _signOut(context),
-                                  icon: const Icon(Icons.logout, color: bmSpecialColor),
-                                  tooltip: 'Sign out',
-                                )
-                              : TextButton(
-                                  onPressed: () => _signOut(context),
-                                  child: const Text('Sign out', style: TextStyle(color: bmSpecialColor)),
+                          VGWebProfileMenu(
+                            section: widget.section,
+                            onSignOut: phone ? () => _signOut(context) : null,
+                          ),
+                          if (!phone) ...[
+                            const SizedBox(width: 4),
+                            TextButton(
+                              onPressed: () => _signOut(context),
+                              child: const Text('Sign out', style: TextStyle(color: bmSpecialColor)),
+                            ),
+                          ],
+                        ] else if (phone)
+                          TextButton(
+                            onPressed: () => page_nav.vgWebGoLogin(),
+                            style: TextButton.styleFrom(
+                              padding: const EdgeInsets.symmetric(horizontal: 10),
+                              minimumSize: const Size(0, 36),
+                            ),
+                            child: const Text('Log in', style: TextStyle(color: bmSpecialColor, fontWeight: FontWeight.w600)),
+                          )
+                        else
+                          Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              TextButton(
+                                onPressed: () => page_nav.vgWebGoLogin(),
+                                child: const Text('Log in', style: TextStyle(color: bmSpecialColor)),
+                              ),
+                              const SizedBox(width: 4),
+                              FilledButton(
+                                onPressed: () => page_nav.vgWebHardRedirect('/register'),
+                                style: FilledButton.styleFrom(
+                                  backgroundColor: bmSpecialColor,
+                                  foregroundColor: Colors.white,
+                                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
                                 ),
-                        ] else
-                          phone
-                              ? IconButton(
-                                  onPressed: () => page_nav.vgWebGoLogin(),
-                                  icon: const Icon(Icons.login, color: bmSpecialColor),
-                                  tooltip: 'Log in',
-                                )
-                              : TextButton(
-                                  onPressed: () => page_nav.vgWebGoLogin(),
-                                  child: const Text('Log in', style: TextStyle(color: bmSpecialColor)),
-                                ),
+                                child: const Text('Sign up'),
+                              ),
+                            ],
+                          ),
                       ],
                     ),
                   ),

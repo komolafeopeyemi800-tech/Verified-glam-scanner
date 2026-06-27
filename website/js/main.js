@@ -52,6 +52,51 @@
 
   const menuToggle = document.querySelector(".menu-toggle");
   const mobileNav = document.querySelector(".mobile-nav");
+  const mobileBackdrop = document.querySelector(".mobile-nav-backdrop");
+  const mobileNavClose = document.querySelector(".mobile-nav-close");
+
+  function setMobileNavOpen(open) {
+    if (!mobileNav || !menuToggle) return;
+    mobileNav.classList.toggle("is-open", open);
+    mobileNav.setAttribute("aria-hidden", open ? "false" : "true");
+    menuToggle.classList.toggle("is-open", open);
+    menuToggle.setAttribute("aria-expanded", open ? "true" : "false");
+    menuToggle.setAttribute("aria-label", open ? "Close menu" : "Open menu");
+    if (mobileBackdrop) {
+      mobileBackdrop.classList.toggle("is-open", open);
+      mobileBackdrop.setAttribute("aria-hidden", open ? "false" : "true");
+    }
+    document.body.classList.toggle("vg-nav-open", open);
+    if (open) closeAllMega();
+  }
+
+  function closeMobileNav() {
+    setMobileNavOpen(false);
+  }
+
+  if (menuToggle && mobileNav) {
+    menuToggle.addEventListener("click", function () {
+      setMobileNavOpen(!mobileNav.classList.contains("is-open"));
+    });
+  }
+
+  if (mobileNavClose) {
+    mobileNavClose.addEventListener("click", closeMobileNav);
+  }
+
+  if (mobileBackdrop) {
+    mobileBackdrop.addEventListener("click", closeMobileNav);
+  }
+
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape") closeMobileNav();
+  });
+
+  if (mobileNav) {
+    mobileNav.querySelectorAll("a").forEach(function (link) {
+      link.addEventListener("click", closeMobileNav);
+    });
+  }
 
   function closeAllMega() {
     document.querySelectorAll(".nav-mega.is-open").forEach(function (mega) {
@@ -63,14 +108,6 @@
     if (host) host.classList.remove("is-open");
     var panel = document.getElementById("mega-panel");
     if (panel) panel.hidden = true;
-  }
-
-  if (menuToggle && mobileNav) {
-    menuToggle.addEventListener("click", function () {
-      const open = mobileNav.classList.toggle("is-open");
-      menuToggle.setAttribute("aria-expanded", open ? "true" : "false");
-      closeAllMega();
-    });
   }
 
   (function initMegaMenu() {
@@ -170,7 +207,7 @@
       if (!target) return;
       e.preventDefault();
       target.scrollIntoView({ behavior: "smooth", block: "start" });
-      if (mobileNav) mobileNav.classList.remove("is-open");
+      if (mobileNav) closeMobileNav();
     });
   });
 

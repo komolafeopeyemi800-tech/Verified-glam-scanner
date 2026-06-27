@@ -157,10 +157,10 @@ class _VGWebCreditsPanelState extends State<VGWebCreditsPanel> {
     String? hint,
     String? statusPill,
   }) {
+    final phone = VGWebBreakpoints.isPhone(context);
     return VGWebDesktopCard(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
+      padding: EdgeInsets.all(phone ? 14 : 16),
+      child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(label, style: secondaryTextStyle(size: 12)),
@@ -186,16 +186,15 @@ class _VGWebCreditsPanelState extends State<VGWebCreditsPanel> {
               Text(hint, style: secondaryTextStyle(size: 11, height: 1.35)),
             ],
           ],
-        ),
       ),
     );
   }
 
   Widget _subscriptionCard(VGCreditSnapshot snapshot) {
+    final phone = VGWebBreakpoints.isPhone(context);
     return VGWebDesktopCard(
-      child: Padding(
-        padding: const EdgeInsets.all(20),
-        child: Column(
+      padding: EdgeInsets.all(phone ? 16 : 20),
+      child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(VGCopy.creditsMyCreditsTitle, style: boldTextStyle(color: bmSpecialColorDark, size: 16)),
@@ -281,7 +280,6 @@ class _VGWebCreditsPanelState extends State<VGWebCreditsPanel> {
               Text(VGCopy.creditsHowRenewal, style: secondaryTextStyle(size: 12, height: 1.4)),
             ],
           ],
-        ),
       ),
     );
   }
@@ -290,9 +288,8 @@ class _VGWebCreditsPanelState extends State<VGWebCreditsPanel> {
     final phone = VGWebBreakpoints.isPhone(context);
 
     return VGWebDesktopCard(
-      child: Padding(
-        padding: const EdgeInsets.all(20),
-        child: Column(
+      padding: EdgeInsets.all(phone ? 16 : 20),
+      child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(VGCopy.creditsUsageDetailsTitle, style: boldTextStyle(color: bmSpecialColorDark, size: 16)),
@@ -337,46 +334,37 @@ class _VGWebCreditsPanelState extends State<VGWebCreditsPanel> {
                 snapshot.isPro ? VGCopy.creditsHistoryEmpty : VGCopy.creditsHistoryEmptyFree,
                 style: secondaryTextStyle(size: 13, height: 1.45),
               )
+            else if (phone)
+              Column(
+                children: _transactions.map(_transactionCard).toList(),
+              )
             else
-              LayoutBuilder(
-                builder: (context, constraints) {
-                  final table = Column(
-                    children: [
-                      Container(
-                        color: bmSecondBackgroundColorLight.withValues(alpha: 0.5),
+              Column(
+                children: [
+                  Container(
+                    color: bmSecondBackgroundColorLight.withValues(alpha: 0.5),
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                    child: Row(
+                      children: [
+                        Expanded(flex: 2, child: Text('Date', style: boldTextStyle(size: 12, color: bmSpecialColorDark))),
+                        Expanded(flex: 4, child: Text('Description', style: boldTextStyle(size: 12, color: bmSpecialColorDark))),
+                        Expanded(child: Text('Amount', style: boldTextStyle(size: 12, color: bmSpecialColorDark), textAlign: TextAlign.end)),
+                      ],
+                    ),
+                  ),
+                  ..._transactions.asMap().entries.map((entry) {
+                    final zebra = entry.key.isEven ? Colors.white : bmSecondBackgroundColorLight.withValues(alpha: 0.35);
+                    return ColoredBox(
+                      color: zebra,
+                      child: Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-                        child: Row(
-                          children: [
-                            Expanded(flex: 2, child: Text('Date', style: boldTextStyle(size: 12, color: bmSpecialColorDark))),
-                            Expanded(flex: 4, child: Text('Description', style: boldTextStyle(size: 12, color: bmSpecialColorDark))),
-                            Expanded(child: Text('Amount', style: boldTextStyle(size: 12, color: bmSpecialColorDark), textAlign: TextAlign.end)),
-                          ],
-                        ),
+                        child: _transactionRow(entry.value),
                       ),
-                      ..._transactions.asMap().entries.map((entry) {
-                        final zebra = entry.key.isEven ? Colors.white : bmSecondBackgroundColorLight.withValues(alpha: 0.35);
-                        return ColoredBox(
-                          color: zebra,
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-                            child: _transactionRow(entry.value),
-                          ),
-                        );
-                      }),
-                    ],
-                  );
-
-                  if (phone) {
-                    return SingleChildScrollView(
-                      scrollDirection: Axis.horizontal,
-                      child: SizedBox(width: constraints.maxWidth.clamp(320, 640), child: table),
                     );
-                  }
-                  return table;
-                },
+                  }),
+                ],
               ),
           ],
-        ),
       ),
     );
   }
@@ -417,6 +405,36 @@ class _VGWebCreditsPanelState extends State<VGWebCreditsPanel> {
             const Icon(Icons.calendar_today, size: 14, color: bmSpecialColor),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _transactionCard(VGCreditTransaction tx) {
+    final amountColor = tx.amount >= 0 ? const Color(0xFF059669) : bmSpecialColorDark;
+    final amountText = tx.amount >= 0 ? '+${tx.amount}' : '${tx.amount}';
+    return Container(
+      width: double.infinity,
+      margin: const EdgeInsets.only(bottom: 10),
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: bmSecondBackgroundColorLight.withValues(alpha: 0.35),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: bmPrimaryColor.withValues(alpha: 0.12)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Expanded(
+                child: Text(_formatDate(tx.createdAt.toLocal()), style: secondaryTextStyle(size: 11)),
+              ),
+              Text(amountText, style: boldTextStyle(size: 14, color: amountColor)),
+            ],
+          ),
+          const SizedBox(height: 6),
+          Text(tx.description, style: primaryTextStyle(size: 13, height: 1.35)),
+        ],
       ),
     );
   }

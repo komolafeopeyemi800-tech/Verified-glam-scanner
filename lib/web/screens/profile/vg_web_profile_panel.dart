@@ -13,10 +13,11 @@ import '../../../utils/vg_copy.dart';
 import '../../../utils/vg_feature_data.dart';
 import '../../../utils/vg_navigation.dart';
 import '../../vg_web_navigation.dart';
+import '../../vg_web_breakpoints.dart';
 import '../../widgets/vg_web_credits_panel.dart';
 import '../../widgets/vg_web_page_scaffold.dart';
 
-/// Desktop profile — SaaS layout: badges hero, credits dashboard, active challenge.
+/// Profile dashboard — badges hero, credits, active challenge (responsive web).
 class VGWebProfilePanel extends StatefulWidget {
   const VGWebProfilePanel({super.key});
 
@@ -84,20 +85,50 @@ class _VGWebProfilePanelState extends State<VGWebProfilePanel> {
   }
 
   Widget _badgeHeroSection() {
+    final phone = VGWebBreakpoints.isPhone(context);
     return VGWebDesktopCard(
-      child: Padding(
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _featuredHero(),
-            const SizedBox(height: 24),
-            Text(VGCopy.challengeBadgesTitle, style: boldTextStyle(color: bmSpecialColorDark, size: 16)),
-            const SizedBox(height: 16),
-            VGChallengeBadgeGrid(earnedBadges: _badges, loading: false),
-          ],
-        ),
+      padding: EdgeInsets.all(phone ? 16 : 24),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _featuredHero(),
+          SizedBox(height: phone ? 16 : 24),
+          Text(VGCopy.challengeBadgesTitle, style: boldTextStyle(color: bmSpecialColorDark, size: phone ? 15 : 16)),
+          SizedBox(height: phone ? 12 : 16),
+          VGChallengeBadgeGrid(earnedBadges: _badges, loading: false),
+        ],
       ),
+    );
+  }
+
+  Widget _heroRow({required Widget leading, required Widget content, Widget? trailing}) {
+    final phone = VGWebBreakpoints.isPhone(context);
+    if (phone) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              leading,
+              const SizedBox(width: 16),
+              Expanded(child: content),
+            ],
+          ),
+          if (trailing != null) ...[
+            const SizedBox(height: 12),
+            Align(alignment: Alignment.centerRight, child: trailing),
+          ],
+        ],
+      );
+    }
+    return Row(
+      children: [
+        leading,
+        const SizedBox(width: 20),
+        Expanded(child: content),
+        if (trailing != null) trailing,
+      ],
     );
   }
 
@@ -106,21 +137,16 @@ class _VGWebProfilePanelState extends State<VGWebProfilePanel> {
     final topBadge = _badges.isNotEmpty ? _badges.first : null;
 
     if (reward == null && topBadge == null) {
-      return Row(
-        children: [
-          _emptyBadgeRing(),
-          const SizedBox(width: 20),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(VGCopy.profileFeaturedAchievement, style: boldTextStyle(color: bmSpecialColorDark, size: 13)),
-                const SizedBox(height: 8),
-                Text(VGCopy.profileNoAchievementYet, style: secondaryTextStyle(size: 15, height: 1.45)),
-              ],
-            ),
-          ),
-        ],
+      return _heroRow(
+        leading: _emptyBadgeRing(),
+        content: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(VGCopy.profileFeaturedAchievement, style: boldTextStyle(color: bmSpecialColorDark, size: 13)),
+            const SizedBox(height: 8),
+            Text(VGCopy.profileNoAchievementYet, style: secondaryTextStyle(size: 15, height: 1.45)),
+          ],
+        ),
       );
     }
 
@@ -130,30 +156,31 @@ class _VGWebProfilePanelState extends State<VGWebProfilePanel> {
       return InkWell(
         onTap: () => vgWebOpenReward(context, reward: reward, feature: _routineFeature),
         borderRadius: BorderRadius.circular(12),
-        child: Row(
-          children: [
-            _rewardRing(),
-            const SizedBox(width: 20),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(VGCopy.profileFeaturedAchievement, style: boldTextStyle(color: bmSpecialColorDark, size: 12)),
-                  const SizedBox(height: 6),
-                  Text(title, style: boldTextStyle(color: bmSpecialColorDark, size: 22)),
-                  if (completedOn.isNotEmpty)
-                    Padding(
-                      padding: const EdgeInsets.only(top: 6),
-                      child: Text(
-                        VGCopy.profileBadgeEarnedOn(completedOn.split('T').first),
-                        style: secondaryTextStyle(size: 13),
-                      ),
-                    ),
-                ],
+        child: _heroRow(
+          leading: _rewardRing(),
+          content: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(VGCopy.profileFeaturedAchievement, style: boldTextStyle(color: bmSpecialColorDark, size: 12)),
+              const SizedBox(height: 6),
+              Text(
+                title,
+                style: boldTextStyle(
+                  color: bmSpecialColorDark,
+                  size: VGWebBreakpoints.isPhone(context) ? 18 : 22,
+                ),
               ),
-            ),
-            const Icon(Icons.arrow_forward, color: bmSpecialColor, size: 22),
-          ],
+              if (completedOn.isNotEmpty)
+                Padding(
+                  padding: const EdgeInsets.only(top: 6),
+                  child: Text(
+                    VGCopy.profileBadgeEarnedOn(completedOn.split('T').first),
+                    style: secondaryTextStyle(size: 13),
+                  ),
+                ),
+            ],
+          ),
+          trailing: const Icon(Icons.arrow_forward, color: bmSpecialColor, size: 22),
         ),
       );
     }
@@ -161,36 +188,40 @@ class _VGWebProfilePanelState extends State<VGWebProfilePanel> {
     final code = topBadge!['badge_code']?.toString() ?? '';
     final def = VGChallengeBadges.byCode(code);
     final earnedAt = topBadge['earned_at']?.toString() ?? '';
-    return Row(
-      children: [
-        _emojiRing(def?.emoji ?? '🏅'),
-        const SizedBox(width: 20),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(VGCopy.profileFeaturedAchievement, style: boldTextStyle(color: bmSpecialColorDark, size: 12)),
-              const SizedBox(height: 6),
-              Text(def?.title ?? code, style: boldTextStyle(color: bmSpecialColorDark, size: 22)),
-              if (earnedAt.isNotEmpty)
-                Padding(
-                  padding: const EdgeInsets.only(top: 6),
-                  child: Text(
-                    VGCopy.profileBadgeEarnedOn(earnedAt.split('T').first),
-                    style: secondaryTextStyle(size: 13),
-                  ),
-                ),
-            ],
+    return _heroRow(
+      leading: _emojiRing(def?.emoji ?? '🏅'),
+      content: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(VGCopy.profileFeaturedAchievement, style: boldTextStyle(color: bmSpecialColorDark, size: 12)),
+          const SizedBox(height: 6),
+          Text(
+            def?.title ?? code,
+            style: boldTextStyle(
+              color: bmSpecialColorDark,
+              size: VGWebBreakpoints.isPhone(context) ? 18 : 22,
+            ),
           ),
-        ),
-      ],
+          if (earnedAt.isNotEmpty)
+            Padding(
+              padding: const EdgeInsets.only(top: 6),
+              child: Text(
+                VGCopy.profileBadgeEarnedOn(earnedAt.split('T').first),
+                style: secondaryTextStyle(size: 13),
+              ),
+            ),
+        ],
+      ),
     );
   }
 
+  double get _ringSize => VGWebBreakpoints.isPhone(context) ? 72 : 88;
+
   Widget _emptyBadgeRing() {
+    final size = _ringSize;
     return Container(
-      width: 88,
-      height: 88,
+      width: size,
+      height: size,
       decoration: BoxDecoration(
         color: bmLightScaffoldBackgroundColor,
         shape: BoxShape.circle,
@@ -202,9 +233,10 @@ class _VGWebProfilePanelState extends State<VGWebProfilePanel> {
   }
 
   Widget _rewardRing() {
+    final size = _ringSize;
     return Container(
-      width: 88,
-      height: 88,
+      width: size,
+      height: size,
       decoration: BoxDecoration(
         shape: BoxShape.circle,
         gradient: LinearGradient(colors: [const Color(0xFFF59E0B), bmSpecialColor]),
@@ -216,9 +248,10 @@ class _VGWebProfilePanelState extends State<VGWebProfilePanel> {
   }
 
   Widget _emojiRing(String emoji) {
+    final size = _ringSize;
     return Container(
-      width: 88,
-      height: 88,
+      width: size,
+      height: size,
       decoration: BoxDecoration(
         color: const Color(0xFFFEF3C7),
         shape: BoxShape.circle,
@@ -255,51 +288,76 @@ class _VGWebProfilePanelState extends State<VGWebProfilePanel> {
     final completed = plan.progress.completedDays;
     final total = plan.durationDays;
     final isDone = plan.progress.isCompleted;
+    final phone = VGWebBreakpoints.isPhone(context);
 
     return VGWebDesktopCard(
+      padding: EdgeInsets.all(phone ? 16 : 24),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            children: [
-              Expanded(
-                child: Column(
+          phone
+              ? Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(VGCopy.profileActiveChallenge, style: boldTextStyle(color: bmSpecialColorDark, size: 13)),
                     const SizedBox(height: 4),
-                    Text(plan.title, style: boldTextStyle(color: bmSpecialColor, size: 20)),
+                    Text(plan.title, style: boldTextStyle(color: bmSpecialColor, size: 18)),
                     const SizedBox(height: 6),
                     Text(
                       isDone ? VGCopy.guideCompleted : VGCopy.profileChallengeProgress(completed, total),
                       style: secondaryTextStyle(size: 13),
                     ),
+                    const SizedBox(height: 12),
+                    Center(child: _challengeProgressRing(completed, total)),
                   ],
-                ),
-              ),
-              SizedBox(
-                width: 72,
-                height: 72,
-                child: Stack(
-                  alignment: Alignment.center,
+                )
+              : Row(
                   children: [
-                    CircularProgressIndicator(
-                      value: total > 0 ? completed / total : 0,
-                      strokeWidth: 6,
-                      color: bmSpecialColor,
-                      backgroundColor: bmSecondBackgroundColorLight,
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(VGCopy.profileActiveChallenge, style: boldTextStyle(color: bmSpecialColorDark, size: 13)),
+                          const SizedBox(height: 4),
+                          Text(plan.title, style: boldTextStyle(color: bmSpecialColor, size: 20)),
+                          const SizedBox(height: 6),
+                          Text(
+                            isDone ? VGCopy.guideCompleted : VGCopy.profileChallengeProgress(completed, total),
+                            style: secondaryTextStyle(size: 13),
+                          ),
+                        ],
+                      ),
                     ),
-                    Text('$completed/$total', style: boldTextStyle(size: 12, color: bmSpecialColorDark)),
+                    _challengeProgressRing(completed, total),
                   ],
                 ),
-              ),
-            ],
-          ),
           const SizedBox(height: 16),
-          VGPillButton(
-            label: isDone ? VGCopy.profileViewRoutine : VGCopy.profileContinueChallenge,
-            onTap: () => vgWebOpenChallenge(context),
+          SizedBox(
+            width: double.infinity,
+            child: VGPillButton(
+              label: isDone ? VGCopy.profileViewRoutine : VGCopy.profileContinueChallenge,
+              onTap: () => vgWebOpenChallenge(context),
+            ),
           ),
+        ],
+      ),
+    );
+  }
+
+  Widget _challengeProgressRing(int completed, int total) {
+    return SizedBox(
+      width: 72,
+      height: 72,
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          CircularProgressIndicator(
+            value: total > 0 ? completed / total : 0,
+            strokeWidth: 6,
+            color: bmSpecialColor,
+            backgroundColor: bmSecondBackgroundColorLight,
+          ),
+          Text('$completed/$total', style: boldTextStyle(size: 12, color: bmSpecialColorDark)),
         ],
       ),
     );

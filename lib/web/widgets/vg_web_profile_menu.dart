@@ -17,8 +17,13 @@ import 'vg_web_tool_sidebar.dart';
 /// Avatar + account settings menu for the web app top bar.
 class VGWebProfileMenu extends StatelessWidget {
   final VGWebAppSection section;
+  final VoidCallback? onSignOut;
 
-  const VGWebProfileMenu({super.key, this.section = VGWebAppSection.tool});
+  const VGWebProfileMenu({
+    super.key,
+    this.section = VGWebAppSection.tool,
+    this.onSignOut,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -58,8 +63,8 @@ class VGWebProfileMenu extends StatelessWidget {
         if (email.isNotEmpty)
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-            child: SizedBox(
-              width: 220,
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 260),
               child: Text(
                 email,
                 style: secondaryTextStyle(size: 12),
@@ -100,6 +105,14 @@ class VGWebProfileMenu extends StatelessWidget {
             label: VGCopy.profileMenuProfileBadges,
             onTap: () => context.go('/app/profile'),
           ),
+        if (onSignOut != null) ...[
+          const Divider(height: 1),
+          _menuItem(
+            icon: Icons.logout,
+            label: 'Sign out',
+            onTap: onSignOut!,
+          ),
+        ],
       ],
     );
   }

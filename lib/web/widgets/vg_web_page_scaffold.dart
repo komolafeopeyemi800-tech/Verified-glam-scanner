@@ -28,7 +28,12 @@ class VGWebPageScaffold extends StatelessWidget {
     final compact = VGWebBreakpoints.isCompact(context);
 
     return SingleChildScrollView(
-      padding: EdgeInsets.fromLTRB(pad, 28, pad, 40),
+      padding: EdgeInsets.fromLTRB(
+        pad,
+        VGWebBreakpoints.isPhone(context) ? 20 : 28,
+        pad,
+        VGWebBreakpoints.isPhone(context) ? 28 : 40,
+      ),
       child: Center(
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: VGWebBreakpoints.maxContent),
