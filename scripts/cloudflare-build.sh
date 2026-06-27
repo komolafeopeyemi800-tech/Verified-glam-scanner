@@ -8,6 +8,9 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$ROOT"
 
+echo "==> Git commit: $(git rev-parse HEAD 2>/dev/null || echo unknown)"
+echo "==> Git branch: $(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo unknown)"
+
 # Cloudflare dashboard multiline fields sometimes inject CR/LF/tabs into values.
 sanitize_env() {
   printf '%s' "${1:-}" | tr -d '\r\n\t'

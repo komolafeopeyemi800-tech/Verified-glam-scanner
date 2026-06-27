@@ -44,7 +44,7 @@ Write-Host "  GOOGLE_WEB_CLIENT_ID (optional)"
 Write-Host "  POLAR_CHECKOUT_LINK_ANNUAL / PRO_WEEKLY (optional - defaults from .env.example)"
 Write-Host ""
 Write-Host "Build command: bash scripts/cloudflare-build.sh"
-Write-Host "Deploy command: npx wrangler deploy"
+Write-Host "Deploy command: bash scripts/cloudflare-deploy.sh"
 Write-Host ""
 Write-Host "Supabase Edge secrets in Dashboard not in Git:" -ForegroundColor Yellow
 Write-Host "  POLAR_ACCESS_TOKEN, POLAR_WEBHOOK_SECRET, POLAR_ENV=production, etc."
