@@ -8,6 +8,8 @@ import '../../../models/vg_challenge_plan.dart';
 import '../../../models/vg_feature_model.dart';
 import '../../../screens/subscription/vg_paywall_screen.dart';
 import '../../../services/vg_challenge_service.dart';
+import '../../../services/vg_credits_service.dart';
+import '../../../services/vg_polar_checkout_service.dart';
 import '../../../services/vg_subscription_store.dart';
 import '../../../utils/BMConstants.dart';
 import '../../../utils/BMColors.dart';
@@ -294,10 +296,11 @@ class _VGWebProfilePanelState extends State<VGWebProfilePanel> {
   }
 
   Widget _subscriptionCard() {
-    return FutureBuilder<bool>(
-      future: VGSubscriptionStore.isPro(),
+    return FutureBuilder<(bool isPro, int? credits)>(
+      future: _loadSubscriptionInfo(),
       builder: (context, snapshot) {
-        final isPro = snapshot.data == true;
+        final isPro = snapshot.data?.$1 == true;
+        final credits = snapshot.data?.$2;
         return VGWebDesktopCard(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -315,6 +318,13 @@ class _VGWebProfilePanelState extends State<VGWebProfilePanel> {
                           isPro ? VGCopy.profileSubscriptionPro : VGCopy.profileSubscriptionFree,
                           style: secondaryTextStyle(size: 13),
                         ),
+                        if (isPro && credits != null) ...[
+                          const SizedBox(height: 4),
+                          Text(
+                            VGCopy.profileCreditsRemaining(credits),
+                            style: boldTextStyle(color: bmSpecialColor, size: 13),
+                          ),
+                        ],
                       ],
                     ),
                   ),
@@ -332,12 +342,32 @@ class _VGWebProfilePanelState extends State<VGWebProfilePanel> {
                   width: double.infinity,
                   onTap: () => vgShowPaywall(context, entry: VGPaywallEntry.profile),
                 ),
+              ] else ...[
+                const SizedBox(height: 16),
+                VGPillButton(
+                  label: VGCopy.profileManageSubscription,
+                  width: double.infinity,
+                  onTap: () async {
+                    try {
+                      await VGPolarCheckoutService.openCustomerPortal();
+                    } catch (_) {
+                      if (context.mounted) toast(VGCopy.paywallCheckoutError);
+                    }
+                  },
+                ),
               ],
             ],
           ),
         );
       },
     );
+  }
+
+  Future<(bool, int?)> _loadSubscriptionInfo() async {
+    final isPro = await VGSubscriptionStore.isPro();
+    if (!isPro) return (false, null);
+    final credits = await VGCreditsService.fetchBalance();
+    return (true, credits);
   }
 
   Widget _accountCard() {

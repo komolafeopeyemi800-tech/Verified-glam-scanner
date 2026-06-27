@@ -113,7 +113,7 @@ VGLegalParagraph(
         'Device and usage data. We may collect standard app analytics such as device type, operating system version, app version, and feature usage to improve stability and performance.',
       ),
 VGLegalParagraph(
-        'Advertising and subscriptions. Free users may see ads served by Google AdMob. If you subscribe to Pro, purchase and subscription status are processed through Google Play and RevenueCat.',
+        'Advertising and subscriptions. Free users may see ads served by Google AdMob. If you subscribe to Pro, purchase and subscription status are processed through Polar.sh (hosted checkout). Your Supabase account is linked via your user ID for cross-platform access on web and Android.',
       ),
 VGLegalParagraph(
         'Support communications. If you email us at support@verifiedglam.com, we retain the content of your message and your email address to respond to you.',
@@ -143,8 +143,8 @@ VGLegalHeading('5. Sharing with third parties'),
 VGLegalBulletList([
         'Supabase — hosting, auth, database, and file storage',
         'OpenAI — server-side image analysis for scan results',
-        'Google (AdMob, Google Play) — advertising and in-app purchases/subscriptions',
-        'RevenueCat — subscription management (when enabled)',
+        'Google (AdMob) — advertising on the free tier',
+        'Polar.sh — subscription checkout and billing management',
         'TMDB — celebrity portrait metadata for Celebrity Look-Alike features',
       ]),
 VGLegalParagraph(
@@ -214,7 +214,7 @@ VGLegalParagraph(
       ),
 VGLegalHeading('4. Free tier, ads, and Pro subscription'),
 VGLegalParagraph(
-        'Free users may access a limited set of features and will see advertisements. Pro unlocks additional scan types, removes ads, and may include unlimited history. Subscriptions are billed through Google Play.',
+        'Free users may access a limited set of features and will see advertisements. Pro unlocks additional scan types, removes ads, and includes subscription credits for AI analyses. Subscriptions are billed through Polar.sh; the same Pro status applies on web and Android when signed in to the same account.',
       ),
 VGLegalHeading('5. Acceptable use'),
 VGLegalBulletList([

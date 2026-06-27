@@ -5,6 +5,8 @@ import '../../services/supabase/vg_supabase_auth_service.dart';
 import '../../utils/BMColors.dart';
 import '../../utils/vg_constants.dart';
 import '../vg_web_breakpoints.dart';
+import '../vg_web_page_nav_stub.dart'
+    if (dart.library.html) '../vg_web_page_nav_web.dart' as page_nav;
 import 'vg_web_tool_sidebar.dart';
 
 /// Web SaaS chrome — top bar + sidebar or drawer + main workspace.
@@ -29,7 +31,7 @@ class _VGWebAppShellState extends State<VGWebAppShell> {
 
   Future<void> _signOut(BuildContext context) async {
     await VGSupabaseAuthService.signOut();
-    if (context.mounted) context.go('/');
+    if (context.mounted) page_nav.vgWebGoLogin();
   }
 
   @override
@@ -110,12 +112,12 @@ class _VGWebAppShellState extends State<VGWebAppShell> {
                         else
                           phone
                               ? IconButton(
-                                  onPressed: () => context.go('/login'),
+                                  onPressed: () => page_nav.vgWebGoLogin(),
                                   icon: const Icon(Icons.login, color: bmSpecialColor),
                                   tooltip: 'Log in',
                                 )
                               : TextButton(
-                                  onPressed: () => context.go('/login'),
+                                  onPressed: () => page_nav.vgWebGoLogin(),
                                   child: const Text('Log in', style: TextStyle(color: bmSpecialColor)),
                                 ),
                       ],

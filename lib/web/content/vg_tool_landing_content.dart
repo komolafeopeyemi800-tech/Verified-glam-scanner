@@ -32,19 +32,29 @@ class VGToolLandingContent {
 class VGWhyChooseItem {
   final String title;
   final String body;
+  /// CSS icon key: scan, detail, personalized, speed
+  final String icon;
 
-  const VGWhyChooseItem({required this.title, required this.body});
+  const VGWhyChooseItem({
+    required this.title,
+    required this.body,
+    this.icon = 'scan',
+  });
 }
 
 class VGShowcaseItem {
   final String title;
   final String body;
   final String imageAsset;
+  final String ctaLabel;
+  final String imageAlt;
 
   const VGShowcaseItem({
     required this.title,
     required this.body,
     required this.imageAsset,
+    this.ctaLabel = 'Try for free',
+    this.imageAlt = '',
   });
 }
 
@@ -73,7 +83,7 @@ const _sharedReviews = [
   VGReviewItem(
     name: 'Maya R.',
     quote:
-        'Verified Glam gave me clarity I never got from a mirror selfie. The symmetry breakdown felt professional, not gimmicky.',
+        'Verified Glam Scanner gave me clarity I never got from a mirror selfie. The symmetry breakdown felt professional, not gimmicky.',
   ),
   VGReviewItem(
     name: 'Jordan K.',
@@ -94,13 +104,13 @@ final Map<String, VGToolLandingContent> _bySlug = {
     slug: 'face-beauty-analysis',
     pageTitle: 'AI Face Beauty Analysis | Free Online Beauty Score',
     metaDescription:
-        'Upload a photo for instant AI face beauty analysis. Get feature scores, highlights, and personalized beauty insights with Verified Glam.',
+        'Upload a photo for instant AI face beauty analysis. Get feature scores, highlights, and personalized beauty insights with Verified Glam Scanner.',
     headline: 'AI Face Beauty Analysis — Know Your Beauty Score',
     subheadline:
         'Upload a clear portrait and get an instant breakdown of your facial features with AI-powered beauty analysis.',
     showcaseTitle: 'Your complete beauty analysis',
     showcaseSubtitle:
-        'Verified Glam maps your features, scores key areas, and turns results into practical style guidance.',
+        'Verified Glam Scanner maps your features, scores key areas, and turns results into practical style guidance.',
     whyChoose: [
       VGWhyChooseItem(
         title: 'Easy to use',
@@ -125,19 +135,32 @@ final Map<String, VGToolLandingContent> _bySlug = {
     ],
     showcase: [
       VGShowcaseItem(
-        title: 'See your feature map',
-        body: 'Interactive overlays highlight the regions we score so you understand every result.',
-        imageAsset: 'images/vg/features/face_beauty_analysis.png',
+        title: 'See your feature map on your own photo',
+        body:
+            'Verified Glam Scanner overlays scored regions directly on your portrait — eyes, lips, brows, and jawline — so every number has context. No generic diagrams: your face stays the hero while landmarks and zones explain what we measured.',
+        imageAsset: 'images/vg/marketing/landings/face-beauty-analysis/showcase-1.jpg',
+        imageAlt: 'Face beauty analysis with feature overlay on a portrait',
       ),
       VGShowcaseItem(
-        title: 'Understand your strongest features',
-        body: 'Clear callouts show what stands out and where small tweaks can elevate your look.',
-        imageAsset: 'images/vg/upload_selfie_portrait.png',
+        title: 'Regional scores, not just one beauty number',
+        body:
+            'Get breakdowns for symmetry, proportions, and individual features instead of a single vague score. Compare how eyes, nose, lips, and structure contribute to your overall result — perfect for understanding what the AI actually sees.',
+        imageAsset: 'images/vg/marketing/landings/face-beauty-analysis/showcase-2.jpg',
+        imageAlt: 'Regional beauty scores on a face analysis result',
       ),
       VGShowcaseItem(
-        title: 'Turn insights into action',
-        body: 'Practical tips connect analysis to real-world styling — brows, blush placement, and more.',
-        imageAsset: 'images/vg/features/beauty_tips.png',
+        title: 'Spot your strongest features instantly',
+        body:
+            'Clear callouts highlight what already stands out and where small grooming or makeup tweaks can elevate your look. Use the insights for photos, events, or everyday styling without second-guessing the mirror.',
+        imageAsset: 'images/vg/marketing/landings/face-beauty-analysis/showcase-3.jpg',
+        imageAlt: 'Strongest feature callouts on a beauty analysis portrait',
+      ),
+      VGShowcaseItem(
+        title: 'Turn analysis into real styling moves',
+        body:
+            'Practical tips connect scores to blush placement, brow shaping, hair framing, and camera angles. Verified Glam Scanner bridges AI metrics and actions you can try today — upload once and leave with a plan.',
+        imageAsset: 'images/vg/marketing/landings/face-beauty-analysis/showcase-4.jpg',
+        imageAlt: 'Beauty styling tips based on face analysis',
       ),
     ],
     howTo: [
@@ -167,7 +190,7 @@ final Map<String, VGToolLandingContent> _bySlug = {
       ),
       VGFaqItem(
         question: 'Can I use this on desktop?',
-        answer: 'Yes. Verified Glam is built for web — upload from your computer or phone browser.',
+        answer: 'Yes. Verified Glam Scanner is built for web — upload from your computer or phone browser.',
       ),
       VGFaqItem(
         question: 'Do I need an account?',
@@ -200,24 +223,37 @@ final Map<String, VGToolLandingContent> _bySlug = {
       ),
       VGWhyChooseItem(
         title: 'Works on any device',
-        body: 'Try colors online from desktop or mobile with the same Verified Glam experience.',
+        body: 'Try colors online from desktop or mobile with the same Verified Glam Scanner experience.',
       ),
     ],
     showcase: [
       VGShowcaseItem(
-        title: 'Undertone detection',
-        body: 'We analyze skin, hair, and eye contrast to place you in a seasonal color family.',
-        imageAsset: 'images/vg/features/seasonal_color_palette.png',
+        title: 'Find your seasonal color family fast',
+        body:
+            'Upload a clear selfie and let Verified Glam Scanner read undertone, contrast, and depth from your natural coloring. In under a minute you get a seasonal palette that explains why certain hues harmonize with your skin, hair, and eyes.',
+        imageAsset: 'images/vg/marketing/landings/seasonal-color-palette/showcase-1.jpg',
+        imageAlt: 'Seasonal color palette swatches beside a portrait',
       ),
       VGShowcaseItem(
-        title: 'Palette you can use',
-        body: 'See coordinated swatches for everyday makeup and statement looks.',
-        imageAsset: 'images/vg/features/face_beauty_analysis.png',
+        title: 'Swatches you can shop with',
+        body:
+            'See coordinated color families for lipstick, blush, eyeshadow, and wardrobe accents — not abstract theory. Save time at the makeup counter by shortlisting shades that flatter your undertone before you buy.',
+        imageAsset: 'images/vg/marketing/landings/seasonal-color-palette/showcase-2.jpg',
+        imageAlt: 'Makeup swatches matched to a seasonal palette',
       ),
       VGShowcaseItem(
-        title: 'Style pairing tips',
-        body: 'Learn which metals, lip shades, and blush tones flatter your coloring.',
-        imageAsset: 'images/vg/features/beauty_tips.png',
+        title: 'Dress in colors that love you back',
+        body:
+            'Learn which metals, neutrals, and statement colors lift your complexion instead of washing you out. Seasonal analysis turns confusing color charts into a personal guide you can use every morning.',
+        imageAsset: 'images/vg/marketing/landings/seasonal-color-palette/showcase-3.jpg',
+        imageAlt: 'Person wearing flattering seasonal colors',
+      ),
+      VGShowcaseItem(
+        title: 'Compare palettes as your look evolves',
+        body:
+            'Rescan with different makeup or hair color to see how your apparent undertone shifts. Verified Glam Scanner helps you experiment virtually before committing to a bold dye or full glam transformation.',
+        imageAsset: 'images/vg/marketing/landings/seasonal-color-palette/showcase-4.jpg',
+        imageAlt: 'Before and after seasonal color comparison',
       ),
     ],
     howTo: [
@@ -285,19 +321,32 @@ final Map<String, VGToolLandingContent> _bySlug = {
     ],
     showcase: [
       VGShowcaseItem(
-        title: 'Midline alignment',
-        body: 'Overlay shows how features align along your facial midline.',
-        imageAsset: 'images/vg/features/facial_symmetry.png',
+        title: 'Measure facial symmetry on your photo',
+        body:
+            'Verified Glam Scanner maps your midline and compares left-right landmarks for a reliable symmetry score. See balance patterns on your own portrait — not a stock face — with overlays that make the math easy to understand.',
+        imageAsset: 'images/vg/marketing/landings/facial-symmetry/showcase-1.jpg',
+        imageAlt: 'Facial symmetry midline overlay on a portrait',
       ),
       VGShowcaseItem(
-        title: 'Regional symmetry scores',
-        body: 'Break down balance by eyes, brows, nose, and lower face.',
-        imageAsset: 'images/vg/upload_selfie_portrait.png',
+        title: 'Break down balance by region',
+        body:
+            'Explore symmetry scores for eyes, brows, nose, and lower face separately. Knowing which zones lean asymmetric helps you adjust lighting, angles, and grooming for photos where balance reads more evenly.',
+        imageAsset: 'images/vg/marketing/landings/facial-symmetry/showcase-2.jpg',
+        imageAlt: 'Regional facial symmetry scores',
       ),
       VGShowcaseItem(
-        title: 'Photo-ready guidance',
-        body: 'Small pose and lighting tweaks that make symmetry read more evenly on camera.',
-        imageAsset: 'images/vg/features/face_beauty_analysis.png',
+        title: 'Visual guides, not vague numbers',
+        body:
+            'Thin burgundy guides and region highlights show exactly what the AI measured. Perfect symmetry is rare and natural — this tool explains your unique balance without treating asymmetry as a flaw.',
+        imageAsset: 'images/vg/marketing/landings/facial-symmetry/showcase-3.jpg',
+        imageAlt: 'Symmetry guide lines on a face',
+      ),
+      VGShowcaseItem(
+        title: 'Photo-ready tips from your scan',
+        body:
+            'Small pose, expression, and lighting tweaks can change how symmetry appears on camera. Get practical notes tailored to your upload so your next selfie looks polished and proportionate.',
+        imageAsset: 'images/vg/marketing/landings/facial-symmetry/showcase-4.jpg',
+        imageAlt: 'Photo tips for balanced facial symmetry',
       ),
     ],
     howTo: [
@@ -346,23 +395,36 @@ final Map<String, VGToolLandingContent> _bySlug = {
       VGWhyChooseItem(title: 'Instant matches', body: 'Upload once and get ranked celebrity look-alikes in seconds.'),
       VGWhyChooseItem(title: 'Feature breakdown', body: 'Understand which traits — eyes, jaw, smile — drive each match.'),
       VGWhyChooseItem(title: 'Share-worthy results', body: 'Results use your photo as the hero with clear match cards.'),
-      VGWhyChooseItem(title: 'Private & secure', body: 'Your upload is used for analysis within your Verified Glam account.'),
+      VGWhyChooseItem(title: 'Private & secure', body: 'Your upload is used for analysis within your Verified Glam Scanner account.'),
     ],
     showcase: [
       VGShowcaseItem(
-        title: 'Top match cards',
-        body: 'See percentage-style similarity with named celebrity references.',
-        imageAsset: 'images/vg/features/celebrity_look_alike.png',
+        title: 'Discover who you resemble in seconds',
+        body:
+            'Upload a portrait and Verified Glam Scanner compares your structure to a diverse celebrity reference set. Get ranked look-alike matches with similarity scores — fun to share and useful for glam inspiration.',
+        imageAsset: 'images/vg/marketing/landings/celebrity-look-alike/showcase-1.jpg',
+        imageAlt: 'Celebrity look-alike match cards beside a portrait',
       ),
       VGShowcaseItem(
-        title: 'Trait comparison',
-        body: 'Highlights shared structure in brows, nose bridge, and face shape.',
-        imageAsset: 'images/vg/features/facial_symmetry.png',
+        title: 'See which traits drive each match',
+        body:
+            'Every match card explains shared structure — eyes, jawline, nose bridge, smile — so results feel thoughtful, not random. Understand why a particular celebrity appears on your list before you post the reveal.',
+        imageAsset: 'images/vg/marketing/landings/celebrity-look-alike/showcase-2.jpg',
+        imageAlt: 'Facial trait comparison for celebrity match',
       ),
       VGShowcaseItem(
-        title: 'Style inspiration',
-        body: 'Use matches as inspiration for glam looks and red-carpet aesthetics.',
-        imageAsset: 'images/vg/features/beauty_tips.png',
+        title: 'Your photo stays the hero',
+        body:
+            'Results are designed for sharing: your portrait leads the screen with match cards alongside. No icon-only placeholders — the experience looks polished on desktop and mobile.',
+        imageAsset: 'images/vg/marketing/landings/celebrity-look-alike/showcase-3.jpg',
+        imageAlt: 'Shareable celebrity look-alike result layout',
+      ),
+      VGShowcaseItem(
+        title: 'Style inspiration from your twin',
+        body:
+            'Use top matches as mood boards for hair, makeup, and red-carpet aesthetics. Celebrity look-alike is entertainment with a styling edge — upload a natural photo for the clearest resemblance read.',
+        imageAsset: 'images/vg/marketing/landings/celebrity-look-alike/showcase-4.jpg',
+        imageAlt: 'Glam style inspiration from celebrity match',
       ),
     ],
     howTo: [
@@ -409,19 +471,32 @@ final Map<String, VGToolLandingContent> _bySlug = {
     ],
     showcase: [
       VGShowcaseItem(
-        title: 'Makeup placement',
-        body: 'Learn where to place contour, blush, and highlight for your structure.',
-        imageAsset: 'images/vg/features/beauty_tips.png',
+        title: 'Beauty tips tied to your real features',
+        body:
+            'Verified Glam Scanner reads your face shape, proportions, and visible skin cues to generate tips you can actually use. Skip generic blog lists — every suggestion maps to what the AI sees in your upload.',
+        imageAsset: 'images/vg/marketing/landings/beauty-tips/showcase-1.jpg',
+        imageAlt: 'Personalized beauty tips on a portrait',
       ),
       VGShowcaseItem(
-        title: 'Skincare focus',
-        body: 'Surface-level cues help prioritize hydration, SPF, and gentle care reminders.',
-        imageAsset: 'images/vg/features/face_beauty_analysis.png',
+        title: 'Makeup placement made simple',
+        body:
+            'Learn where to place contour, blush, and highlight for your structure. Visual context keeps your photo on screen so placement advice matches your bone structure, not a one-size-fits-all chart.',
+        imageAsset: 'images/vg/marketing/landings/beauty-tips/showcase-2.jpg',
+        imageAlt: 'Makeup placement zones on a face map',
       ),
       VGShowcaseItem(
-        title: 'Grooming details',
-        body: 'Brows, lashes, and lip line tips that respect your natural symmetry.',
-        imageAsset: 'images/vg/upload_selfie_portrait.png',
+        title: 'Skincare focus from your selfie',
+        body:
+            'Bare-skin photos surface hydration, SPF, and gentle-care reminders based on visible cues. Tips stay cosmetic and practical — a starting point for your routine, not a medical diagnosis.',
+        imageAsset: 'images/vg/marketing/landings/beauty-tips/showcase-3.jpg',
+        imageAlt: 'Skincare tips beside a natural portrait',
+      ),
+      VGShowcaseItem(
+        title: 'Quick wins you can apply today',
+        body:
+            'Short, actionable guidance on brows, lashes, and lip line that respects your natural symmetry. Save favorites and rescan when your look changes for refreshed advice from Verified Glam Scanner.',
+        imageAsset: 'images/vg/marketing/landings/beauty-tips/showcase-4.jpg',
+        imageAlt: 'Grooming beauty tips for brows and lips',
       ),
     ],
     howTo: [
@@ -443,11 +518,11 @@ final Map<String, VGToolLandingContent> _bySlug = {
     slug: 'beauty-routine-challenge',
     pageTitle: 'Beauty Routine Challenge | AI Glow-Up Guide',
     metaDescription:
-        'Start a personalized beauty routine challenge with AI. Upload a photo and get a structured glow-up plan from Verified Glam.',
+        'Start a personalized beauty routine challenge with AI. Upload a photo and get a structured glow-up plan from Verified Glam Scanner.',
     headline: 'Beauty Routine Challenge — Your AI Glow-Up Plan',
     subheadline: 'Structured daily beauty habits based on your starting point and goals.',
     showcaseTitle: 'Build habits that stick',
-    showcaseSubtitle: 'From baseline scan to routine milestones — track progress with Verified Glam.',
+    showcaseSubtitle: 'From baseline scan to routine milestones — track progress with Verified Glam Scanner.',
     whyChoose: [
       VGWhyChooseItem(title: 'Goal-based routines', body: 'Challenges adapt to skin, aesthetic, and beauty goals you set in onboarding.'),
       VGWhyChooseItem(title: 'Daily structure', body: 'Clear steps so you know what to do each morning and evening.'),
@@ -456,19 +531,32 @@ final Map<String, VGToolLandingContent> _bySlug = {
     ],
     showcase: [
       VGShowcaseItem(
-        title: 'Baseline capture',
-        body: 'Your starting photo anchors the challenge and future comparisons.',
-        imageAsset: 'images/vg/features/glow_up_guide.png',
+        title: 'Start your glow-up with a baseline scan',
+        body:
+            'Your day-one portrait anchors the Beauty Routine Challenge inside Verified Glam Scanner. Capture where you are today in even light — that baseline makes every later milestone meaningful.',
+        imageAsset: 'images/vg/marketing/landings/beauty-routine-challenge/showcase-1.jpg',
+        imageAlt: 'Baseline portrait for beauty routine challenge',
       ),
       VGShowcaseItem(
-        title: 'Daily checklist',
-        body: 'Simple tasks for skincare, hydration, and glam practice.',
-        imageAsset: 'images/vg/features/beauty_tips.png',
+        title: 'Daily habits built for your goals',
+        body:
+            'Get a structured checklist of morning and evening steps tailored to your onboarding preferences. Clear tasks beat overwhelming beauty blogs — know exactly what to do each day.',
+        imageAsset: 'images/vg/marketing/landings/beauty-routine-challenge/showcase-2.jpg',
+        imageAlt: 'Daily beauty routine checklist',
       ),
       VGShowcaseItem(
-        title: 'Milestone reviews',
-        body: 'Rescan to compare progress and adjust your routine.',
-        imageAsset: 'images/vg/features/face_beauty_analysis.png',
+        title: 'Track progress with milestone scans',
+        body:
+            'Rescan on suggested days to compare visible changes and refresh guidance. Consistency matters more than perfection — the challenge celebrates small wins along the way.',
+        imageAsset: 'images/vg/marketing/landings/beauty-routine-challenge/showcase-3.jpg',
+        imageAlt: 'Progress comparison across beauty challenge milestones',
+      ),
+      VGShowcaseItem(
+        title: 'Skincare and glam in one plan',
+        body:
+            'Balance care habits with optional makeup practice so beginners and enthusiasts both stay engaged. Pause anytime and resume from your profile when life gets busy.',
+        imageAsset: 'images/vg/marketing/landings/beauty-routine-challenge/showcase-4.jpg',
+        imageAlt: 'Combined skincare and makeup routine plan',
       ),
     ],
     howTo: [
@@ -503,19 +591,32 @@ final Map<String, VGToolLandingContent> _bySlug = {
     ],
     showcase: [
       VGShowcaseItem(
-        title: 'Dual score cards',
-        body: 'Each participant gets a hero portrait with overlay scores.',
-        imageAsset: 'images/vg/features/beauty_score_showdown.png',
+        title: 'Head-to-head beauty scores, side by side',
+        body:
+            'Upload portraits for each participant and Verified Glam Scanner scores everyone with the same AI pipeline. Friendly comparison cards show overall results without confusing spreadsheets.',
+        imageAsset: 'images/vg/marketing/landings/beauty-score-showdown/showcase-1.jpg',
+        imageAlt: 'Dual beauty score cards in a showdown',
       ),
       VGShowcaseItem(
-        title: 'Category breakdown',
-        body: 'Eyes, symmetry, proportions — see where each person leads.',
-        imageAsset: 'images/vg/features/face_comparison.png',
+        title: 'See who wins each category',
+        body:
+            'Eyes, symmetry, proportions — category breakdowns reveal where each person leads. Perfect for groups, duos, and shareable party moments that still feel constructive.',
+        imageAsset: 'images/vg/marketing/landings/beauty-score-showdown/showcase-2.jpg',
+        imageAlt: 'Category breakdown in beauty score showdown',
       ),
       VGShowcaseItem(
-        title: 'Share the winner',
-        body: 'Export-friendly layout for social posts and group chats.',
-        imageAsset: 'images/vg/features/celebrity_look_alike.png',
+        title: 'Fair scoring for every upload',
+        body:
+            'The same feature model analyzes each portrait so comparisons stay consistent. Similar lighting and pose help, but the tool guides you through a fair upload flow.',
+        imageAsset: 'images/vg/marketing/landings/beauty-score-showdown/showcase-3.jpg',
+        imageAlt: 'Fair AI scoring for beauty showdown participants',
+      ),
+      VGShowcaseItem(
+        title: 'Share the results with your group',
+        body:
+            'Export-friendly layouts put each hero portrait and score on screen for social posts and group chats. Run rematches anytime with fresh photos for a new showdown.',
+        imageAsset: 'images/vg/marketing/landings/beauty-score-showdown/showcase-4.jpg',
+        imageAlt: 'Shareable beauty showdown results',
       ),
     ],
     howTo: [
@@ -550,19 +651,32 @@ final Map<String, VGToolLandingContent> _bySlug = {
     ],
     showcase: [
       VGShowcaseItem(
-        title: 'Dual portrait layout',
-        body: 'Side-by-side heroes with aligned feature markers.',
-        imageAsset: 'images/vg/features/face_comparison.png',
+        title: 'Compare two faces in one flow',
+        body:
+            'Purpose-built for exactly two portraits — upload both and Verified Glam Scanner aligns landmarks automatically. Get a clear resemblance score plus notes on shared structure.',
+        imageAsset: 'images/vg/marketing/landings/face-comparison/showcase-1.jpg',
+        imageAlt: 'Two portraits side by side for face comparison',
       ),
       VGShowcaseItem(
-        title: 'Shared traits',
-        body: 'See which structures match — jaw, eyes, nose, and more.',
-        imageAsset: 'images/vg/guidelines/face_comparison_good_bad.png',
+        title: 'Resemblance you can actually see',
+        body:
+            'Dual heroes stay visible with matching callouts on eyes, jaw, and nose. Great for siblings, friends, family photos, or curiosity about how alike two people really look.',
+        imageAsset: 'images/vg/marketing/landings/face-comparison/showcase-2.jpg',
+        imageAlt: 'Shared facial traits highlighted between two faces',
       ),
       VGShowcaseItem(
-        title: 'Difference map',
-        body: 'Understand where faces diverge, not just overall similarity.',
-        imageAsset: 'images/vg/features/facial_symmetry.png',
+        title: 'Understand differences too',
+        body:
+            'Similarity is only half the story — see where faces diverge, not just overall match percentage. Useful for creators, genealogists, and anyone comparing old vs new photos of themselves.',
+        imageAsset: 'images/vg/marketing/landings/face-comparison/showcase-3.jpg',
+        imageAlt: 'Difference map between two compared faces',
+      ),
+      VGShowcaseItem(
+        title: 'Fast results for pairs',
+        body:
+            'No identity verification — this is similarity analysis for insight and fun. Upload clear, front-facing photos with both faces fully visible for the best read.',
+        imageAsset: 'images/vg/marketing/landings/face-comparison/showcase-4.jpg',
+        imageAlt: 'Quick face comparison results on mobile',
       ),
     ],
     howTo: [
@@ -598,19 +712,32 @@ final Map<String, VGToolLandingContent> _bySlug = {
     ],
     showcase: [
       VGShowcaseItem(
-        title: 'Overall rating',
-        body: 'A summary score with regional breakdowns beneath your portrait.',
-        imageAsset: 'images/vg/features/attractiveness_test.png',
+        title: 'Attractiveness ratings with real context',
+        body:
+            'Verified Glam Scanner ties ratings to measurable symmetry and proportions — not a random number from a black box. Your portrait stays central with overlays that explain each score.',
+        imageAsset: 'images/vg/marketing/landings/attractiveness-test/showcase-1.jpg',
+        imageAlt: 'Attractiveness rating overlay on a portrait',
       ),
       VGShowcaseItem(
-        title: 'Feature highlights',
-        body: 'See which areas score highest and why.',
-        imageAsset: 'images/vg/features/face_beauty_analysis.png',
+        title: 'Regional breakdown beneath your photo',
+        body:
+            'See which areas score highest and why landmarks drove the result. Constructive tone focuses on enhancement ideas rather than harsh judgments.',
+        imageAsset: 'images/vg/marketing/landings/attractiveness-test/showcase-2.jpg',
+        imageAlt: 'Regional attractiveness scores on a face',
       ),
       VGShowcaseItem(
-        title: 'Enhancement tips',
-        body: 'Grooming and styling ideas that respect your natural look.',
-        imageAsset: 'images/vg/features/beauty_tips.png',
+        title: 'Feature highlights that build confidence',
+        body:
+            'Callouts show strengths you might overlook in daily mirror checks. Beauty is subjective — these metrics are guides for styling and self-discovery, not final verdicts.',
+        imageAsset: 'images/vg/marketing/landings/attractiveness-test/showcase-3.jpg',
+        imageAlt: 'Feature highlights on attractiveness test result',
+      ),
+      VGShowcaseItem(
+        title: 'Grooming tips that respect your look',
+        body:
+            'Get hair framing, lighting, and grooming suggestions aligned with your natural features. Retake the test with different angles or makeup to see how presentation shifts scores.',
+        imageAsset: 'images/vg/marketing/landings/attractiveness-test/showcase-4.jpg',
+        imageAlt: 'Styling tips from attractiveness analysis',
       ),
     ],
     howTo: [
@@ -648,19 +775,32 @@ final Map<String, VGToolLandingContent> _bySlug = {
     ],
     showcase: [
       VGShowcaseItem(
-        title: 'Ratio map',
-        body: 'Golden ratio guides drawn on key facial thirds and fifths.',
-        imageAsset: 'images/vg/features/face_golden_ratio.png',
+        title: 'Golden ratio guides on your face',
+        body:
+            'Verified Glam Scanner draws classical proportion guides — facial thirds, fifths, and phi relationships — directly on your portrait. Learn how your features relate to harmony ideals with clear visual maps.',
+        imageAsset: 'images/vg/marketing/landings/face-golden-ratio/showcase-1.jpg',
+        imageAlt: 'Golden ratio overlay on a portrait',
       ),
       VGShowcaseItem(
-        title: 'Harmony score',
-        body: 'Summary metric with regional proportion notes.',
-        imageAsset: 'images/vg/features/facial_symmetry.png',
+        title: 'Harmony scores you can read',
+        body:
+            'Summary metrics plus regional notes translate geometry into plain language. Ideal ratios are references, not perfection targets — natural variation is normal and expected.',
+        imageAsset: 'images/vg/marketing/landings/face-golden-ratio/showcase-2.jpg',
+        imageAlt: 'Facial harmony score dashboard',
       ),
       VGShowcaseItem(
-        title: 'Framing tips',
-        body: 'How hairstyle and camera distance affect perceived balance.',
-        imageAsset: 'images/vg/upload_selfie_portrait.png',
+        title: 'Educational overlays, not abstract charts',
+        body:
+            'Lines and ratio markers stay on your photo so the analysis feels tangible. Great for students of beauty, photographers, and creators learning flattering angles.',
+        imageAsset: 'images/vg/marketing/landings/face-golden-ratio/showcase-3.jpg',
+        imageAlt: 'Educational golden ratio face map',
+      ),
+      VGShowcaseItem(
+        title: 'See how framing changes perceived balance',
+        body:
+            'Hairstyle volume and camera distance affect how proportions read on screen. Upload a level, front-facing portrait for the most reliable golden ratio map from Verified Glam Scanner.',
+        imageAsset: 'images/vg/marketing/landings/face-golden-ratio/showcase-4.jpg',
+        imageAlt: 'Camera framing effect on facial proportions',
       ),
     ],
     howTo: [

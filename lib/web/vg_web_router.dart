@@ -9,6 +9,7 @@ import '../services/supabase/vg_supabase_init.dart';
 import '../utils/vg_constants.dart';
 import 'screens/vg_web_app_screen.dart';
 import 'screens/vg_web_forgot_password_screen.dart';
+import 'vg_feature_slugs.dart';
 import 'vg_web_app_prefs.dart';
 import 'vg_web_page_nav_stub.dart'
     if (dart.library.html) 'package:verified_glam/web/vg_web_page_nav_web.dart' as page_nav;
@@ -33,25 +34,57 @@ String? _legacyMarketingRedirect(String path) {
   return map[path];
 }
 
+const _staticMarketingExact = {
+  '/login',
+  '/register',
+  '/pricing',
+  '/tools',
+  '/about',
+  '/privacy',
+  '/terms',
+};
+
+bool _uriHasAuthCallbackParams(Uri uri) {
+  if (uri.queryParameters.containsKey('code')) return true;
+  final fragment = uri.fragment;
+  if (fragment.isEmpty) return false;
+  return fragment.contains('access_token') ||
+      fragment.contains('error_description') ||
+      fragment.contains('error=');
+}
+
+void _redirectToStaticMarketing(String pathAndQuery) {
+  page_nav.vgWebHardRedirect(pathAndQuery);
+}
+
 final GoRouter vgWebRouter = GoRouter(
   navigatorKey: navigatorKey,
   initialLocation: vgWebEntryLocation(),
   overridePlatformDefaultLocation: true,
   redirect: (context, state) {
-    final path = state.uri.path;
+    final uri = state.uri;
+    final path = uri.path;
 
     if (path == '/walkthrough' || path == '/splash') {
-      page_nav.vgWebHardRedirect('/');
+      _redirectToStaticMarketing('/');
       return path;
     }
 
     if (path.startsWith('/marketing')) {
       final legacy = _legacyMarketingRedirect(path);
-      if (legacy != null) {
-        page_nav.vgWebHardRedirect(legacy);
-      } else {
-        page_nav.vgWebHardRedirect('/');
-      }
+      _redirectToStaticMarketing(legacy ?? '/');
+      return path;
+    }
+
+    // Static Tier 1 pages — served as HTML, not Flutter routes.
+    if (_staticMarketingExact.contains(path)) {
+      _redirectToStaticMarketing(uri.path + (uri.hasQuery ? '?${uri.query}' : ''));
+      return path;
+    }
+
+    final slug = path.startsWith('/') ? path.substring(1) : path;
+    if (slug.isNotEmpty && isToolSlug(slug)) {
+      _redirectToStaticMarketing(uri.path + (uri.hasQuery ? '?${uri.query}' : ''));
       return path;
     }
 
@@ -60,9 +93,16 @@ final GoRouter vgWebRouter = GoRouter(
         VGSupabaseInit.isReady &&
         VGSupabaseAuthService.isSignedIn;
 
+    if (path == '/' || path.isEmpty) {
+      if (_uriHasAuthCallbackParams(uri) || signedIn) {
+        return vgWebDefaultAppPath();
+      }
+      _redirectToStaticMarketing('/login');
+      return path;
+    }
+
     if (!signedIn && path.startsWith('/app')) {
-      final redirect = Uri.encodeComponent(path);
-      page_nav.vgWebHardRedirect('/login?redirect=$redirect');
+      page_nav.vgWebGoLogin(redirectPath: path);
       return path;
     }
 
@@ -76,6 +116,14 @@ final GoRouter vgWebRouter = GoRouter(
 
     if (path == '/app/scans' || path.startsWith('/app/scans/')) {
       return vgWebDefaultAppPath();
+    }
+
+    // Deep app paths not yet in GoRouter (e.g. /app/foo/guidelines).
+    if (path.startsWith('/app/') && path.split('/').length > 3) {
+      final segments = path.split('/');
+      if (segments.length >= 3 && isToolSlug(segments[2])) {
+        return '/app/${segments[2]}';
+      }
     }
 
     return null;
@@ -124,7 +172,17 @@ final GoRouter vgWebRouter = GoRouter(
       },
     ),
   ],
-  errorBuilder: (_, state) => Scaffold(
-    body: Center(child: Text('Page not found: ${state.uri}')),
-  ),
+  errorBuilder: (_, state) {
+    final path = state.uri.path;
+    if (_staticMarketingExact.contains(path) || isToolSlug(path.replaceFirst('/', ''))) {
+      _redirectToStaticMarketing(state.uri.path + (state.uri.hasQuery ? '?${state.uri.query}' : ''));
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    }
+    if (path == '/' || path.isEmpty) {
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    }
+    return Scaffold(
+      body: Center(child: Text('Page not found: ${state.uri}')),
+    );
+  },
 );

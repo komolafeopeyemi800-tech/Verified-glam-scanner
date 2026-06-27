@@ -1,7 +1,7 @@
 import 'dart:ui';
 
 /// When true: bypass paywall / ads before results. Does not affect Supabase backend.
-const bool kVGLocalDevMode = true;
+const bool kVGLocalDevMode = false;
 
 /// When true: use Supabase for auth, storage, scans, and Edge Function analysis.
 const bool kVGUseSupabase = bool.fromEnvironment('VG_USE_SUPABASE', defaultValue: true);
@@ -21,6 +21,7 @@ const String vgSupportEmail = 'support@verifiedglam.app';
 const String vgGooglePlayUrl =
     'https://play.google.com/store/apps/details?id=com.verifiedglam.beauty_scanner';
 const String vgWebProductName = 'Verified Glam Scanner';
+const String vgWebAuthTagline = 'AI beauty analysis from your selfie';
 const String vgMarketingSiteUrl = 'https://scanner.verifiedglam.com';
 const String vgParentCompanyUrl = 'https://verifiedglam.com';
 const String vgLegalSupportEmail = 'support@verifiedglam.com';

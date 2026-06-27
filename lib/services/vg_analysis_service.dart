@@ -16,6 +16,7 @@ import 'supabase/vg_supabase_storage_service.dart';
 import 'vg_analysis_mode.dart';
 import 'vg_connectivity_service.dart';
 import 'vg_onboarding_store.dart';
+import 'vg_credits_service.dart';
 import 'vg_session_scan_cache.dart';
 import 'supabase/vg_supabase_init.dart';
 
@@ -130,6 +131,7 @@ class VGAnalysisService {
       }
 
       final data = response.data as Map<String, dynamic>;
+      await VGCreditsService.syncFromResponse(data);
       return Map<String, dynamic>.from(data['payload'] as Map);
     } on FunctionException catch (e) {
       throw vgParseAnalysisError(e);

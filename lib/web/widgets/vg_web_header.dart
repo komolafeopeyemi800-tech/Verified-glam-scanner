@@ -6,7 +6,6 @@ import '../../services/supabase/vg_supabase_auth_service.dart';
 import '../../utils/BMColors.dart';
 import '../../utils/vg_constants.dart';
 import '../../utils/vg_copy.dart';
-import '../vg_web_auth_helpers.dart';
 import '../vg_web_breakpoints.dart';
 import '../vg_web_page_nav_stub.dart'
     if (dart.library.html) '../vg_web_page_nav_web.dart' as page_nav;
@@ -34,7 +33,15 @@ class VGWebHeader extends StatelessWidget implements PreferredSizeWidget {
     }
   }
 
-  void _openAbout() => page_nav.vgOpenMarketingPage('/about');
+  void _goMarketing(BuildContext context, String path) {
+    if (path.startsWith('/app') || path == '/dashboard') {
+      context.go(path);
+    } else {
+      page_nav.vgOpenMarketingPage(path);
+    }
+  }
+
+  void _openAbout(BuildContext context) => _goMarketing(context, '/about');
 
   @override
   Widget build(BuildContext context) {
@@ -74,7 +81,7 @@ class VGWebHeader extends StatelessWidget implements PreferredSizeWidget {
                     ),
                     _NavLink(
                       label: VGCopy.webNavAbout,
-                      onTap: _openAbout,
+                      onTap: () => _openAbout(context),
                     ),
                   ],
                   const Spacer(),
@@ -85,13 +92,13 @@ class VGWebHeader extends StatelessWidget implements PreferredSizeWidget {
                     ),
                   if (!desktop && !pricingActive)
                     IconButton(
-                      onPressed: () => page_nav.vgOpenMarketingPage('/pricing'),
+                      onPressed: () => _goMarketing(context, '/pricing'),
                       icon: const Icon(Icons.payments_outlined, color: bmSpecialColor),
                       tooltip: VGCopy.webNavPricing,
                     ),
                   if (!desktop)
                     IconButton(
-                      onPressed: _openAbout,
+                      onPressed: () => _openAbout(context),
                       icon: const Icon(Icons.info_outline, color: bmSpecialColor),
                       tooltip: VGCopy.webNavAbout,
                     ),
@@ -126,7 +133,7 @@ class VGWebHeader extends StatelessWidget implements PreferredSizeWidget {
                         label: 'Log in',
                         filled: false,
                         compact: false,
-                        onTap: vgWebGoLogin,
+                        onTap: () => _goMarketing(context, '/login'),
                       ),
                     if (desktop) const SizedBox(width: 8),
                     Flexible(
@@ -134,7 +141,7 @@ class VGWebHeader extends StatelessWidget implements PreferredSizeWidget {
                         label: desktop ? 'Sign up' : (phone ? 'Join' : 'Get started'),
                         filled: true,
                         compact: phone,
-                        onTap: () => page_nav.vgOpenMarketingPage('/register'),
+                        onTap: () => _goMarketing(context, '/register'),
                       ),
                     ),
                   ],
@@ -201,7 +208,15 @@ class _NavLink extends StatelessWidget {
       padding: const EdgeInsets.only(left: 4),
       child: InkWell(
         onTap: onTap ??
-            (path != null ? () => page_nav.vgOpenMarketingPage(path!) : null),
+            (path != null
+                ? () {
+                    if (path!.startsWith('/app')) {
+                      context.go(path!);
+                    } else {
+                      page_nav.vgOpenMarketingPage(path!);
+                    }
+                  }
+                : null),
         borderRadius: BorderRadius.circular(8),
         hoverColor: bmLightScaffoldBackgroundColor,
         child: Padding(

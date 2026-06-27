@@ -257,71 +257,125 @@ class VGCopy {
   static const profileSubscriptionFree = 'Free plan';
   static const profileSubscriptionPro = 'Verified Glam Pro';
   static const profileSubscriptionUpgradeHint =
-      'Yearly \$39.99/year or Pro \$3.99/week with a 3-day free trial.';
+      'Subscribe for AI credits — Yearly \$39.99/year (200 credits) or Pro \$3.99/week (30 credits weekly).';
   static const profileLegal = 'Legal';
 
-  // Paywall — two paid plans only (Yearly + Pro weekly)
+  // Paywall — Yearly + Pro weekly (credit-based, no free trial)
   static const paywallTitle = 'Get Premium';
   static const paywallSubtitle = 'Unlock all features';
   static const paywallLimitedOffer = 'Limited-time offer';
   static const paywallDiscountBadge = 'Save 50% today';
   static const paywallExpiresIn = 'Offer ends in';
   static const paywallYearlyColumn = 'Yearly';
-  static const paywallProColumn = 'Pro';
-  static const paywallBestPrice = 'BEST VALUE';
+  static const paywallProColumn = 'Pro Weekly';
+  static const paywallBestPrice = 'Best Value';
 
-  static const paywallYearlyPlanName = 'Yearly plan';
+  static const paywallYearlyPlanName = 'Yearly Plan';
   static const paywallYearlyPrice = '\$39.99';
   static const paywallYearlyPeriod = '/year';
   static const paywallYearlyWasPrice = '\$80.99/year';
-  static const paywallYearlySubtitle = 'Billed once per year · cancel anytime';
+  static const paywallYearlySubtitle = 'Billed once per year · Cancel anytime';
 
-  static const paywallProPlanName = 'Pro plan';
+  static const paywallProPlanName = 'Pro Plan';
   static const paywallProWeeklyPrice = '\$3.99';
   static const paywallProWeeklyPeriod = '/week';
-  static const paywallProTrialLine = '3-day free trial, then \$3.99/week';
-  static const paywallProTrialBadge = 'FREE TRIAL';
+  static const paywallProSubtitle = 'Billed weekly · Cancel anytime';
 
   static const paywallPlanIdAnnual = 'annual';
   static const paywallPlanIdProWeekly = 'pro_weekly';
 
-  static const paywallPlanFeatures = [
-    'All 10 AI beauty analyses',
-    'No ads on results',
-    'Download results instantly',
-    'Priority new features',
+  static const paywallSharedFeatures = [
+    'Full access to all 10 AI Beauty Analyses',
+    'Ad-free experience',
+    'Instant result downloads',
+    'Priority access to new AI features',
+    'Secure cloud synchronization across devices',
   ];
 
+  static const paywallYearlyFeatures = [
+    '200 AI Credits per year',
+    'Each AI generation costs 5 credits',
+    'Up to 40 AI generations per year',
+    'Credits remain available throughout your annual subscription',
+  ];
+
+  static const paywallProFeatures = [
+    '30 AI Credits every week',
+    'Credits automatically refresh every billing cycle',
+    'Each AI generation costs 5 credits',
+    'Up to 6 AI generations every week',
+  ];
+
+  static const paywallYearlyCreditBreakdown = [
+    '200 credits per year',
+    '5 credits per generation',
+    '40 total generations per year',
+    'Effective cost: \$0.20 per credit',
+  ];
+
+  static const paywallProCreditBreakdown = [
+    '30 credits every week',
+    '5 credits per generation',
+    '6 generations every week',
+    'Effective cost: \$0.133 per credit',
+  ];
+
+  static const paywallPlanFeatures = paywallSharedFeatures;
+
   static const paywallGetPremium = 'Get Premium';
-  static const paywallStartTrial = 'Start free trial';
-  static const paywallSelectPlan = 'Select plan';
+  static const paywallSubscribeNow = 'Subscribe now';
+  static const paywallCancelAnytime = 'Cancel anytime';
   static const paywallRestore = 'Restore purchases';
-  static const paywallNoPaymentNow = 'No payment now';
   static const paywallTermsPrefix = 'See';
   static const paywallTerms = 'Terms';
   static const paywallPrivacy = 'Privacy';
   static const paywallRestoreSuccess = 'Purchases restored.';
   static const paywallRestoreEmpty = 'No previous purchases found.';
+  static const paywallCheckoutError = 'Could not start checkout. Try again.';
+  static const paywallCheckoutOpening = 'Opening secure checkout…';
+  static const profileManageSubscription = 'Manage subscription';
+  static const checkoutSuccessToast = 'Welcome to Pro! Your credits are ready.';
   static const paywallPromoTitle = 'Special offer for you';
-  static const paywallPromoSubtitle = 'Yearly \$39.99/year (was \$80.99) or try Pro free for 3 days.';
+  static const paywallPromoSubtitle = 'Yearly \$39.99/year (was \$80.99) or Pro \$3.99/week with weekly credits.';
 
   static const paywallSubscriptionTerms =
-      'Subscription Terms: Pro plan includes a 3-day free trial, then \$3.99 per week until cancelled. Yearly plan is \$39.99 per year and renews automatically unless cancelled.';
+      'Subscription Terms: Yearly plan is \$39.99 per year and renews automatically unless cancelled. Pro plan is \$3.99 per week and renews automatically unless cancelled. Credits renew each billing period.';
   static const paywallCancellationTerms =
-      'Cancellation Terms: Cancel anytime in account settings before the Pro trial ends to avoid charges. After the trial, you will be charged \$3.99 per week on Pro, or \$39.99 per year on Yearly. Subscriptions renew automatically unless cancelled.';
+      'Cancellation Terms: Cancel anytime in account settings to stop future renewals. Access and remaining credits continue until the end of your current billing period.';
+
+  static const creditsHowTitle = 'How Credits Work';
+  static const creditsHowIntro = 'Every AI analysis uses 5 credits.';
+  static const creditsHowExamples = [
+    'Face Beauty Analysis = 5 credits',
+    'Golden Ratio Analysis = 5 credits',
+    'Celebrity Look-Alike = 5 credits',
+    'Seasonal Color Palette = 5 credits',
+    'Face Comparison = 5 credits',
+  ];
+  static const creditsHowDeduction =
+      'Each time you create a new AI result, 5 credits are deducted from your balance.';
+  static const creditsHowRenewal =
+      'Your credits automatically renew based on your subscription: Yearly Plan — 200 credits every year. Pro Weekly — 30 credits every week.';
+
+  static const creditsInsufficientMessage =
+      'You need 5 credits for this analysis. Credits renew with your subscription plan.';
+  static const creditsRemainingLabel = 'AI credits remaining';
+  static String profileCreditsRemaining(int balance) => '$balance $creditsRemainingLabel';
+  static const scanErrorViewPlans = 'View plans';
 
   // Pricing page (SEO)
-  static const pricingMetaTitle = 'Verified Glam Pricing — Yearly & Pro Plans';
+  static const pricingMetaTitle = 'Verified Glam Scanner Pricing — Credits & Plans';
   static const pricingMetaDescription =
-      'Verified Glam Pro: Yearly \$39.99/year (was \$80.99) or Pro \$3.99/week with a 3-day free trial. All AI beauty analyses, ad-free.';
-  static const pricingHeroTitle = 'Choose the right plan';
-  static const pricingHeroSubtitle = 'Yearly or Pro weekly — every analysis unlocked, ad-free. No hidden fees.';
-  static const pricingCompareTitle = 'Compare plans';
+      'Verified Glam Scanner Pro: Yearly \$39.99/year (200 AI credits) or Pro \$3.99/week (30 credits weekly). 5 credits per AI generation. Ad-free.';
+  static const pricingHeroTitle = 'Choose the Right Plan';
+  static const pricingHeroSubtitle =
+      'Unlock all AI Beauty analyses with a flexible subscription that fits your needs. Every subscription includes full access to all AI beauty tools, ad-free results, and downloadable reports. Credits are used whenever you generate a new AI analysis.';
+  static const pricingCompareTitle = 'Compare Plans';
   static const pricingCompareSubtitle = 'Everything included with Yearly and Pro subscriptions.';
   static const pricingFaqTitle = 'Pricing FAQ';
-  static const pricingSignUpCta = 'Sign up free';
-  static const pricingStartTrialCta = 'Start free trial';
-  static const pricingSelectPlan = 'Select plan';
+  static const pricingSignUpCta = 'Sign up';
+  static const pricingWhatsIncluded = "What's Included";
+  static const pricingCreditBreakdown = 'Credit Breakdown';
 
   // Web mega menu
   static const webNavAiTools = 'AI Tools';
@@ -338,10 +392,22 @@ class VGCopy {
   static const webMegaMenuColPrograms = 'Programs & fun';
 
   static const pricingFaqItems = [
-    ('What plans do you offer?', 'Verified Glam Pro is available as a Yearly plan (\$39.99/year, was \$80.99) or a Pro weekly plan (\$3.99/week after a 3-day free trial).'),
-    ('How does the Pro free trial work?', 'Select Pro plan and tap Start free trial. Use the app free for 3 days, then \$3.99/week unless you cancel before the trial ends.'),
-    ('What is the Yearly plan?', 'Pay \$39.99 once per year for full Pro access — all analyses, no ads, and every premium feature.'),
-    ('Can I cancel anytime?', 'Yes. Cancel in account settings before the Pro trial ends to avoid charges, or anytime after to stop future renewals.'),
+    (
+      'What plans do you offer?',
+      'Verified Glam Scanner Pro is available as a Yearly plan (\$39.99/year, 200 credits) or a Pro weekly plan (\$3.99/week, 30 credits refreshed weekly).',
+    ),
+    (
+      'How do credits work?',
+      'Each new AI analysis costs 5 credits. Yearly subscribers get 200 credits per year (up to 40 generations). Pro Weekly subscribers get 30 credits per week (up to 6 generations).',
+    ),
+    (
+      'What is the Yearly plan?',
+      'Pay \$39.99 once per year for full Pro access, 200 AI credits, no ads, and every premium feature.',
+    ),
+    (
+      'Can I cancel anytime?',
+      'Yes. Cancel in account settings anytime. Your access continues until the end of your current billing period.',
+    ),
   ];
 
   // Subscription success

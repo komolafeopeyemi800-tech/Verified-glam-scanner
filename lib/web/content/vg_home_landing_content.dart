@@ -139,7 +139,7 @@ class VGHomeLandingContent {
     VGFaqItem(
       question: 'What is free vs Pro?',
       answer:
-          'Free users get basic scans, ads (banner and interstitial before results), and a limited scan history. Pro subscribers unlock all scan types, remove ads, and get unlimited history. Subscriptions are managed through Google Play and RevenueCat when live.',
+          'Free users get basic scans with ads and limited history. Pro subscribers unlock all scan types, remove ads, and receive AI credits (Yearly \$39.99/year with 200 credits, or Pro \$3.99/week with 30 credits weekly). Subscriptions are billed securely through Polar.sh and sync to your account on web and Android.',
     ),
     VGFaqItem(
       question: 'Is Verified Glam Scanner available on iPhone?',

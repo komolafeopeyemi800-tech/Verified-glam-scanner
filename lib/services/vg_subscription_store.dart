@@ -1,6 +1,10 @@
 import 'package:nb_utils/nb_utils.dart';
 
 import '../utils/vg_constants.dart';
+import '../utils/vg_credit_constants.dart';
+import 'supabase/vg_supabase_auth_service.dart';
+import 'vg_credits_service.dart';
+import 'vg_polar_checkout_service.dart';
 import 'vg_referral_bonus_store.dart';
 
 /// Mock subscription state before RevenueCat integration (Phase 7).
@@ -32,13 +36,42 @@ class VGSubscriptionStore {
     await setValue(vgSubscriptionPromoShownSessionKey, false);
   }
 
+  static Future<bool> purchase({required String planName}) async {
+    if (kVGLocalDevMode) {
+      return purchaseMock(planName: planName);
+    }
+    if (!VGSupabaseAuthService.isSignedIn) {
+      return false;
+    }
+    final plan = planName == kSubscriptionPlanProWeekly
+        ? kSubscriptionPlanProWeekly
+        : kSubscriptionPlanAnnual;
+    await VGPolarCheckoutService.openCheckout(plan);
+    return false;
+  }
+
   static Future<bool> purchaseMock({String planName = 'annual'}) async {
-    await setPro(value: true, planName: planName);
+    final plan = planName == kSubscriptionPlanProWeekly
+        ? kSubscriptionPlanProWeekly
+        : kSubscriptionPlanAnnual;
+    await setPro(value: true, planName: plan);
+    await VGCreditsService.grantOnMockPurchase(plan);
     return true;
   }
 
+  static Future<bool> restore() async {
+    if (kVGLocalDevMode) {
+      return restoreMock();
+    }
+    return VGPolarCheckoutService.refreshSubscriptionFromServer();
+  }
+
   static Future<bool> restoreMock() async {
-    return isPro();
+    final pro = await isPro();
+    if (pro) {
+      await VGCreditsService.fetchBalance();
+    }
+    return pro;
   }
 
   static Future<bool> shouldShowPostOnboardingPaywall() async {

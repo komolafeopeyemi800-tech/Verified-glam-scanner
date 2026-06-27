@@ -3,6 +3,8 @@ import 'package:nb_utils/nb_utils.dart';
 
 import '../../components/vg/subscription/vg_paywall_plans_section.dart';
 import '../../components/vg/vg_loading_overlay.dart';
+import '../../screens/BMLoginScreen.dart';
+import '../../services/supabase/vg_supabase_auth_service.dart';
 import '../../services/vg_subscription_store.dart';
 import '../../utils/BMColors.dart';
 import '../../utils/vg_copy.dart';
@@ -23,20 +25,37 @@ class VGPaywallScreen extends StatefulWidget {
 class _VGPaywallScreenState extends State<VGPaywallScreen> {
   final _plansKey = GlobalKey<VGPaywallPlansSectionState>();
 
-  Future<void> _purchase() async {
-    final planId = vgPaywallPlanIdFromSection(_plansKey);
-    await VGSubscriptionStore.purchaseMock(planName: planId);
-    if (!mounted) return;
-    finish(context);
-    VGSubscriptionSuccessScreen().launch(context);
+  Future<void> _purchaseForPlan(String planId) async {
+    if (!VGSupabaseAuthService.isSignedIn) {
+      if (mounted) {
+        toast('Sign in to subscribe');
+        BMLoginScreen().launch(context);
+      }
+      return;
+    }
+
+    VGLoadingOverlay.show(context, message: VGCopy.paywallCheckoutOpening);
+    try {
+      final completed = await VGSubscriptionStore.purchase(planName: planId);
+      if (!mounted) return;
+      VGLoadingOverlay.hide(context);
+      if (completed) {
+        finish(context);
+        VGSubscriptionSuccessScreen().launch(context);
+      }
+    } catch (_) {
+      if (mounted) {
+        VGLoadingOverlay.hide(context);
+        toast(VGCopy.paywallCheckoutError);
+      }
+    }
   }
 
   Future<void> _restore() async {
     VGLoadingOverlay.show(context);
-    await Future.delayed(const Duration(milliseconds: 900));
+    final restored = await VGSubscriptionStore.restore();
     if (!mounted) return;
     VGLoadingOverlay.hide(context);
-    final restored = await VGSubscriptionStore.restoreMock();
     toast(restored ? VGCopy.paywallRestoreSuccess : VGCopy.paywallRestoreEmpty);
     if (restored && mounted) {
       finish(context);
@@ -76,9 +95,10 @@ class _VGPaywallScreenState extends State<VGPaywallScreen> {
                     24.height,
                     VGPaywallPlansSection(
                       key: _plansKey,
-                      onPurchase: _purchase,
+                      onPurchaseForPlan: _purchaseForPlan,
                       onRestore: _restore,
                       theme: VGPaywallTheme.dark,
+                      perPlanCta: true,
                       compact: true,
                     ),
                     24.height,

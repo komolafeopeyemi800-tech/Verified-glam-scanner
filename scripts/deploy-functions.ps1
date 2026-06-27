@@ -39,8 +39,8 @@ SUPABASE_ACCESS_TOKEN=sbp_...
 }
 
 Set-Location $Root
-Write-Host "Deploying analyze-scan and guide-recommendations to $ProjectRef ..."
-npx supabase functions deploy analyze-scan guide-recommendations `
+Write-Host "Deploying Edge Functions to $ProjectRef ..."
+npx supabase functions deploy analyze-scan guide-recommendations polar-create-checkout polar-customer-portal polar-webhook `
   --project-ref $ProjectRef `
   --use-api
 
@@ -64,7 +64,7 @@ Write-Host "Verifying deployed endpoints..."
 $headers = @{}
 if ($anon) { $headers["apikey"] = $anon }
 
-foreach ($name in @("analyze-scan", "guide-recommendations")) {
+foreach ($name in @("analyze-scan", "guide-recommendations", "polar-create-checkout", "polar-customer-portal", "polar-webhook")) {
   $uri = "$SupabaseUrl/functions/v1/$name"
   try {
     $r = Invoke-WebRequest -Uri $uri -Method OPTIONS -Headers $headers -UseBasicParsing
@@ -78,5 +78,6 @@ foreach ($name in @("analyze-scan", "guide-recommendations")) {
   }
 }
 
-Write-Host "Deploy complete. Set OPENAI_API_KEY in Dashboard -> Edge Functions -> Secrets."
+Write-Host "Deploy complete. Set OPENAI_API_KEY and Polar secrets in Dashboard -> Edge Functions -> Secrets."
+Write-Host "Polar webhook URL: $SupabaseUrl/functions/v1/polar-webhook"
 Write-Host "Run: .\tools\test-openai-vision.ps1 (with OPENAI_API_KEY in .env for local probe)"

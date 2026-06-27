@@ -43,17 +43,28 @@ Verify secrets: Dashboard → Edge Functions → Secrets. If the key is missing,
 
 ### `analyze-scan`
 
-Handles all 10 scan feature types (photo upload + OpenAI vision).
+Handles all 10 scan feature types (photo upload + OpenAI vision). **Pro subscribers** consume **5 credits** per analysis; credits renew by plan (200/year on Yearly, 30/week on Pro Weekly). See migration `008_profile_credits.sql`.
 
 ### `guide-recommendations`
 
 Profile-only personalized tips for the Guide tab (no photo).
 
-Deploy both:
+### `polar-create-checkout` (authenticated)
+
+Creates a Polar hosted checkout session with `external_customer_id` = Supabase user UUID. Input: `{ "planId": "annual" | "pro_weekly" }`. Returns `{ "checkoutUrl" }`.
+
+### `polar-customer-portal` (authenticated)
+
+Returns `{ "portalUrl" }` so signed-in users can cancel or update billing in Polar’s customer portal.
+
+### `polar-webhook` (public, signature-verified)
+
+Receives Polar Standard Webhooks. Updates `profiles.is_pro`, `subscription_plan`, credit fields, and Polar IDs. Idempotent via `polar_webhook_events`.
+
+Deploy all functions:
 
 ```bash
-supabase functions deploy analyze-scan
-supabase functions deploy guide-recommendations
+supabase functions deploy analyze-scan guide-recommendations polar-create-checkout polar-customer-portal polar-webhook
 ```
 
 Or from Windows (requires `SUPABASE_ACCESS_TOKEN` in `.env` from [Account → Tokens](https://supabase.com/dashboard/account/tokens)):
@@ -63,6 +74,62 @@ Or from Windows (requires `SUPABASE_ACCESS_TOKEN` in `.env` from [Account → To
 ```
 
 `SUPABASE_URL`, `SUPABASE_ANON_KEY`, and `SUPABASE_SERVICE_ROLE_KEY` are injected automatically in production.
+
+### Polar.sh subscriptions (web + Android)
+
+Cross-platform billing uses Polar hosted checkout — **not** Google Play Billing or RevenueCat. Pay on web or Android → same Supabase account gets Pro + credits on both.
+
+**Edge Function secrets** (Dashboard → Edge Functions → Secrets):
+
+| Secret | Value |
+|--------|--------|
+| `POLAR_ACCESS_TOKEN` | Organization access token (sandbox first, then production) |
+| `POLAR_WEBHOOK_SECRET` | From Polar webhook endpoint setup |
+| `POLAR_PRODUCT_ID_ANNUAL` | `9e185286-cf2b-41b8-a728-e7154d144722` |
+| `POLAR_PRODUCT_ID_PRO_WEEKLY` | `8c9fddc9-1001-4143-8a27-31ce929ae5e6` |
+| `POLAR_SUCCESS_URL` | `https://scanner.verifiedglam.com/pricing?checkout=success` |
+| `POLAR_ENV` | `sandbox` or `production` |
+
+**Polar Dashboard:** Register webhook URL `https://YOUR_PROJECT.supabase.co/functions/v1/polar-webhook`. Subscribe to subscription and order events.
+
+**Database:** Run migration `009_polar_subscription.sql` (`supabase db push`).
+
+**Local dev mock billing:** Set `kVGLocalDevMode = true` in `lib/utils/vg_constants.dart` to use `purchaseMock` without Polar.
+
+### Subscription credits (manual SQL / QA)
+
+To grant credits manually without Polar (e.g. before webhook testing):
+
+```sql
+update public.profiles
+set is_pro = true,
+    subscription_plan = 'annual',
+    subscription_status = 'active',
+    credits_balance = 200,
+    credits_allocated = 200,
+    credits_period_key = '2026'
+where id = 'YOUR_USER_UUID';
+```
+
+Use `pro_weekly` with `credits_balance = 30` and `credits_period_key = '2026-W26'` (ISO week) for weekly renewal tests. Each `analyze-scan` call deducts 5 credits when successful.
+
+### Polar sandbox QA checklist
+
+Run after secrets and webhook are configured:
+
+```powershell
+.\scripts\test-polar-integration.ps1
+```
+
+Manual E2E:
+
+1. Sandbox checkout **Yearly** on web → profile shows 200 credits → scan deducts 5.
+2. Same account on Android → Pro access without repaying.
+3. **Pro weekly** → 30 credits; block on insufficient credits after use.
+4. Cancel in Polar portal → webhook sets `subscription_status` / revokes access at period end.
+5. Renewal `order.created` with `billing_reason: subscription_cycle` refreshes credits.
+
+Use `polar listen --forward-to https://YOUR_PROJECT.supabase.co/functions/v1/polar-webhook` for local webhook testing during development.
 
 ## 6. Run Flutter with credentials
 

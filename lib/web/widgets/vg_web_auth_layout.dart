@@ -69,10 +69,8 @@ class _BrandPanel extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Image.asset('images/verified_glam_logo.png', height: 56),
-          const SizedBox(height: 24),
           Text(
-            vgAppName,
+            vgWebProductName,
             style: const TextStyle(
               color: Colors.white,
               fontSize: 32,
@@ -82,13 +80,13 @@ class _BrandPanel extends StatelessWidget {
           ),
           const SizedBox(height: 12),
           Text(
-            vgTagline,
+            vgWebAuthTagline,
             style: TextStyle(color: Colors.white.withValues(alpha: 0.9), fontSize: 17, height: 1.5),
           ),
           const SizedBox(height: 32),
-          _brandBullet('Upload a portrait and get AI beauty insights in seconds'),
-          _brandBullet('Per-tool landing pages with clear, visual results'),
-          _brandBullet('Your burgundy-and-rose brand — polished on desktop'),
+          _brandBullet('10 AI beauty scans — scores and overlays on your photo'),
+          _brandBullet('Symmetry, color palette, celebrity match, and more'),
+          _brandBullet('Save results and sync across devices with Pro'),
         ],
       ),
     );

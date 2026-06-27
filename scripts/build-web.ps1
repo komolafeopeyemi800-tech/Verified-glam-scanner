@@ -44,6 +44,7 @@ $flutterArgs = @(
   "web",
   "--release",
   "--no-wasm-dry-run",
+  "--no-tree-shake-icons",
   "-t",
   "lib/main_web.dart",
   "--dart-define=SUPABASE_URL=$supabaseUrl",
@@ -58,11 +59,12 @@ if ($vars.ContainsKey("GOOGLE_WEB_CLIENT_ID") -and $vars["GOOGLE_WEB_CLIENT_ID"]
 
 $flutterArgs += $ExtraArgs
 
-Write-Host "Building web (app-only) with Supabase: $supabaseUrl"
+Write-Host "Building web app shell (main_web.dart) with Supabase: $supabaseUrl"
 Set-Location $Root
 & $flutter @flutterArgs
 if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
+# Disable service worker in local/release static serves (avoids infinite loading on localhost).
 $bootstrap = Join-Path $Root "build\web\flutter_bootstrap.js"
 if (Test-Path $bootstrap) {
   $content = Get-Content $bootstrap -Raw
@@ -72,6 +74,19 @@ if (Test-Path $bootstrap) {
   Move-Item -Force $tmp $bootstrap
 }
 
+# Local serve-web locks build/web/js/auth-config.js on Windows — stop listener first.
+foreach ($port in @(8080, 8099)) {
+  try {
+    $pids = @(Get-NetTCPConnection -LocalPort $port -State Listen -ErrorAction SilentlyContinue |
+      ForEach-Object { $_.OwningProcess } | Where-Object { $_ -gt 0 } | Select-Object -Unique)
+    foreach ($procId in $pids) {
+      Write-Host "Stopping local server on port $port (PID $procId) before static overlay..."
+      Stop-Process -Id $procId -Force -ErrorAction SilentlyContinue
+    }
+  } catch { }
+}
+Start-Sleep -Milliseconds 500
+
 & (Join-Path $Root "scripts\sync-static-site.ps1") -EnvFile $EnvFile
 
-Write-Host "Output: build/web/"
+Write-Host "Output: build/web/ (static Tier 1 pages + Flutter shell at 404.html for /app/*)"

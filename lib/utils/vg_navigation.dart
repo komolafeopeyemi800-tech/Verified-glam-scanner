@@ -20,8 +20,9 @@ import '../utils/vg_copy.dart';
 import '../web/screens/subscription/vg_web_paywall_dialog.dart';
 import '../web/vg_feature_slugs.dart';
 import '../web/vg_web_app_prefs.dart';
-import '../web/vg_web_auth_helpers.dart';
 import '../web/vg_web_breakpoints.dart';
+import '../web/vg_web_page_nav_stub.dart'
+    if (dart.library.html) '../web/vg_web_page_nav_web.dart' as page_nav;
 
 Future<void> vgNavigateAfterWalkthrough(BuildContext context) async {
   final complete = await VGOnboardingStore.isComplete();
@@ -31,6 +32,14 @@ Future<void> vgNavigateAfterWalkthrough(BuildContext context) async {
   } else {
     BMDashboardScreen(flag: false).launch(context, isNewTask: true);
   }
+}
+
+void vgShowPricingOrPaywall(BuildContext context) {
+  if (kIsWeb) {
+    context.go('/pricing');
+    return;
+  }
+  vgShowPaywall(context, entry: VGPaywallEntry.feature);
 }
 
 Future<void> vgShowPaywall(
@@ -59,7 +68,7 @@ Future<void> vgStartAnalysis(BuildContext context, VGFeatureModel feature) async
         !VGSupabaseAuthService.isSignedIn) {
       toast('Sign in to run analyses');
       final slug = slugForFeatureType(feature.featureType);
-      vgWebGoLogin(redirect: '/app/$slug');
+      page_nav.vgWebGoLogin(redirectPath: '/app/$slug');
       return;
     }
     if (feature.isPro && await VGSubscriptionStore.shouldBlockProFeature()) {
@@ -79,7 +88,7 @@ Future<void> vgStartAnalysis(BuildContext context, VGFeatureModel feature) async
     toast('Sign in to run analyses');
     if (kIsWeb) {
       final path = GoRouterState.of(context).uri.path;
-      vgWebGoLogin(redirect: path);
+      page_nav.vgWebGoLogin(redirectPath: path);
     } else {
       BMLoginScreen().launch(context);
     }

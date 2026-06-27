@@ -2,3 +2,5 @@
 void vgOpenMarketingPage(String path) {}
 
 void vgWebHardRedirect(String path) {}
+
+void vgWebGoLogin({String? redirectPath}) {}

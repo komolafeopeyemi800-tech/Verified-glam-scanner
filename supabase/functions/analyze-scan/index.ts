@@ -24,7 +24,7 @@ import {
   TRAIT_OFFSETS,
 } from "./scoring.ts";
 
-const FUNCTION_VERSION = "8";
+const FUNCTION_VERSION = "9";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -55,7 +55,9 @@ const VALID_FEATURES = [
 
 type FeatureType = (typeof VALID_FEATURES)[number];
 
-const DAILY_SCAN_LIMIT = 50;
+const CREDITS_PER_GENERATION = 5;
+const YEARLY_CREDITS_ALLOCATION = 200;
+const PRO_WEEKLY_CREDITS_ALLOCATION = 30;
 const FALLBACK_MODEL = "gpt-4o-mini";
 
 const HIGH_DETAIL_FEATURES = new Set<FeatureType>([
@@ -166,7 +168,7 @@ Deno.serve(async (req) => {
       return jsonError(400, "Invalid storagePath", "INVALID_REQUEST");
     }
 
-    await enforceDailyLimit(admin, userId);
+    await checkCredits(admin, userId);
 
     const { data: signed, error: signError } = await admin.storage
       .from("scan-photos")
@@ -217,9 +219,13 @@ Deno.serve(async (req) => {
       );
     }
 
-    await incrementDailyScan(admin, userId);
+    const creditsRemaining = await deductCredits(admin, userId);
 
-    return new Response(JSON.stringify({ payload, version: FUNCTION_VERSION }), {
+    return new Response(JSON.stringify({
+      payload,
+      version: FUNCTION_VERSION,
+      creditsRemaining,
+    }), {
       headers: responseHeaders({ "Content-Type": "application/json" }),
     });
   } catch (e) {
@@ -228,12 +234,15 @@ Deno.serve(async (req) => {
       return jsonError(e.status, e.message, e.errorCode);
     }
     const msg = e instanceof Error ? e.message : "Analysis failed";
-    if (msg.includes("Daily scan limit")) {
+    if (msg.includes("Insufficient credits") || msg.includes("INSUFFICIENT_CREDITS")) {
       return jsonError(
         429,
-        `Daily scan limit (${DAILY_SCAN_LIMIT}) reached. Try again tomorrow.`,
-        "DAILY_LIMIT",
+        "You need 5 credits for this analysis. Credits renew with your subscription plan.",
+        "INSUFFICIENT_CREDITS",
       );
+    }
+    if (msg.includes("Pro subscription required") || msg.includes("NOT_SUBSCRIBED")) {
+      return jsonError(403, "Pro subscription required to run AI analysis.", "NOT_SUBSCRIBED");
     }
     return jsonError(500, mapOpenAIErrorMessage(msg), classifyOpenAIErrorCode(msg));
   }
@@ -355,6 +364,125 @@ async function loadBeautyTipsCatalog(
     tipsByCategory,
     spotLabels,
   };
+}
+
+type ProfileCredits = {
+  is_pro: boolean | null;
+  subscription_plan: string | null;
+  credits_balance: number | null;
+  credits_period_key: string | null;
+  credits_allocated: number | null;
+};
+
+function currentPeriodKey(plan: string): string {
+  const now = new Date();
+  if (plan === "pro_weekly") {
+    const d = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
+    const dayNum = d.getUTCDay() || 7;
+    d.setUTCDate(d.getUTCDate() + 4 - dayNum);
+    const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+    const weekNo = Math.ceil((((d.getTime() - yearStart.getTime()) / 86400000) + 1) / 7);
+    return `${d.getUTCFullYear()}-W${String(weekNo).padStart(2, "0")}`;
+  }
+  return String(now.getUTCFullYear());
+}
+
+function allocationForPlan(plan: string): number {
+  if (plan === "pro_weekly") return PRO_WEEKLY_CREDITS_ALLOCATION;
+  if (plan === "annual") return YEARLY_CREDITS_ALLOCATION;
+  return 0;
+}
+
+async function loadProfileCredits(
+  admin: ReturnType<typeof createClient>,
+  userId: string,
+): Promise<ProfileCredits> {
+  const { data, error } = await admin
+    .from("profiles")
+    .select("is_pro, subscription_plan, credits_balance, credits_period_key, credits_allocated")
+    .eq("id", userId)
+    .single();
+  if (error || !data) {
+    throw new AnalysisError(403, "NOT_SUBSCRIBED", "Profile not found.");
+  }
+  return data as ProfileCredits;
+}
+
+async function refreshCreditsIfNeeded(
+  admin: ReturnType<typeof createClient>,
+  userId: string,
+  profile: ProfileCredits,
+): Promise<ProfileCredits> {
+  const plan = profile.subscription_plan ?? "free";
+  if (!profile.is_pro || plan === "free") return profile;
+
+  const periodKey = currentPeriodKey(plan);
+  const allocated = allocationForPlan(plan);
+  if (profile.credits_period_key === periodKey && (profile.credits_allocated ?? 0) === allocated) {
+    return profile;
+  }
+
+  const { data, error } = await admin
+    .from("profiles")
+    .update({
+      credits_balance: allocated,
+      credits_allocated: allocated,
+      credits_period_key: periodKey,
+      subscription_plan: plan,
+      is_pro: true,
+      updated_at: new Date().toISOString(),
+    })
+    .eq("id", userId)
+    .select("is_pro, subscription_plan, credits_balance, credits_period_key, credits_allocated")
+    .single();
+
+  if (error || !data) {
+    throw new AnalysisError(500, "ANALYSIS_FAILED", "Could not refresh credits.");
+  }
+  return data as ProfileCredits;
+}
+
+async function checkCredits(
+  admin: ReturnType<typeof createClient>,
+  userId: string,
+): Promise<void> {
+  let profile = await loadProfileCredits(admin, userId);
+  if (!profile.is_pro) {
+    throw new AnalysisError(
+      403,
+      "NOT_SUBSCRIBED",
+      "Pro subscription required to run AI analysis.",
+    );
+  }
+
+  profile = await refreshCreditsIfNeeded(admin, userId, profile);
+  const balance = profile.credits_balance ?? 0;
+  if (balance < CREDITS_PER_GENERATION) {
+    throw new AnalysisError(
+      429,
+      "INSUFFICIENT_CREDITS",
+      "You need 5 credits for this analysis. Credits renew with your subscription plan.",
+    );
+  }
+}
+
+async function deductCredits(
+  admin: ReturnType<typeof createClient>,
+  userId: string,
+): Promise<number> {
+  const { data: profile } = await admin
+    .from("profiles")
+    .select("credits_balance")
+    .eq("id", userId)
+    .single();
+
+  const balance = profile?.credits_balance ?? 0;
+  const remaining = Math.max(0, balance - CREDITS_PER_GENERATION);
+  await admin.from("profiles").update({
+    credits_balance: remaining,
+    updated_at: new Date().toISOString(),
+  }).eq("id", userId);
+  return remaining;
 }
 
 async function enforceDailyLimit(

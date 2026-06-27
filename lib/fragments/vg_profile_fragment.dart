@@ -12,6 +12,8 @@ import '../models/vg_feature_model.dart';
 import '../screens/guide/vg_challenge_reward_screen.dart';
 import '../screens/guide/vg_routine_challenge_screen.dart';
 import '../services/vg_challenge_service.dart';
+import '../services/vg_credits_service.dart';
+import '../services/vg_polar_checkout_service.dart';
 import '../services/vg_subscription_store.dart';
 import '../utils/BMColors.dart';
 import '../utils/BMConstants.dart';
@@ -330,10 +332,16 @@ class _VGProfileFragmentState extends State<VGProfileFragment> {
   }
 
   Widget _accountSection() {
-    return FutureBuilder<bool>(
-      future: VGSubscriptionStore.isPro(),
+    return FutureBuilder<(bool isPro, int? credits)>(
+      future: _loadSubscriptionInfo(),
       builder: (context, snapshot) {
-        final isPro = snapshot.data == true;
+        final isPro = snapshot.data?.$1 == true;
+        final credits = snapshot.data?.$2;
+        final subtitle = isPro
+            ? (credits != null
+                ? '${VGCopy.profileSubscriptionPro} · ${VGCopy.profileCreditsRemaining(credits)}'
+                : VGCopy.profileSubscriptionPro)
+            : VGCopy.profileSubscriptionUpgradeHint;
         return Column(
           children: [
             _accountTile(
@@ -351,8 +359,16 @@ class _VGProfileFragmentState extends State<VGProfileFragment> {
             _accountTile(
               Icons.workspace_premium_outlined,
               VGCopy.profileSubscription,
-              subtitle: isPro ? VGCopy.profileSubscriptionPro : VGCopy.profileSubscriptionUpgradeHint,
-              onTap: isPro ? null : () => vgShowPaywall(context, entry: VGPaywallEntry.profile),
+              subtitle: subtitle,
+              onTap: isPro
+                  ? () async {
+                      try {
+                        await VGPolarCheckoutService.openCustomerPortal();
+                      } catch (_) {
+                        if (context.mounted) toast(VGCopy.paywallCheckoutError);
+                      }
+                    }
+                  : () => vgShowPaywall(context, entry: VGPaywallEntry.profile),
             ),
             _accountTile(Icons.privacy_tip_outlined, VGCopy.settingsPrivacy),
             _accountTile(Icons.mail_outline, VGCopy.settingsSupport, subtitle: vgSupportEmail),
@@ -360,6 +376,13 @@ class _VGProfileFragmentState extends State<VGProfileFragment> {
         );
       },
     );
+  }
+
+  Future<(bool, int?)> _loadSubscriptionInfo() async {
+    final isPro = await VGSubscriptionStore.isPro();
+    if (!isPro) return (false, null);
+    final credits = await VGCreditsService.fetchBalance();
+    return (true, credits);
   }
 
   Widget _accountTile(

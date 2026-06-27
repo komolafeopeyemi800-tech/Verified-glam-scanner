@@ -1,5 +1,7 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import 'vg_copy.dart';
+
 /// Typed analysis failure from edge function or client preflight.
 class VGAnalysisFailure implements Exception {
   final String message;
@@ -44,6 +46,20 @@ VGAnalysisFailure vgParseAnalysisError(Object error) {
   const prefix = 'Exception: ';
   final message = text.startsWith(prefix) ? text.substring(prefix.length) : text;
 
+  if (message.contains('Insufficient credits') || message.contains('INSUFFICIENT_CREDITS')) {
+    return const VGAnalysisFailure(
+      message: VGCopy.creditsInsufficientMessage,
+      errorCode: 'INSUFFICIENT_CREDITS',
+      status: 429,
+    );
+  }
+  if (message.contains('Pro subscription required') || message.contains('NOT_SUBSCRIBED')) {
+    return const VGAnalysisFailure(
+      message: 'Pro subscription required to run AI analysis.',
+      errorCode: 'NOT_SUBSCRIBED',
+      status: 403,
+    );
+  }
   if (message.contains('Daily scan limit')) {
     return VGAnalysisFailure(message: message, errorCode: 'DAILY_LIMIT', status: 429);
   }
@@ -72,6 +88,10 @@ String vgAnalysisErrorTitle(String errorCode) {
       return 'No Internet Connection';
     case 'DAILY_LIMIT':
       return 'Daily Limit Reached';
+    case 'INSUFFICIENT_CREDITS':
+      return 'Not Enough Credits';
+    case 'NOT_SUBSCRIBED':
+      return 'Subscription Required';
     case 'RATE_LIMITED':
       return 'Service Busy';
     case 'ANALYSIS_TIMEOUT':
@@ -99,6 +119,10 @@ String _defaultMessageForCode(String code) {
       return 'Analysis took too long. Please try with a clearer photo.';
     case 'DAILY_LIMIT':
       return 'Daily scan limit reached. Try again tomorrow.';
+    case 'INSUFFICIENT_CREDITS':
+      return VGCopy.creditsInsufficientMessage;
+    case 'NOT_SUBSCRIBED':
+      return 'Pro subscription required to run AI analysis.';
     case 'NETWORK_ERROR':
       return 'Please check your connection and try again.';
     case 'SERVICE_UNAVAILABLE':
@@ -114,6 +138,8 @@ String _codeFromStatus(int status) {
       return 'UNAUTHORIZED';
     case 422:
       return 'NO_FACE_DETECTED';
+    case 403:
+      return 'NOT_SUBSCRIBED';
     case 429:
       return 'RATE_LIMITED';
     case 503:

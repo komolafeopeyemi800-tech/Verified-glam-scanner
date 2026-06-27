@@ -11,7 +11,13 @@ Verified Glam Scanner is a product from Verified Glam (https://verifiedglam.com)
 - https://scanner.verifiedglam.com/privacy
 - https://scanner.verifiedglam.com/terms
 - https://scanner.verifiedglam.com/pricing
+- https://scanner.verifiedglam.com/login
+- https://scanner.verifiedglam.com/register
 - https://scanner.verifiedglam.com/tools
+
+## Billing
+
+Pro subscriptions are sold at https://scanner.verifiedglam.com/pricing via Polar.sh (Yearly and Pro weekly plans). Privacy: https://scanner.verifiedglam.com/privacy — Terms: https://scanner.verifiedglam.com/terms — About: https://scanner.verifiedglam.com/about
 
 ## AI beauty tools
 

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Cloudflare Pages build — installs Flutter, builds web app shell, overlays static marketing HTML.
+# Cloudflare Pages build — installs Flutter, builds web with dart-defines.
 # Required env: SUPABASE_URL, SUPABASE_ANON_KEY
 # Optional env: GOOGLE_WEB_CLIENT_ID
 
@@ -8,6 +8,7 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$ROOT"
 
+# Cloudflare dashboard multiline fields sometimes inject CR/LF/tabs into values.
 sanitize_env() {
   printf '%s' "${1:-}" | tr -d '\r\n\t'
 }
@@ -21,6 +22,7 @@ if [[ -z "${SUPABASE_URL}" || -z "${SUPABASE_ANON_KEY}" ]]; then
   exit 1
 fi
 
+# Production Cloudflare builds always use live Supabase + real analysis.
 VG_USE_SUPABASE="true"
 VG_USE_MOCK_ANALYSIS="false"
 
@@ -37,11 +39,12 @@ flutter precache --web
 echo "==> flutter pub get"
 flutter pub get
 
-echo "==> flutter build web (app-only entry)"
+echo "==> flutter build web (app shell only — main_web.dart)"
 BUILD_ARGS=(
   build web
   --release
   --no-wasm-dry-run
+  --no-tree-shake-icons
   -t lib/main_web.dart
   "--dart-define=SUPABASE_URL=${SUPABASE_URL}"
   "--dart-define=SUPABASE_ANON_KEY=${SUPABASE_ANON_KEY}"
@@ -60,16 +63,45 @@ if [[ -f "${BOOTSTRAP}" ]]; then
     sed -i '' 's/serviceWorkerSettings: {[^}]*}/serviceWorkerSettings: null/g' "${BOOTSTRAP}" 2>/dev/null || true
 fi
 
-echo "==> Overlay static marketing site"
+echo "==> Overlay static marketing pages"
 bash "${ROOT}/scripts/sync-static-site.sh"
 
 echo "==> Verify build output"
-for required in build/web/index.html build/web/flutter_bootstrap.js build/web/main.dart.js build/web/login/index.html; do
+REQUIRED=(
+  "build/web/index.html"
+  "build/web/pricing/index.html"
+  "build/web/about/index.html"
+  "build/web/privacy/index.html"
+  "build/web/terms/index.html"
+  "build/web/login/index.html"
+  "build/web/register/index.html"
+  "build/web/tools/index.html"
+  "build/web/face-beauty-analysis/index.html"
+  "build/web/404.html"
+  "build/web/flutter_bootstrap.js"
+  "build/web/main.dart.js"
+  "build/web/js/passkeys-bundle.js"
+  "build/web/_redirects"
+  "build/web/sitemap.xml"
+  "build/web/robots.txt"
+  "build/web/llms.txt"
+)
+for required in "${REQUIRED[@]}"; do
   if [[ ! -f "${required}" ]]; then
     echo "ERROR: Missing ${required} — build incomplete." >&2
     exit 1
   fi
 done
+
+# Marketing homepage must be static HTML (not the Flutter loader shell).
+if grep -q 'flutter_bootstrap.js' build/web/index.html; then
+  echo "ERROR: build/web/index.html is the Flutter shell — sync-static-site did not overlay marketing home." >&2
+  exit 1
+fi
+if ! grep -q 'Verified Glam Scanner' build/web/index.html; then
+  echo "ERROR: build/web/index.html missing marketing content." >&2
+  exit 1
+fi
 MAIN_SIZE="$(wc -c < build/web/main.dart.js | tr -d ' ')"
 echo "    main.dart.js size: ${MAIN_SIZE} bytes"
 if [[ "${MAIN_SIZE}" -lt 100000 ]]; then

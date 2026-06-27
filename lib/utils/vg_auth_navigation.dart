@@ -51,7 +51,7 @@ Future<void> vgNavigateAfterAuth(BuildContext context, {String? redirect}) async
   } else {
     if (kIsWeb) {
       final target = await vgTakePostAuthRedirect();
-      context.go(target ?? '/dashboard');
+      context.go(target ?? vgWebDefaultAppPath());
     } else {
       BMDashboardScreen(flag: false).launch(context, isNewTask: true);
     }
@@ -67,7 +67,7 @@ Future<void> vgNavigateAfterWalkthroughWithAuth(BuildContext context) async {
     await setValue(vgWalkthroughCompleteKey, true);
     if (kVGUseSupabase && VGSupabaseConfig.isConfigured && VGSupabaseInit.isReady) {
       if (!VGSupabaseAuthService.isSignedIn) {
-        vgWebGoLogin();
+        context.go('/login');
         return;
       }
       await vgNavigateAfterAuth(context);
@@ -80,7 +80,7 @@ Future<void> vgNavigateAfterWalkthroughWithAuth(BuildContext context) async {
   if (kVGUseSupabase && VGSupabaseConfig.isConfigured && VGSupabaseInit.isReady) {
     if (!VGSupabaseAuthService.isSignedIn) {
       if (kIsWeb) {
-        vgWebGoLogin();
+        context.go('/login');
       } else {
         BMLoginScreen().launch(context, isNewTask: true);
       }

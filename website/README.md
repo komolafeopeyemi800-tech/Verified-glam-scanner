@@ -53,23 +53,35 @@ window.VG_APP_URL = "https://app.verifiedglam.com";
 
 Redeploy the marketing Pages project. Update Supabase Site URL to `https://app.verifiedglam.com`.
 
-## Deploy to Cloudflare Pages
+## Deploy to Cloudflare (scanner.verifiedglam.com)
 
-1. Push this repository to GitHub (or connect your existing remote).
-2. In [Cloudflare Dashboard](https://dash.cloudflare.com/) → **Workers & Pages** → **Create** → **Pages** → **Connect to Git**.
-3. Select this repository.
-4. Configure build settings:
+**Important:** The live site is Flutter + static marketing HTML combined. Deploy from the **repo root**, not this `website/` folder alone.
+
+1. Push this repository to GitHub.
+2. Cloudflare Dashboard → **Workers & Pages** → your project → **Settings** → **Build**:
+3. Configure:
 
 | Setting | Value |
 |---------|--------|
-| **Root directory** | `website` |
-| **Build command** | *(leave empty)* |
-| **Build output directory** | `/` |
+| **Root directory** | *(leave empty / repo root)* |
+| **Build command** | `bash scripts/cloudflare-build.sh` |
+| **Build output directory** | `build/web` |
 
-5. Deploy. Your site will be available at `https://<project-name>.pages.dev`.
-6. Optional: add a custom domain under **Pages → your project → Custom domains**.
+4. Environment variables: `SUPABASE_URL`, `SUPABASE_ANON_KEY`, optional `GOOGLE_WEB_CLIENT_ID`.
+5. Deploy. Verify https://scanner.verifiedglam.com/pricing returns **200** (not 404).
 
-Flutter web deploy (subdomain `app.verifiedglam.com`) is separate — [WEB_APP_CLOUDFLARE_PLAN.md](../docs/WEB_APP_CLOUDFLARE_PLAN.md).
+Local production-like build:
+
+```powershell
+.\scripts\deploy-cloudflare.ps1
+npx wrangler deploy
+```
+
+See [POLAR_WEBSITE_REVIEW.md](../docs/POLAR_WEBSITE_REVIEW.md) and [WEB_APP_CLOUDFLARE_PLAN.md](../docs/WEB_APP_CLOUDFLARE_PLAN.md).
+
+### Legacy: marketing-only folder (deprecated)
+
+Do not use root `website/` as the Cloudflare output — it does not include the Flutter app shell for `/app/*`.
 
 ## Local preview (marketing only)
 

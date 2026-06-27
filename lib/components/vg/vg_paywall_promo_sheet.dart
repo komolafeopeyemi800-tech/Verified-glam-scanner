@@ -4,10 +4,12 @@ import 'package:flutter/material.dart';
 import 'package:nb_utils/nb_utils.dart';
 
 import '../../components/vg/vg_pill_button.dart';
+import '../../screens/BMLoginScreen.dart';
+import '../../screens/subscription/vg_subscription_success_screen.dart';
+import '../../services/supabase/vg_supabase_auth_service.dart';
 import '../../services/vg_subscription_store.dart';
 import '../../utils/BMColors.dart';
 import '../../utils/vg_copy.dart';
-import '../../screens/subscription/vg_subscription_success_screen.dart';
 
 Future<void> showVGPaywallPromoSheet(BuildContext context) async {
   await VGSubscriptionStore.startPromoTimer();
@@ -56,11 +58,24 @@ class _VGPaywallPromoSheetState extends State<VGPaywallPromoSheet> {
   }
 
   Future<void> _purchase() async {
-    await VGSubscriptionStore.purchaseMock(planName: 'promo_annual');
-    await VGSubscriptionStore.markPromoShownThisSession();
-    if (!mounted) return;
-    finish(context);
-    VGSubscriptionSuccessScreen().launch(context);
+    if (!VGSupabaseAuthService.isSignedIn) {
+      if (mounted) {
+        finish(context);
+        BMLoginScreen().launch(context);
+      }
+      return;
+    }
+    try {
+      final completed = await VGSubscriptionStore.purchase(planName: 'annual');
+      await VGSubscriptionStore.markPromoShownThisSession();
+      if (!mounted) return;
+      finish(context);
+      if (completed) {
+        VGSubscriptionSuccessScreen().launch(context);
+      }
+    } catch (_) {
+      if (mounted) toast(VGCopy.paywallCheckoutError);
+    }
   }
 
   @override
@@ -87,6 +102,7 @@ class _VGPaywallPromoSheetState extends State<VGPaywallPromoSheet> {
               child: IconButton(
                 onPressed: () async {
                   await VGSubscriptionStore.markPromoShownThisSession();
+                  if (!mounted) return;
                   finish(context);
                 },
                 icon: const Icon(Icons.close, color: Colors.white70),
@@ -105,7 +121,7 @@ class _VGPaywallPromoSheetState extends State<VGPaywallPromoSheet> {
             Text(VGCopy.paywallExpiresIn, style: secondaryTextStyle(color: Colors.white70, size: 12)),
             Text(_format(_remaining), style: boldTextStyle(color: Colors.white, size: 18)),
             20.height,
-            VGPillButton(label: VGCopy.paywallStartTrial, onTap: _purchase),
+            VGPillButton(label: VGCopy.paywallSubscribeNow, onTap: _purchase),
           ],
         ),
       ),

@@ -9,3 +9,12 @@ void vgOpenMarketingPage(String path) {
 void vgWebHardRedirect(String path) {
   web.window.location.assign(path);
 }
+
+/// Static marketing login with optional post-auth return path.
+void vgWebGoLogin({String? redirectPath}) {
+  if (redirectPath != null && redirectPath.isNotEmpty) {
+    vgWebHardRedirect('/login?redirect=${Uri.encodeComponent(redirectPath)}');
+  } else {
+    vgWebHardRedirect('/login');
+  }
+}

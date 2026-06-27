@@ -9,26 +9,30 @@ import '../vg_pill_button.dart';
 
 enum VGPaywallTheme { dark, light }
 
-/// Shared paywall — Yearly + Pro weekly plan cards, compare table, CTA.
+/// Shared paywall — Yearly + Pro weekly plan cards, compare table, per-plan CTAs.
 class VGPaywallPlansSection extends StatefulWidget {
-  final VoidCallback onPurchase;
+  final void Function(String planId)? onPurchaseForPlan;
+  final VoidCallback? onPurchase;
   final VoidCallback? onRestore;
   final VGPaywallTheme theme;
   final bool showCompareTable;
   final bool showPlanCards;
   final bool showTerms;
   final bool showCta;
+  final bool perPlanCta;
   final bool compact;
 
   const VGPaywallPlansSection({
     super.key,
-    required this.onPurchase,
+    this.onPurchaseForPlan,
+    this.onPurchase,
     this.onRestore,
     this.theme = VGPaywallTheme.light,
     this.showCompareTable = true,
     this.showPlanCards = true,
     this.showTerms = true,
     this.showCta = true,
+    this.perPlanCta = false,
     this.compact = false,
   });
 
@@ -37,8 +41,8 @@ class VGPaywallPlansSection extends StatefulWidget {
 }
 
 class VGPaywallPlansSectionState extends State<VGPaywallPlansSection> {
-  /// 0 = Yearly, 1 = Pro (weekly + 3-day trial)
-  int selectedPlan = 1;
+  /// 0 = Yearly, 1 = Pro weekly
+  int selectedPlan = VGPaywallPlansSectionState.planYearly;
 
   static const planYearly = 0;
   static const planProWeekly = 1;
@@ -48,11 +52,17 @@ class VGPaywallPlansSectionState extends State<VGPaywallPlansSection> {
 
   bool get isProSelected => selectedPlan == planProWeekly;
 
-  String get ctaLabel => isProSelected ? VGCopy.paywallStartTrial : VGCopy.paywallSelectPlan;
-
-  String? get footerHint => isProSelected ? VGCopy.paywallNoPaymentNow : VGCopy.paywallYearlySubtitle;
-
   bool get _dark => widget.theme == VGPaywallTheme.dark;
+
+  void _subscribePlan(int index) {
+    setState(() => selectedPlan = index);
+    final planId = planIdForSelection(index);
+    if (widget.onPurchaseForPlan != null) {
+      widget.onPurchaseForPlan!(planId);
+    } else {
+      widget.onPurchase?.call();
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -66,21 +76,28 @@ class VGPaywallPlansSectionState extends State<VGPaywallPlansSection> {
           if (widget.showPlanCards) (widget.compact ? 20.height : 28.height),
           _compareTable(),
         ],
-        if (widget.showCta) ...[
+        if (widget.showCta && !widget.perPlanCta) ...[
           widget.compact ? 18.height : 24.height,
-          VGPillButton(label: ctaLabel, onTap: widget.onPurchase),
-          10.height,
-          _footerHintRow(),
-          if (widget.onRestore != null) ...[
-            8.height,
-            TextButton(
-              onPressed: widget.onRestore,
-              child: Text(
-                VGCopy.paywallRestore,
-                style: boldTextStyle(color: _dark ? bmPrimaryColor : bmSpecialColor),
-              ),
+          VGPillButton(
+            label: VGCopy.paywallSubscribeNow,
+            onTap: () => _subscribePlan(selectedPlan),
+          ),
+          8.height,
+          Text(
+            VGCopy.paywallCancelAnytime,
+            style: secondaryTextStyle(color: _dark ? Colors.white54 : appTextColorSecondary, size: 12),
+            textAlign: TextAlign.center,
+          ),
+        ],
+        if (widget.onRestore != null) ...[
+          8.height,
+          TextButton(
+            onPressed: widget.onRestore,
+            child: Text(
+              VGCopy.paywallRestore,
+              style: boldTextStyle(color: _dark ? bmPrimaryColor : bmSpecialColor),
             ),
-          ],
+          ),
         ],
         if (widget.showTerms) ...[
           12.height,
@@ -106,9 +123,9 @@ class VGPaywallPlansSectionState extends State<VGPaywallPlansSection> {
     }
     return Column(
       children: [
-        _proWeeklyCard(),
-        12.height,
         _yearlyCard(),
+        12.height,
+        _proWeeklyCard(),
       ],
     );
   }
@@ -122,19 +139,26 @@ class VGPaywallPlansSectionState extends State<VGPaywallPlansSection> {
       period: VGCopy.paywallYearlyPeriod,
       wasPrice: VGCopy.paywallYearlyWasPrice,
       subtitle: VGCopy.paywallYearlySubtitle,
-      features: VGCopy.paywallPlanFeatures,
+      includedFeatures: [
+        ...VGCopy.paywallSharedFeatures,
+        ...VGCopy.paywallYearlyFeatures,
+      ],
+      creditBreakdown: VGCopy.paywallYearlyCreditBreakdown,
     );
   }
 
   Widget _proWeeklyCard() {
     return _selectablePlanCard(
       index: planProWeekly,
-      badge: VGCopy.paywallProTrialBadge,
       title: VGCopy.paywallProPlanName,
       price: VGCopy.paywallProWeeklyPrice,
       period: VGCopy.paywallProWeeklyPeriod,
-      subtitle: VGCopy.paywallProTrialLine,
-      features: VGCopy.paywallPlanFeatures,
+      subtitle: VGCopy.paywallProSubtitle,
+      includedFeatures: [
+        ...VGCopy.paywallSharedFeatures,
+        ...VGCopy.paywallProFeatures,
+      ],
+      creditBreakdown: VGCopy.paywallProCreditBreakdown,
     );
   }
 
@@ -143,7 +167,8 @@ class VGPaywallPlansSectionState extends State<VGPaywallPlansSection> {
     required String title,
     required String price,
     required String period,
-    required List<String> features,
+    required List<String> includedFeatures,
+    required List<String> creditBreakdown,
     String? badge,
     String? wasPrice,
     String? subtitle,
@@ -156,12 +181,12 @@ class VGPaywallPlansSectionState extends State<VGPaywallPlansSection> {
         ? (_dark ? bmSpecialColor.withValues(alpha: 0.2) : bmSecondBackgroundColorLight)
         : (_dark ? Colors.white10 : Colors.white);
 
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
+    return MouseRegion(
+      cursor: SystemMouseCursors.click,
+      child: GestureDetector(
         onTap: () => setState(() => selectedPlan = index),
-        borderRadius: BorderRadius.circular(16),
-        child: Container(
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 150),
           padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
             color: fill,
@@ -169,7 +194,7 @@ class VGPaywallPlansSectionState extends State<VGPaywallPlansSection> {
             border: Border.all(color: borderColor, width: selected ? 2 : 1),
           ),
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               Row(
                 children: [
@@ -232,22 +257,59 @@ class VGPaywallPlansSectionState extends State<VGPaywallPlansSection> {
                 ),
               ],
               16.height,
-              ...features.map(
-                (f) => Padding(
-                  padding: const EdgeInsets.only(bottom: 8),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Icon(Icons.check, size: 16, color: _dark ? bmPrimaryColor : bmSpecialColor),
-                      8.width,
-                      Expanded(child: Text(f, style: primaryTextStyle(color: _dark ? Colors.white : appTextColorPrimary, size: 13))),
-                    ],
-                  ),
-                ),
+              Text(
+                VGCopy.pricingWhatsIncluded,
+                style: boldTextStyle(color: _dark ? Colors.white : bmSpecialColorDark, size: 13),
               ),
+              8.height,
+              ...includedFeatures.map((f) => _featureRow(f)),
+              14.height,
+              Text(
+                VGCopy.pricingCreditBreakdown,
+                style: boldTextStyle(color: _dark ? Colors.white : bmSpecialColorDark, size: 13),
+              ),
+              8.height,
+              ...creditBreakdown.map((f) => _featureRow(f, muted: true)),
+              if (widget.perPlanCta) ...[
+                18.height,
+                VGPillButton(
+                  label: VGCopy.paywallSubscribeNow,
+                  onTap: () => _subscribePlan(index),
+                ),
+                6.height,
+                Text(
+                  VGCopy.paywallCancelAnytime,
+                  style: secondaryTextStyle(color: _dark ? Colors.white54 : appTextColorSecondary, size: 11),
+                  textAlign: TextAlign.center,
+                ),
+              ],
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _featureRow(String text, {bool muted = false}) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(Icons.check, size: 16, color: muted ? (_dark ? Colors.white38 : bmGreyColor) : (_dark ? bmPrimaryColor : bmSpecialColor)),
+          8.width,
+          Expanded(
+            child: Text(
+              text,
+              style: primaryTextStyle(
+                color: muted
+                    ? (_dark ? Colors.white60 : appTextColorSecondary)
+                    : (_dark ? Colors.white : appTextColorPrimary),
+                size: 13,
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -279,6 +341,11 @@ class VGPaywallPlansSectionState extends State<VGPaywallPlansSection> {
             children: [
               _compareHeader(),
               ...features.map(_compareRow),
+              _compareTextRow('Ad-Free Experience', '✓', '✓'),
+              _compareTextRow('Download Results', '✓', '✓'),
+              _compareTextRow('Credits Included', '200/year', '30/week'),
+              _compareTextRow('Cost per Generation', 'About \$0.20', 'About \$0.133'),
+              _compareTextRow('Credit Renewal', 'Annual', 'Weekly'),
             ],
           ),
         ),
@@ -315,6 +382,10 @@ class VGPaywallPlansSectionState extends State<VGPaywallPlansSection> {
   }
 
   Widget _compareRow(VGFeatureModel feature) {
+    return _compareTextRow(feature.title, '✓', '✓');
+  }
+
+  Widget _compareTextRow(String label, String yearly, String pro) {
     return Container(
       decoration: BoxDecoration(
         border: Border(top: BorderSide(color: _dark ? Colors.white12 : bmPrimaryColor.withValues(alpha: 0.12))),
@@ -322,30 +393,11 @@ class VGPaywallPlansSectionState extends State<VGPaywallPlansSection> {
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
       child: Row(
         children: [
-          Expanded(flex: 3, child: Text(feature.title, style: primaryTextStyle(color: _dark ? Colors.white : appTextColorPrimary, size: 12))),
-          const Expanded(child: Center(child: Icon(Icons.check, size: 16, color: bmSpecialColor))),
-          const Expanded(child: Center(child: Icon(Icons.check, size: 16, color: bmSpecialColor))),
+          Expanded(flex: 3, child: Text(label, style: primaryTextStyle(color: _dark ? Colors.white : appTextColorPrimary, size: 12))),
+          Expanded(child: Center(child: Text(yearly, style: boldTextStyle(color: bmSpecialColor, size: 12)))),
+          Expanded(child: Center(child: Text(pro, style: boldTextStyle(color: bmSpecialColor, size: 12)))),
         ],
       ),
-    );
-  }
-
-  Widget _footerHintRow() {
-    final hint = footerHint;
-    if (hint == null) return const SizedBox.shrink();
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        if (isProSelected) Icon(Icons.shield_outlined, color: _dark ? Colors.white54 : appTextColorSecondary, size: 16),
-        if (isProSelected) 6.width,
-        Flexible(
-          child: Text(
-            hint,
-            style: secondaryTextStyle(color: _dark ? Colors.white54 : appTextColorSecondary, size: 12),
-            textAlign: TextAlign.center,
-          ),
-        ),
-      ],
     );
   }
 
@@ -368,5 +420,5 @@ class VGPaywallPlansSectionState extends State<VGPaywallPlansSection> {
 
 String vgPaywallPlanIdFromSection(GlobalKey<VGPaywallPlansSectionState> key) {
   final state = key.currentState;
-  return VGPaywallPlansSectionState.planIdForSelection(state?.selectedPlan ?? VGPaywallPlansSectionState.planProWeekly);
+  return VGPaywallPlansSectionState.planIdForSelection(state?.selectedPlan ?? VGPaywallPlansSectionState.planYearly);
 }

@@ -9,11 +9,12 @@
     { "source": "/marketing", "destination": "/", "type": 301 }
   ],
   "rewrites": [
+    { "source": "/", "destination": "/index.html" },
+    { "source": "/tools", "destination": "/tools/index.html" },
+    { "source": "/pricing", "destination": "/pricing/index.html" },
     { "source": "/about", "destination": "/about/index.html" },
     { "source": "/privacy", "destination": "/privacy/index.html" },
     { "source": "/terms", "destination": "/terms/index.html" },
-    { "source": "/tools", "destination": "/tools/index.html" },
-    { "source": "/pricing", "destination": "/pricing/index.html" },
     { "source": "/login", "destination": "/login/index.html" },
     { "source": "/register", "destination": "/register/index.html" },
     { "source": "/face-beauty-analysis", "destination": "/face-beauty-analysis/index.html" },
@@ -25,6 +26,7 @@
     { "source": "/beauty-score-showdown", "destination": "/beauty-score-showdown/index.html" },
     { "source": "/face-comparison", "destination": "/face-comparison/index.html" },
     { "source": "/attractiveness-test", "destination": "/attractiveness-test/index.html" },
-    { "source": "/face-golden-ratio", "destination": "/face-golden-ratio/index.html" }
+    { "source": "/face-golden-ratio", "destination": "/face-golden-ratio/index.html" },
+    { "source": "/app/:path*", "destination": "/404.html" }
   ]
 }
