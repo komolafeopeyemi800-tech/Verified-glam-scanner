@@ -179,11 +179,9 @@ foreach ($seoFile in @("sitemap.xml", "robots.txt", "llms.txt", "_headers")) {
 }
 $staleRedirects = Join-Path $BuildWeb "_redirects"
 if (Test-Path $staleRedirects) { Remove-Item -Force $staleRedirects }
-
-$serveJson = Join-Path $Root "web\serve.json"
-if (Test-Path $serveJson) {
-  Copy-Item -Force $serveJson (Join-Path $BuildWeb "serve.json")
-}
+# serve.json redirects loop with wrangler html_handling (error 100324); local dev uses local-web-server.mjs
+$staleServeJson = Join-Path $BuildWeb "serve.json"
+if (Test-Path $staleServeJson) { Remove-Item -Force $staleServeJson }
 
 # Remove legacy iframe embed
 $legacyStatic = Join-Path $BuildWeb "_static"

@@ -71,6 +71,10 @@ if [[ -f "build/web/_redirects" ]]; then
   echo "ERROR: build/web/_redirects must not be deployed — wrangler html_handling loops on clean-URL redirects." >&2
   exit 1
 fi
+if [[ -f "build/web/serve.json" ]]; then
+  echo "ERROR: build/web/serve.json must not be deployed — wrangler converts redirects and triggers error 100324." >&2
+  exit 1
+fi
 REQUIRED=(
   "build/web/index.html"
   "build/web/pricing/index.html"

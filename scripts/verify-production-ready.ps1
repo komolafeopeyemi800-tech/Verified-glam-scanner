@@ -33,6 +33,9 @@ if ($bad.Count -gt 0) {
 if (Test-Path (Join-Path $buildWeb "_redirects")) {
   Write-Error "build/web/_redirects exists - wrangler will loop (error 100324)."
 }
+if (Test-Path (Join-Path $buildWeb "serve.json")) {
+  Write-Error "build/web/serve.json exists - wrangler converts redirects and loops (error 100324)."
+}
 
 Write-Host ""
 Write-Host "Cloudflare dashboard env (Production):" -ForegroundColor Yellow

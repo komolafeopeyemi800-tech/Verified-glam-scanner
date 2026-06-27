@@ -100,13 +100,8 @@ for f in sitemap.xml robots.txt llms.txt _headers; do
     cp -f "$ROOT/website/$f" "$BUILD/$f"
   fi
 done
-# _redirects is intentionally omitted — wrangler html_handling serves */index.html;
-# any /path -> /other 301 to clean URLs loops with drop-trailing-slash (error 100324).
-rm -f "$BUILD/_redirects"
-
-if [[ -f "$ROOT/web/serve.json" ]]; then
-  cp -f "$ROOT/web/serve.json" "$BUILD/serve.json"
-fi
+# _redirects and serve.json break Wrangler deploy (error 100324 with html_handling).
+rm -f "$BUILD/_redirects" "$BUILD/serve.json"
 
 rm -rf "$BUILD/_static" "$BUILD/marketing"
 
