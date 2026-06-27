@@ -10,6 +10,7 @@
 .dart_tool/
 .packages
 build/
+node_modules/
 
 # IDE
 .idea/

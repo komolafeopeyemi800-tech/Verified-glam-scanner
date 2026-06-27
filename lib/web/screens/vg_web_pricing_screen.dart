@@ -10,6 +10,7 @@ import '../../services/vg_polar_checkout_service.dart';
 import '../../services/vg_subscription_store.dart';
 import '../../utils/BMColors.dart';
 import '../../utils/vg_copy.dart';
+import '../content/vg_tool_landing_content.dart';
 import '../vg_web_breakpoints.dart';
 import '../vg_web_seo.dart';
 import '../vg_web_seo_schema.dart';
@@ -35,25 +36,35 @@ class _VGWebPricingScreenState extends State<VGWebPricingScreen> {
       canonicalPath: '/pricing',
       jsonLd: vgSeoPricingJsonLd(),
     );
-    _handleCheckoutReturn();
+    _handleCheckoutQuery();
   }
 
-  Future<void> _handleCheckoutReturn() async {
+  Future<void> _handleCheckoutQuery() async {
     final checkout = Uri.base.queryParameters['checkout'];
+    if (checkout == null || checkout.isEmpty) return;
+    if (!mounted) return;
+
+    if (checkout == 'cancelled') {
+      toast(VGCopy.checkoutCancelledToast);
+      return;
+    }
+    if (checkout == 'pending') {
+      toast(VGCopy.checkoutPendingToast);
+      return;
+    }
     if (checkout != 'success') return;
-    final restored = await VGPolarCheckoutService.refreshSubscriptionFromServer();
+
+    final restored = await VGPolarCheckoutService.pollSubscriptionFromServer();
     if (!mounted) return;
     if (restored) {
       toast(VGCopy.checkoutSuccessToast);
+      context.go('/app/face-beauty-analysis');
+    } else {
+      toast(VGCopy.checkoutPendingToast);
     }
   }
 
   Future<void> _purchaseForPlan(String planId) async {
-    if (!VGSupabaseAuthService.isSignedIn) {
-      if (mounted) context.go('/register?plan=$planId');
-      return;
-    }
-
     VGLoadingOverlay.show(context, message: VGCopy.paywallCheckoutOpening);
     try {
       final completed = await VGSubscriptionStore.purchase(planName: planId);

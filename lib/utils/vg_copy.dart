@@ -229,6 +229,15 @@ class VGCopy {
 
   // Profile dashboard
   static const profileDashboardSubtitle = 'Your beauty journey at a glance.';
+  static const profileDashboardSubtitleSaaS =
+      'Badges, credits, and subscription at a glance.';
+  static const profileMenuProfileBadges = 'Profile & badges';
+  static const profileMenuTerms = 'Terms of service';
+  static const creditsMetricBalance = 'Credits balance';
+  static const creditsMetricPlan = 'Plan';
+  static const creditsMetricAnalysesLeft = 'Analyses left';
+  static const creditsSubscribeToReceiveCredits = 'Subscribe to receive credits';
+  static const creditsFreePlanKpiHint = 'Subscribe for AI credits';
   static const profileFeaturedAchievement = 'Latest achievement';
   static const profileNoAchievementYet = 'Complete a challenge to earn your first badge.';
   static const profileActiveChallenge = 'Active challenge';
@@ -335,6 +344,22 @@ class VGCopy {
   static const paywallCheckoutOpening = 'Opening secure checkout…';
   static const profileManageSubscription = 'Manage subscription';
   static const checkoutSuccessToast = 'Welcome to Pro! Your credits are ready.';
+  static const checkoutPendingToast =
+      'Payment processing — your credits will appear shortly. Refresh if needed.';
+  static const checkoutCancelledToast = 'Checkout cancelled. Choose a plan when you are ready.';
+  static const creditsMyCreditsTitle = 'My Credits';
+  static const creditsBuyCredits = 'Buy credits';
+  static const creditsUsageDetailsTitle = 'Credit usage details';
+  static const creditsViewEarned = 'Earned';
+  static const creditsViewUsed = 'Used';
+  static const creditsProgressLabel = 'Credits';
+  static String creditsProgress(int balance, int allocated) => '$balance / $allocated Credits';
+  static String creditsBalanceTitle(int balance) => 'Credits: $balance';
+  static const creditsFreePlanHint = 'Free plan includes 0 credits. Subscribe to receive AI credits.';
+  static const creditsHistoryEmptyFree = 'Subscribe to receive credits and see your usage history here.';
+  static const creditsHistoryEmpty = 'No credit activity in this date range.';
+  static const creditsRenewsOn = 'Renews';
+  static String creditsPlanStatus(String status) => status.replaceAll('_', ' ');
   static const paywallPromoTitle = 'Special offer for you';
   static const paywallPromoSubtitle = 'Yearly \$39.99/year (was \$80.99) or Pro \$3.99/week with weekly credits.';
 

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 
 import '../../services/supabase/vg_supabase_auth_service.dart';
 import '../../utils/BMColors.dart';
@@ -7,6 +6,8 @@ import '../../utils/vg_constants.dart';
 import '../vg_web_breakpoints.dart';
 import '../vg_web_page_nav_stub.dart'
     if (dart.library.html) '../vg_web_page_nav_web.dart' as page_nav;
+import 'vg_web_credits_chip.dart';
+import 'vg_web_profile_menu.dart';
 import 'vg_web_tool_sidebar.dart';
 
 /// Web SaaS chrome — top bar + sidebar or drawer + main workspace.
@@ -98,7 +99,11 @@ class _VGWebAppShellState extends State<VGWebAppShell> {
                             ),
                           ),
                         if (!drawerNav) const Spacer(),
-                        if (signedIn)
+                        if (signedIn) ...[
+                          VGWebCreditsChip(compact: phone),
+                          const SizedBox(width: 4),
+                          VGWebProfileMenu(section: widget.section),
+                          const SizedBox(width: 4),
                           phone
                               ? IconButton(
                                   onPressed: () => _signOut(context),
@@ -108,8 +113,8 @@ class _VGWebAppShellState extends State<VGWebAppShell> {
                               : TextButton(
                                   onPressed: () => _signOut(context),
                                   child: const Text('Sign out', style: TextStyle(color: bmSpecialColor)),
-                                )
-                        else
+                                ),
+                        ] else
                           phone
                               ? IconButton(
                                   onPressed: () => page_nav.vgWebGoLogin(),

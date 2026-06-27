@@ -156,7 +156,7 @@
 <li>40 total generations per year</li>
 <li>Effective cost: $0.20 per credit</li></ul>
           <div class="vg-plan-card__cta">
-            <a class="vg-btn-pill vg-btn-pill--primary vg-checkout-btn" href="/register?plan=annual" data-plan="annual">Subscribe now</a>
+            <a class="vg-btn-pill vg-btn-pill--primary vg-checkout-btn" href="#" data-plan="annual">Subscribe now</a>
             <p class="vg-plan-card__cancel">Cancel anytime</p>
           </div>
         </div>
@@ -186,7 +186,7 @@
 <li>6 generations every week</li>
 <li>Effective cost: $0.133 per credit</li></ul>
           <div class="vg-plan-card__cta">
-            <a class="vg-btn-pill vg-btn-pill--primary vg-checkout-btn" href="/register?plan=pro_weekly" data-plan="pro_weekly">Subscribe now</a>
+            <a class="vg-btn-pill vg-btn-pill--primary vg-checkout-btn" href="#" data-plan="pro_weekly">Subscribe now</a>
             <p class="vg-plan-card__cancel">Cancel anytime</p>
           </div>
         </div>
@@ -285,6 +285,12 @@
         <p>See <a href="/terms">Terms</a> · <a href="/privacy">Privacy</a></p>
       </div>
     </div>
+
+    <section class="vg-pricing-manage" id="vg-pricing-manage" hidden>
+      <p class="vg-pricing-manage__text">You have an active Pro subscription</p>
+      <p class="vg-pricing-manage__credits" id="vg-pricing-credits-wrap">Credits: <strong id="vg-pricing-credits-balance" hidden>0</strong></p>
+      <button type="button" class="vg-btn-pill vg-btn-pill--secondary" id="vg-manage-billing-btn">Manage subscription</button>
+    </section>
 
     <section class="vg-pricing-signup">
       <a class="vg-btn-pill vg-btn-pill--primary vg-app-link" href="/register">Sign up</a>

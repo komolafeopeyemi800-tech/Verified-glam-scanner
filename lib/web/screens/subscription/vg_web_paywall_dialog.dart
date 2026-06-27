@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:nb_utils/nb_utils.dart';
 
 import '../../../components/vg/subscription/vg_paywall_plans_section.dart';
 import '../../../components/vg/vg_loading_overlay.dart';
-import '../../../screens/subscription/vg_subscription_success_screen.dart';
 import '../../../services/supabase/vg_supabase_auth_service.dart';
+import '../../../services/vg_polar_checkout_service.dart';
 import '../../../services/vg_subscription_store.dart';
 import '../../../utils/BMColors.dart';
 import '../../../utils/vg_copy.dart';
@@ -48,30 +49,20 @@ class _VGWebPaywallDialogBodyState extends State<_VGWebPaywallDialogBody> {
   final _plansKey = GlobalKey<VGPaywallPlansSectionState>();
 
   Future<void> _purchaseForPlan(String planId) async {
+    if (!mounted) return;
+    Navigator.of(context).pop();
+    widget.onDismiss?.call();
+
     if (!VGSupabaseAuthService.isSignedIn) {
-      if (mounted) {
-        Navigator.of(context).pop();
-        widget.onDismiss?.call();
+      try {
+        await VGPolarCheckoutService.openCheckout(planId);
+      } catch (_) {
+        if (mounted) toast(VGCopy.paywallCheckoutError);
       }
       return;
     }
 
-    VGLoadingOverlay.show(context, message: VGCopy.paywallCheckoutOpening);
-    try {
-      final completed = await VGSubscriptionStore.purchase(planName: planId);
-      if (!mounted) return;
-      VGLoadingOverlay.hide(context);
-      if (completed) {
-        Navigator.of(context).pop();
-        widget.onDismiss?.call();
-        VGSubscriptionSuccessScreen().launch(context);
-      }
-    } catch (_) {
-      if (mounted) {
-        VGLoadingOverlay.hide(context);
-        toast(VGCopy.paywallCheckoutError);
-      }
-    }
+    context.go('/pricing?plan=$planId');
   }
 
   Future<void> _restore() async {

@@ -105,6 +105,14 @@ if ! grep -q 'Verified Glam Scanner' build/web/index.html; then
   echo "ERROR: build/web/index.html missing marketing content." >&2
   exit 1
 fi
+if grep -q '__SUPABASE_URL__' build/web/js/auth-config.js 2>/dev/null; then
+  echo "ERROR: build/web/js/auth-config.js still has __SUPABASE_URL__ placeholder." >&2
+  exit 1
+fi
+if grep -q '__POLAR_CHECKOUT_LINK_ANNUAL__' build/web/js/auth-config.js 2>/dev/null; then
+  echo "ERROR: build/web/js/auth-config.js missing POLAR_CHECKOUT_LINK_ANNUAL (set env or .env.example)." >&2
+  exit 1
+fi
 MAIN_SIZE="$(wc -c < build/web/main.dart.js | tr -d ' ')"
 echo "    main.dart.js size: ${MAIN_SIZE} bytes"
 if [[ "${MAIN_SIZE}" -lt 100000 ]]; then

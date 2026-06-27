@@ -41,6 +41,9 @@ class _VGWebRegisterScreenState extends State<VGWebRegisterScreen> {
     super.dispose();
   }
 
+  String? get _postAuthTarget =>
+      vgPostAuthTargetFromQuery(GoRouterState.of(context).uri.queryParameters);
+
   String? get _redirect => GoRouterState.of(context).uri.queryParameters['redirect'];
 
   Future<void> _register() async {
@@ -73,12 +76,19 @@ class _VGWebRegisterScreenState extends State<VGWebRegisterScreen> {
       );
       if (!mounted) return;
       if (response.session != null) {
-        await vgNavigateAfterAuth(context, redirect: _redirect);
+        await vgNavigateAfterAuth(context, redirect: _postAuthTarget ?? _redirect);
       } else {
-        toast('Account created — check your email to confirm, then sign in.');
-        final loginPath = _redirect != null
-            ? '/login?redirect=${Uri.encodeComponent(_redirect!)}'
-            : '/login';
+        final plan = vgCheckoutPlanFromQuery(GoRouterState.of(context).uri.queryParameters);
+        final msg = plan != null
+            ? 'Account created — check your email to confirm, then sign in to complete checkout.'
+            : 'Account created — check your email to confirm, then sign in.';
+        toast(msg);
+        var loginPath = '/login';
+        if (_postAuthTarget != null) {
+          loginPath = '/login?redirect=${Uri.encodeComponent(_postAuthTarget!)}';
+        } else if (_redirect != null) {
+          loginPath = '/login?redirect=${Uri.encodeComponent(_redirect!)}';
+        }
         context.go(loginPath);
       }
     } catch (e) {
@@ -97,7 +107,7 @@ class _VGWebRegisterScreenState extends State<VGWebRegisterScreen> {
     try {
       await VGSupabaseAuthService.signInWithGoogle();
       if (!mounted) return;
-      await vgNavigateAfterAuth(context, redirect: _redirect);
+      await vgNavigateAfterAuth(context, redirect: _postAuthTarget ?? _redirect);
     } catch (e) {
       toast(vgAuthErrorMessage(e));
     } finally {
@@ -107,9 +117,11 @@ class _VGWebRegisterScreenState extends State<VGWebRegisterScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final loginPath = _redirect != null
-        ? '/login?redirect=${Uri.encodeComponent(_redirect!)}'
-        : '/login';
+    final loginPath = _postAuthTarget != null
+        ? '/login?redirect=${Uri.encodeComponent(_postAuthTarget!)}'
+        : (_redirect != null
+            ? '/login?redirect=${Uri.encodeComponent(_redirect!)}'
+            : '/login');
 
     return VGWebAuthLayout(
       title: 'Create your account',

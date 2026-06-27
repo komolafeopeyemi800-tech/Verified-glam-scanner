@@ -1,24 +1,33 @@
 import {
   validateEvent,
   WebhookVerificationError,
-} from "https://esm.sh/@polar-sh/sdk/webhooks@0.32.16";
+} from "npm:@polar-sh/sdk@0.32.16/webhooks";
 import {
   createAdminClient,
   extractProductId,
-  extractUserIdFromCustomer,
   grantSubscriptionCredits,
   planForPolarProductId,
+  resolveUserIdFromPolarCustomer,
   revokeSubscription,
   type SubscriptionPlan,
 } from "../_shared/credits.ts";
+import { assertEventOrganization } from "../_shared/polar.ts";
 
-const FUNCTION_VERSION = "1";
+const FUNCTION_VERSION = "4";
 
 function json(status: number, body: Record<string, unknown>) {
   return new Response(JSON.stringify({ ...body, version: FUNCTION_VERSION }), {
     status,
     headers: { "Content-Type": "application/json" },
   });
+}
+
+function headersToRecord(headers: Headers): Record<string, string> {
+  const out: Record<string, string> = {};
+  headers.forEach((value, key) => {
+    out[key] = value;
+  });
+  return out;
 }
 
 async function isDuplicateEvent(admin: ReturnType<typeof createAdminClient>, eventId: string): Promise<boolean> {
@@ -53,9 +62,9 @@ async function handleSubscriptionActive(
   data: Record<string, unknown>,
   forceRefresh = false,
 ): Promise<void> {
-  const userId = extractUserIdFromCustomer(customerFromPayload(data));
+  const userId = await resolveUserIdFromPolarCustomer(admin, customerFromPayload(data));
   if (!userId) {
-    console.warn("Polar webhook: missing external customer id", data.id);
+    console.warn("Polar webhook: no matching user (external_id or email)", data.id);
     return;
   }
 
@@ -86,7 +95,7 @@ async function handleSubscriptionRevoked(
   data: Record<string, unknown>,
   status: "canceled" | "revoked" | "past_due",
 ): Promise<void> {
-  const userId = extractUserIdFromCustomer(customerFromPayload(data));
+  const userId = await resolveUserIdFromPolarCustomer(admin, customerFromPayload(data));
   if (!userId) return;
 
   const retain = status === "canceled";
@@ -110,7 +119,7 @@ async function handleOrderRenewal(
     return;
   }
 
-  const userId = extractUserIdFromCustomer(customerFromPayload(data));
+  const userId = await resolveUserIdFromPolarCustomer(admin, customerFromPayload(data));
   if (!userId) return;
 
   const product = data.product as Record<string, unknown> | undefined;
@@ -127,6 +136,24 @@ async function handleOrderRenewal(
 }
 
 Deno.serve(async (req) => {
+  if (req.method === "OPTIONS") {
+    return new Response("ok", {
+      headers: {
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Headers": "content-type, webhook-id, webhook-signature, webhook-timestamp",
+        "X-Function-Version": FUNCTION_VERSION,
+      },
+    });
+  }
+
+  if (req.method === "GET" || req.method === "HEAD") {
+    return json(200, {
+      ok: true,
+      endpoint: "polar-webhook",
+      hint: "Polar delivers events via POST with Standard Webhooks signatures",
+    });
+  }
+
   if (req.method !== "POST") {
     return json(405, { error: "Method not allowed" });
   }
@@ -138,10 +165,11 @@ Deno.serve(async (req) => {
   }
 
   const rawBody = await req.text();
+  const headerRecord = headersToRecord(req.headers);
   let event: { type: string; data: Record<string, unknown> };
 
   try {
-    event = validateEvent(rawBody, req.headers, webhookSecret) as {
+    event = validateEvent(rawBody, headerRecord, webhookSecret) as {
       type: string;
       data: Record<string, unknown>;
     };
@@ -163,6 +191,12 @@ Deno.serve(async (req) => {
   try {
     const type = event.type;
     const data = event.data ?? {};
+
+    const orgError = assertEventOrganization(data);
+    if (orgError) {
+      console.error(orgError);
+      return json(403, { error: orgError });
+    }
 
     switch (type) {
       case "subscription.active":

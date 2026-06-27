@@ -27,6 +27,18 @@ const String vgParentCompanyUrl = 'https://verifiedglam.com';
 const String vgLegalSupportEmail = 'support@verifiedglam.com';
 const String vgMarketingAssetsPrefix = 'images/vg/marketing/';
 
+/// Public Polar checkout links (guest checkout — user enters email on Polar).
+const String vgPolarCheckoutLinkAnnual = String.fromEnvironment(
+  'POLAR_CHECKOUT_LINK_ANNUAL',
+  defaultValue:
+      'https://buy.polar.sh/polar_cl_dlK0Tq44DzEmuJh3i5AFkQdkfFQd4L8910MJT3YsdT1',
+);
+const String vgPolarCheckoutLinkProWeekly = String.fromEnvironment(
+  'POLAR_CHECKOUT_LINK_PRO_WEEKLY',
+  defaultValue:
+      'https://buy.polar.sh/polar_cl_xBMQgfvP21DLP6lsJtMqBPCho8XZIg9QQS6D52jTWRv',
+);
+
 const String vgWalkthroughCompleteKey = 'vg_walkthrough_complete';
 const String vgPostAuthRedirectKey = 'vg_post_auth_redirect';
 const String vgOnboardingCompleteKey = 'vg_onboarding_complete';

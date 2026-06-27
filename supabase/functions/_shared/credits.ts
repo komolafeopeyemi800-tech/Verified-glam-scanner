@@ -51,6 +51,42 @@ export function createAdminClient() {
   return createClient(supabaseUrl, serviceRole);
 }
 
+export type CreditTransactionKind =
+  | "subscription_grant"
+  | "period_refresh"
+  | "analysis"
+  | "subscription_revoke";
+
+export async function logCreditTransaction(
+  admin: ReturnType<typeof createAdminClient>,
+  userId: string,
+  opts: {
+    amount: number;
+    kind: CreditTransactionKind;
+    description: string;
+    featureType?: string | null;
+    balanceAfter?: number | null;
+  },
+): Promise<void> {
+  const { error } = await admin.from("credit_transactions").insert({
+    user_id: userId,
+    amount: opts.amount,
+    kind: opts.kind,
+    description: opts.description,
+    feature_type: opts.featureType ?? null,
+    balance_after: opts.balanceAfter ?? null,
+  });
+  if (error) {
+    console.error("logCreditTransaction failed:", error.message);
+  }
+}
+
+function planCreditLabel(plan: SubscriptionPlan): string {
+  if (plan === "annual") return "Yearly subscription";
+  if (plan === "pro_weekly") return "Pro weekly subscription";
+  return "Subscription";
+}
+
 export async function grantSubscriptionCredits(
   admin: ReturnType<typeof createAdminClient>,
   userId: string,
@@ -75,6 +111,7 @@ export async function grantSubscriptionCredits(
 
   const samePeriod = existing?.credits_period_key === periodKey &&
     (existing?.credits_allocated ?? 0) === allocated;
+  const previousBalance = existing?.credits_balance ?? 0;
   const balance = opts.forceRefresh || !samePeriod
     ? allocated
     : (existing?.credits_balance ?? allocated);
@@ -94,6 +131,24 @@ export async function grantSubscriptionCredits(
   if (opts.periodEnd) update.subscription_current_period_end = opts.periodEnd;
 
   await admin.from("profiles").update(update).eq("id", userId);
+
+  if (opts.forceRefresh || !samePeriod) {
+    const amountGranted = balance - previousBalance;
+    if (amountGranted > 0) {
+      const hadPriorPeriod = Boolean(existing?.credits_period_key);
+      const kind: CreditTransactionKind = hadPriorPeriod && !samePeriod
+        ? "period_refresh"
+        : "subscription_grant";
+      await logCreditTransaction(admin, userId, {
+        amount: amountGranted,
+        kind,
+        description: kind === "period_refresh"
+          ? `${planCreditLabel(plan)} credits renewed`
+          : `${planCreditLabel(plan)} credits granted`,
+        balanceAfter: balance,
+      });
+    }
+  }
 }
 
 export async function revokeSubscription(
@@ -108,6 +163,13 @@ export async function revokeSubscription(
   const now = new Date();
   const periodEnd = opts.periodEnd ? new Date(opts.periodEnd) : null;
   const retain = opts.retainAccessUntilPeriodEnd && periodEnd && periodEnd > now;
+
+  const { data: existing } = await admin
+    .from("profiles")
+    .select("credits_balance")
+    .eq("id", userId)
+    .maybeSingle();
+  const previousBalance = existing?.credits_balance ?? 0;
 
   const update: Record<string, unknown> = {
     subscription_status: opts.subscriptionStatus,
@@ -127,13 +189,42 @@ export async function revokeSubscription(
   }
 
   await admin.from("profiles").update(update).eq("id", userId);
+
+  if (!retain && previousBalance > 0) {
+    await logCreditTransaction(admin, userId, {
+      amount: -previousBalance,
+      kind: "subscription_revoke",
+      description: "Subscription ended — credits cleared",
+      balanceAfter: 0,
+    });
+  }
 }
 
 export function extractUserIdFromCustomer(customer: Record<string, unknown> | null | undefined): string | null {
   if (!customer) return null;
-  const externalId = customer.external_id ?? customer.externalId;
+  const externalId = customer.external_id ?? customer.externalId ??
+    customer.external_customer_id ?? customer.externalCustomerId;
   if (typeof externalId === "string" && externalId.length > 0) return externalId;
   return null;
+}
+
+/** Match Supabase user from Polar customer external_id or email (guest checkout). */
+export async function resolveUserIdFromPolarCustomer(
+  admin: ReturnType<typeof createAdminClient>,
+  customer: Record<string, unknown> | null | undefined,
+): Promise<string | null> {
+  const fromExternal = extractUserIdFromCustomer(customer);
+  if (fromExternal) return fromExternal;
+
+  const email = customer?.email;
+  if (typeof email !== "string" || email.trim().length === 0) return null;
+
+  const { data } = await admin
+    .from("profiles")
+    .select("id")
+    .ilike("email", email.trim())
+    .maybeSingle();
+  return data?.id ?? null;
 }
 
 export function extractProductId(subscription: Record<string, unknown>): string | null {

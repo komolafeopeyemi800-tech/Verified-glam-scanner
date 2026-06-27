@@ -29,6 +29,24 @@ bool vgIsSafeRedirectPath(String? path) {
   return !blocked.contains(path);
 }
 
+const _validCheckoutPlans = {'annual', 'pro_weekly'};
+
+/// Plan id from `/register?plan=` or `/pricing?plan=` (annual | pro_weekly).
+String? vgCheckoutPlanFromQuery(Map<String, String> query) {
+  final plan = query['plan'];
+  if (plan != null && _validCheckoutPlans.contains(plan)) return plan;
+  return null;
+}
+
+/// Post-auth destination: explicit redirect, or pricing with plan for checkout resume.
+String? vgPostAuthTargetFromQuery(Map<String, String> query) {
+  final redirect = query['redirect'];
+  if (vgIsSafeRedirectPath(redirect)) return redirect;
+  final plan = vgCheckoutPlanFromQuery(query);
+  if (plan != null) return '/pricing?plan=$plan';
+  return null;
+}
+
 Future<void> vgSavePostAuthRedirect(String? path) async {
   if (vgIsSafeRedirectPath(path)) {
     await setValue(vgPostAuthRedirectKey, path!);
@@ -43,8 +61,9 @@ Future<String?> vgTakePostAuthRedirect() async {
 }
 
 void vgCaptureRedirectFromUri(BuildContext context) {
-  final redirect = GoRouterState.of(context).uri.queryParameters['redirect'];
-  if (vgIsSafeRedirectPath(redirect)) {
-    setValue(vgPostAuthRedirectKey, redirect!);
+  final query = GoRouterState.of(context).uri.queryParameters;
+  final target = vgPostAuthTargetFromQuery(query);
+  if (target != null) {
+    setValue(vgPostAuthRedirectKey, target);
   }
 }

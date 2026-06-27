@@ -1,8 +1,15 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.49.1";
-import { Polar } from "https://esm.sh/@polar-sh/sdk@0.32.16";
 import { polarProductIds } from "../_shared/credits.ts";
+import {
+  buildCheckoutLinkUrl,
+  createPolarClient,
+  polarAccessToken,
+  polarCancelUrl,
+  polarCheckoutLinkForPlan,
+  polarSuccessUrl,
+} from "../_shared/polar.ts";
 
-const FUNCTION_VERSION = "1";
+const FUNCTION_VERSION = "4";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -34,10 +41,6 @@ function productIdForPlan(planId: string): string | null {
   return null;
 }
 
-function polarServer(): "sandbox" | "production" {
-  return Deno.env.get("POLAR_ENV") === "production" ? "production" : "sandbox";
-}
-
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response("ok", { headers: responseHeaders() });
@@ -49,8 +52,7 @@ Deno.serve(async (req) => {
       return jsonError(401, "Missing authorization");
     }
 
-    const accessToken = Deno.env.get("POLAR_ACCESS_TOKEN")?.trim();
-    if (!accessToken) {
+    if (!polarAccessToken()) {
       return jsonError(503, "POLAR_ACCESS_TOKEN not configured");
     }
 
@@ -71,20 +73,41 @@ Deno.serve(async (req) => {
       return jsonError(400, "Invalid planId");
     }
 
-    const productId = productIdForPlan(planId);
-    if (!productId) {
-      return jsonError(503, "Polar product ID not configured");
+    const successUrl = polarSuccessUrl();
+    const cancelUrl = polarCancelUrl();
+    const staticLink = polarCheckoutLinkForPlan(planId);
+
+    if (staticLink) {
+      const checkoutUrl = buildCheckoutLinkUrl(
+        staticLink,
+        userData.user.id,
+        userData.user.email,
+      );
+      return new Response(
+        JSON.stringify({ checkoutUrl, successUrl, cancelUrl, version: FUNCTION_VERSION }),
+        { headers: responseHeaders({ "Content-Type": "application/json" }) },
+      );
     }
 
-    const successUrl = Deno.env.get("POLAR_SUCCESS_URL") ??
-      "https://scanner.verifiedglam.com/pricing?checkout=success";
+    const polar = createPolarClient();
+    if (!polar) {
+      return jsonError(503, "Polar client not configured");
+    }
 
-    const polar = new Polar({ accessToken, server: polarServer() });
+    const productId = productIdForPlan(planId);
+    if (!productId) {
+      return jsonError(
+        503,
+        "Polar checkout not configured — set POLAR_CHECKOUT_LINK_* or POLAR_PRODUCT_ID_* secrets",
+      );
+    }
+
     const checkout = await polar.checkouts.create({
       products: [productId],
-      externalCustomerId: userData.user.id,
+      customerExternalId: userData.user.id,
       customerEmail: userData.user.email ?? undefined,
       successUrl,
+      cancelUrl,
     });
 
     if (!checkout.url) {
@@ -92,7 +115,12 @@ Deno.serve(async (req) => {
     }
 
     return new Response(
-      JSON.stringify({ checkoutUrl: checkout.url, version: FUNCTION_VERSION }),
+      JSON.stringify({
+        checkoutUrl: checkout.url,
+        successUrl,
+        cancelUrl,
+        version: FUNCTION_VERSION,
+      }),
       { headers: responseHeaders({ "Content-Type": "application/json" }) },
     );
   } catch (e) {

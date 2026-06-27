@@ -84,11 +84,15 @@ Cross-platform billing uses Polar hosted checkout — **not** Google Play Billin
 | Secret | Value |
 |--------|--------|
 | `POLAR_ACCESS_TOKEN` | Organization access token (sandbox first, then production) |
+| `POLAR_ORGANIZATION_ID` | Organization UUID from Polar → Settings → **Unique identifier for your organization** |
+| `POLAR_ORGANIZATION_SLUG` | Org slug for `https://polar.sh/{slug}/portal` fallback (Settings → slug) |
 | `POLAR_WEBHOOK_SECRET` | From Polar webhook endpoint setup |
 | `POLAR_PRODUCT_ID_ANNUAL` | `9e185286-cf2b-41b8-a728-e7154d144722` |
 | `POLAR_PRODUCT_ID_PRO_WEEKLY` | `8c9fddc9-1001-4143-8a27-31ce929ae5e6` |
-| `POLAR_SUCCESS_URL` | `https://scanner.verifiedglam.com/pricing?checkout=success` |
-| `POLAR_ENV` | `sandbox` or `production` |
+| `POLAR_CHECKOUT_LINK_ANNUAL` | Optional — Polar Checkout Link URL (used when set; links user via `customerExternalId`) |
+| `POLAR_CHECKOUT_LINK_PRO_WEEKLY` | Optional — same for Pro weekly plan |
+| `POLAR_SUCCESS_URL` | `https://scanner.verifiedglam.com/app/face-beauty-analysis?checkout=success` (post-payment dashboard) |
+| `POLAR_ENV` | **`production`** for live billing (defaults to sandbox if unset or any other value) |
 
 **Polar Dashboard:** Register webhook URL `https://YOUR_PROJECT.supabase.co/functions/v1/polar-webhook`. Subscribe to subscription and order events.
 

@@ -43,7 +43,10 @@ if (-not (Test-Path $dart)) { $dart = "dart" }
 
 Write-Host "==> Generate static HTML pages"
 Set-Location $Root
-& $dart run tool/generate_marketing_html.dart
+$prevEa = $ErrorActionPreference
+$ErrorActionPreference = "Continue"
+& $dart run tool/generate_marketing_html.dart 2>&1 | ForEach-Object { Write-Host $_ }
+$ErrorActionPreference = $prevEa
 if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
 # Save Flutter SPA shell before overwriting root index.html (only when build output is the app shell).
@@ -116,9 +119,26 @@ if (Test-Path $EnvFile) {
     $vars[$line.Substring(0, $idx).Trim()] = $line.Substring($idx + 1).Trim()
   }
 }
+$exampleEnv = Join-Path $Root ".env.example"
+if (Test-Path $exampleEnv) {
+  Get-Content $exampleEnv | ForEach-Object {
+    $line = $_.Trim()
+    if ($line -eq "" -or $line.StartsWith("#")) { return }
+    $idx = $line.IndexOf("=")
+    if ($idx -lt 1) { return }
+    $key = $line.Substring(0, $idx).Trim()
+    $val = $line.Substring($idx + 1).Trim()
+    if ($val -match "your_" -or [string]::IsNullOrWhiteSpace($val)) { return }
+    if (-not $vars.ContainsKey($key) -or [string]::IsNullOrWhiteSpace($vars[$key])) {
+      $vars[$key] = $val
+    }
+  }
+}
 $supabaseUrl = $vars["SUPABASE_URL"]
 $supabaseKey = $vars["SUPABASE_ANON_KEY"]
 $googleId = $vars["GOOGLE_WEB_CLIENT_ID"]
+$polarAnnual = $vars["POLAR_CHECKOUT_LINK_ANNUAL"]
+$polarWeekly = $vars["POLAR_CHECKOUT_LINK_PRO_WEEKLY"]
 if (-not $supabaseUrl) { $supabaseUrl = $env:SUPABASE_URL }
 if (-not $supabaseKey) { $supabaseKey = $env:SUPABASE_ANON_KEY }
 if (-not $googleId) { $googleId = $env:GOOGLE_WEB_CLIENT_ID }
@@ -129,6 +149,8 @@ if (Test-Path $authConfig) {
   if ($supabaseUrl) { $cfg = $cfg -replace '__SUPABASE_URL__', $supabaseUrl }
   if ($supabaseKey) { $cfg = $cfg -replace '__SUPABASE_ANON_KEY__', $supabaseKey }
   if ($googleId) { $cfg = $cfg -replace '__GOOGLE_WEB_CLIENT_ID__', $googleId }
+  if ($polarAnnual) { $cfg = $cfg -replace '__POLAR_CHECKOUT_LINK_ANNUAL__', $polarAnnual }
+  if ($polarWeekly) { $cfg = $cfg -replace '__POLAR_CHECKOUT_LINK_PRO_WEEKLY__', $polarWeekly }
   Write-FileWithRetry -Path $authConfig -Content $cfg
 }
 

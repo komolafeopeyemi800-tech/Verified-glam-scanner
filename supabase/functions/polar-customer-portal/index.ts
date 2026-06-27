@@ -1,7 +1,11 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.49.1";
-import { Polar } from "https://esm.sh/@polar-sh/sdk@0.32.16";
+import {
+  createPolarClient,
+  defaultPortalUrl,
+  polarAccessToken,
+} from "../_shared/polar.ts";
 
-const FUNCTION_VERSION = "1";
+const FUNCTION_VERSION = "2";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -24,10 +28,6 @@ function jsonError(status: number, message: string) {
   );
 }
 
-function polarServer(): "sandbox" | "production" {
-  return Deno.env.get("POLAR_ENV") === "production" ? "production" : "sandbox";
-}
-
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response("ok", { headers: responseHeaders() });
@@ -39,9 +39,13 @@ Deno.serve(async (req) => {
       return jsonError(401, "Missing authorization");
     }
 
-    const accessToken = Deno.env.get("POLAR_ACCESS_TOKEN")?.trim();
-    if (!accessToken) {
+    if (!polarAccessToken()) {
       return jsonError(503, "POLAR_ACCESS_TOKEN not configured");
+    }
+
+    const polar = createPolarClient();
+    if (!polar) {
+      return jsonError(503, "Polar client not configured");
     }
 
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
@@ -55,14 +59,16 @@ Deno.serve(async (req) => {
       return jsonError(401, "Invalid session");
     }
 
-    const polar = new Polar({ accessToken, server: polarServer() });
     const session = await polar.customerSessions.create({
-      externalCustomerId: userData.user.id,
+      customerExternalId: userData.user.id,
     });
 
-    const portalUrl = session.customerPortalUrl;
+    const portalUrl = session.customerPortalUrl ?? defaultPortalUrl();
     if (!portalUrl) {
-      return jsonError(404, "No Polar customer found for this account");
+      return jsonError(
+        404,
+        "No Polar customer found for this account. Complete checkout first, or set POLAR_ORGANIZATION_SLUG for the default portal URL.",
+      );
     }
 
     return new Response(

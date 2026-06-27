@@ -12,6 +12,7 @@ import '../screens/challenge/vg_web_routine_challenge_panel.dart';
 import '../screens/profile/vg_web_profile_panel.dart';
 import '../vg_feature_slugs.dart';
 import '../vg_web_app_prefs.dart';
+import '../vg_web_checkout_return.dart';
 import '../vg_web_profile_nav.dart';
 import '../widgets/vg_web_app_shell.dart';
 import '../widgets/vg_web_tool_sidebar.dart';
@@ -20,7 +21,7 @@ import 'vg_web_tool_workspace.dart';
 enum VGWebProfileSubview { main, challenge, challengeDay, reward }
 
 /// Authenticated web app — SaaS shell with one tool workspace at a time.
-class VGWebAppScreen extends StatelessWidget {
+class VGWebAppScreen extends StatefulWidget {
   final String? slug;
   final VGWebAppSection section;
   final VGWebProfileSubview profileSubview;
@@ -34,17 +35,30 @@ class VGWebAppScreen extends StatelessWidget {
     this.challengeDay,
   });
 
+  @override
+  State<VGWebAppScreen> createState() => _VGWebAppScreenState();
+}
+
+class _VGWebAppScreenState extends State<VGWebAppScreen> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) vgWebHandleCheckoutReturn(context);
+    });
+  }
+
   VGFeatureModel get _routineFeature =>
       getVerifiedGlamFeatures().firstWhere((f) => f.featureType == VGFeatureTypes.glowUpGuide);
 
   @override
   Widget build(BuildContext context) {
     Widget body;
-    switch (section) {
+    switch (widget.section) {
       case VGWebAppSection.profile:
         body = _profileBody(context);
       case VGWebAppSection.tool:
-        final toolSlug = slug ?? vgDefaultWebToolSlug;
+        final toolSlug = widget.slug ?? vgDefaultWebToolSlug;
         if (!isToolSlug(toolSlug)) {
           WidgetsBinding.instance.addPostFrameCallback((_) {
             if (context.mounted) context.go(vgWebDefaultAppPath());
@@ -56,18 +70,18 @@ class VGWebAppScreen extends StatelessWidget {
     }
 
     return VGWebAppShell(
-      activeSlug: section == VGWebAppSection.tool ? slug : null,
-      section: section,
+      activeSlug: widget.section == VGWebAppSection.tool ? widget.slug : null,
+      section: widget.section,
       child: body,
     );
   }
 
   Widget _profileBody(BuildContext context) {
-    switch (profileSubview) {
+    switch (widget.profileSubview) {
       case VGWebProfileSubview.challenge:
         return VGWebRoutineChallengePanel(feature: _routineFeature);
       case VGWebProfileSubview.challengeDay:
-        return _ChallengeDayLoader(feature: _routineFeature, dayNumber: challengeDay ?? 1);
+        return _ChallengeDayLoader(feature: _routineFeature, dayNumber: widget.challengeDay ?? 1);
       case VGWebProfileSubview.reward:
         final reward = VGWebProfileNavCache.reward;
         final feature = VGWebProfileNavCache.rewardFeature ?? _routineFeature;

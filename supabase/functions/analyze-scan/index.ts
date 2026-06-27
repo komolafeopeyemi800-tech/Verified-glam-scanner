@@ -2,6 +2,10 @@ import { encodeBase64 } from "https://deno.land/std@0.224.0/encoding/base64.ts";
 import { Image } from "https://deno.land/x/imagescript@1.3.0/mod.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.49.1";
 import {
+  CREDITS_PER_GENERATION,
+  logCreditTransaction,
+} from "../_shared/credits.ts";
+import {
   APPEARANCE_OFFSETS,
   APPEARANCE_WEIGHTS,
   attractivenessTierFor,
@@ -24,7 +28,7 @@ import {
   TRAIT_OFFSETS,
 } from "./scoring.ts";
 
-const FUNCTION_VERSION = "9";
+const FUNCTION_VERSION = "10";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -55,7 +59,6 @@ const VALID_FEATURES = [
 
 type FeatureType = (typeof VALID_FEATURES)[number];
 
-const CREDITS_PER_GENERATION = 5;
 const YEARLY_CREDITS_ALLOCATION = 200;
 const PRO_WEEKLY_CREDITS_ALLOCATION = 30;
 const FALLBACK_MODEL = "gpt-4o-mini";
@@ -219,7 +222,7 @@ Deno.serve(async (req) => {
       );
     }
 
-    const creditsRemaining = await deductCredits(admin, userId);
+    const creditsRemaining = await deductCredits(admin, userId, featureType);
 
     return new Response(JSON.stringify({
       payload,
@@ -469,6 +472,7 @@ async function checkCredits(
 async function deductCredits(
   admin: ReturnType<typeof createClient>,
   userId: string,
+  featureType: string,
 ): Promise<number> {
   const { data: profile } = await admin
     .from("profiles")
@@ -482,7 +486,33 @@ async function deductCredits(
     credits_balance: remaining,
     updated_at: new Date().toISOString(),
   }).eq("id", userId);
+
+  await logCreditTransaction(admin, userId, {
+    amount: -CREDITS_PER_GENERATION,
+    kind: "analysis",
+    description: featureLabelForCredits(featureType),
+    featureType,
+    balanceAfter: remaining,
+  });
+
   return remaining;
+}
+
+function featureLabelForCredits(featureType: string): string {
+  const labels: Record<string, string> = {
+    FACE_BEAUTY_ANALYSIS: "Face Beauty Analysis",
+    GOLDEN_RATIO: "Golden Ratio Analysis",
+    CELEBRITY_LOOKALIKE: "Celebrity Look-Alike",
+    FACIAL_SYMMETRY: "Facial Symmetry Analysis",
+    BEAUTY_TIPS: "Beauty Tips Analysis",
+    GLOW_UP_GUIDE: "Glow Up Guide",
+    FACIAL_RESEMBLANCE: "Face Comparison",
+    FACE_READING: "Face Reading",
+    BEAUTY_SCORE_SHOWDOWN: "Beauty Score Showdown",
+    COLOR_ANALYSIS: "Seasonal Color Palette",
+    APPEARANCE_ANALYSIS: "Appearance Analysis",
+  };
+  return labels[featureType] ?? featureType.replace(/_/g, " ");
 }
 
 async function enforceDailyLimit(

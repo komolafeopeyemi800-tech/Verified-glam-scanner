@@ -58,11 +58,32 @@ try {
 }
 
 Write-Host ""
-Write-Host "Manual sandbox E2E (after Polar secrets + webhook):"
-Write-Host "  1. Web checkout Yearly -> profiles.credits_balance = 200"
-Write-Host "  2. Same user on Android -> is_pro true without repaying"
-Write-Host "  3. Pro weekly -> 30 credits, 5 per scan"
-Write-Host "  4. Cancel in Polar portal -> webhook updates subscription_status"
-Write-Host "  5. Renewal order -> credits refresh"
+Write-Host "Webhook GET (browser ping) should be 200; POST without signature should be 403:"
+try {
+  $r = Invoke-WebRequest -Uri "$SupabaseUrl/functions/v1/polar-webhook" -Method GET -UseBasicParsing
+  Write-Host "  [OK] GET polar-webhook -> $($r.StatusCode)"
+} catch {
+  Write-Warning "GET polar-webhook: $($_.Exception.Message)"
+}
+try {
+  $r = Invoke-WebRequest -Uri "$SupabaseUrl/functions/v1/polar-webhook" `
+    -Method POST -Headers (@{ "Content-Type" = "application/json" } + $headers) `
+    -Body '{}' -UseBasicParsing
+  Write-Warning "Expected 403 invalid signature, got $($r.StatusCode)"
+} catch {
+  if ($_.Exception.Response.StatusCode.value__ -eq 403) {
+    Write-Host "  [OK] polar-webhook rejects unsigned POST (sync POLAR_WEBHOOK_SECRET with Polar dashboard)"
+  } else {
+    Write-Warning "POST polar-webhook: $($_.Exception.Message)"
+  }
+}
+
 Write-Host ""
-Write-Host "See docs/SUPABASE_SETUP.md for webhook URL and secret setup."
+Write-Host "Automated checks complete. Manual production E2E (requires POLAR_ENV=production secrets + live card):"
+Write-Host "  1. Sign in at https://scanner.verifiedglam.com/login"
+Write-Host "  2. /pricing -> Subscribe -> Polar checkout -> pay -> ?checkout=success -> Pro credits"
+Write-Host "  3. Polar dashboard -> webhook deliveries OK for polar-webhook URL"
+Write-Host "  4. Manage subscription on /pricing or profile -> cancel in Polar portal"
+Write-Host "  5. Scan in app -> 5 credits deducted"
+Write-Host ""
+Write-Host "See docs/POLAR_PRODUCTION_SETUP.md for full checklist."

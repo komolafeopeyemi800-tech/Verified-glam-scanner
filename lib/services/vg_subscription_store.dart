@@ -2,7 +2,6 @@ import 'package:nb_utils/nb_utils.dart';
 
 import '../utils/vg_constants.dart';
 import '../utils/vg_credit_constants.dart';
-import 'supabase/vg_supabase_auth_service.dart';
 import 'vg_credits_service.dart';
 import 'vg_polar_checkout_service.dart';
 import 'vg_referral_bonus_store.dart';
@@ -39,9 +38,6 @@ class VGSubscriptionStore {
   static Future<bool> purchase({required String planName}) async {
     if (kVGLocalDevMode) {
       return purchaseMock(planName: planName);
-    }
-    if (!VGSupabaseAuthService.isSignedIn) {
-      return false;
     }
     final plan = planName == kSubscriptionPlanProWeekly
         ? kSubscriptionPlanProWeekly

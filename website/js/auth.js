@@ -6,6 +6,8 @@
   var googleBtn = document.getElementById("vg-google-btn");
   var mode = form.getAttribute("data-mode") || "login";
   var params = new URLSearchParams(window.location.search);
+  var plan = params.get("plan");
+  var hasCheckoutPlan = plan === "annual" || plan === "pro_weekly";
   var redirect = params.get("redirect") || "/app/face-beauty-analysis";
 
   function showError(msg) {
@@ -23,8 +25,25 @@
     return window.supabase.createClient(url, key);
   }
 
+  function postAuthDestination() {
+    if (hasCheckoutPlan) {
+      return "/pricing?plan=" + encodeURIComponent(plan);
+    }
+    return redirect;
+  }
+
   function goAfterAuth() {
-    window.location.href = redirect;
+    var dest = postAuthDestination();
+    if (hasCheckoutPlan) {
+      try {
+        sessionStorage.setItem("vg_resume_checkout", plan);
+      } catch (_) {}
+    }
+    window.location.href = dest;
+  }
+
+  function oauthRedirectTo() {
+    return window.location.origin + postAuthDestination();
   }
 
   form.addEventListener("submit", function (e) {
@@ -45,7 +64,10 @@
       .then(function (res) {
         if (res.error) throw res.error;
         if (mode === "register" && !res.data.session) {
-          showError("Check your email to confirm your account, then sign in.");
+          var msg = hasCheckoutPlan
+            ? "Check your email to confirm your account, then sign in to complete checkout."
+            : "Check your email to confirm your account, then sign in.";
+          showError(msg);
           return;
         }
         goAfterAuth();
@@ -66,12 +88,17 @@
         showError("Google sign-in is not configured.");
         return;
       }
+      if (hasCheckoutPlan) {
+        try {
+          sessionStorage.setItem("vg_resume_checkout", plan);
+        } catch (_) {}
+      }
       var client = getClient();
       client.auth
         .signInWithOAuth({
           provider: "google",
           options: {
-            redirectTo: window.location.origin + redirect,
+            redirectTo: oauthRedirectTo(),
           },
         })
         .then(function (res) {

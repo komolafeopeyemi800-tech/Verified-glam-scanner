@@ -20,6 +20,8 @@ const _pricingCompareTitle = 'Compare Plans';
 const _pricingCompareSubtitle = 'Everything included with Yearly and Pro subscriptions.';
 const _pricingFaqTitle = 'Pricing FAQ';
 const _pricingSignUpCta = 'Sign up';
+const _pricingManageTitle = 'You have an active Pro subscription';
+const _pricingManageCta = 'Manage subscription';
 const _paywallSubscribeNow = 'Subscribe now';
 const _paywallCancelAnytime = 'Cancel anytime';
 const _paywallBestPrice = 'Best Value';
@@ -613,7 +615,7 @@ String _pricingBody() {
           <p class="vg-plan-card__section-title">${_esc(_pricingCreditBreakdown)}</p>
           <ul class="vg-plan-card__features vg-plan-card__features--muted">$yearlyCredits</ul>
           <div class="vg-plan-card__cta">
-            <a class="vg-btn-pill vg-btn-pill--primary vg-checkout-btn" href="/register?plan=annual" data-plan="annual">${_esc(_paywallSubscribeNow)}</a>
+            <a class="vg-btn-pill vg-btn-pill--primary vg-checkout-btn" href="#" data-plan="annual">${_esc(_paywallSubscribeNow)}</a>
             <p class="vg-plan-card__cancel">${_esc(_paywallCancelAnytime)}</p>
           </div>
         </div>
@@ -632,7 +634,7 @@ String _pricingBody() {
           <p class="vg-plan-card__section-title">${_esc(_pricingCreditBreakdown)}</p>
           <ul class="vg-plan-card__features vg-plan-card__features--muted">$proCredits</ul>
           <div class="vg-plan-card__cta">
-            <a class="vg-btn-pill vg-btn-pill--primary vg-checkout-btn" href="/register?plan=pro_weekly" data-plan="pro_weekly">${_esc(_paywallSubscribeNow)}</a>
+            <a class="vg-btn-pill vg-btn-pill--primary vg-checkout-btn" href="#" data-plan="pro_weekly">${_esc(_paywallSubscribeNow)}</a>
             <p class="vg-plan-card__cancel">${_esc(_paywallCancelAnytime)}</p>
           </div>
         </div>
@@ -682,6 +684,12 @@ String _pricingBody() {
         <p>${_esc(_paywallTermsPrefix)} <a href="/terms">${_esc(_paywallTerms)}</a> · <a href="/privacy">${_esc(_paywallPrivacy)}</a></p>
       </div>
     </div>
+
+    <section class="vg-pricing-manage" id="vg-pricing-manage" hidden>
+      <p class="vg-pricing-manage__text">${_esc(_pricingManageTitle)}</p>
+      <p class="vg-pricing-manage__credits" id="vg-pricing-credits-wrap">Credits: <strong id="vg-pricing-credits-balance" hidden>0</strong></p>
+      <button type="button" class="vg-btn-pill vg-btn-pill--secondary" id="vg-manage-billing-btn">${_esc(_pricingManageCta)}</button>
+    </section>
 
     <section class="vg-pricing-signup">
       <a class="vg-btn-pill vg-btn-pill--primary vg-app-link" href="/register">${_esc(_pricingSignUpCta)}</a>

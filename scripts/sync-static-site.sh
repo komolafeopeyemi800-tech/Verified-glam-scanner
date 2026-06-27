@@ -55,6 +55,15 @@ fi
 SUPABASE_URL="$(printf '%s' "${SUPABASE_URL:-}" | tr -d '\r\n\t')"
 SUPABASE_ANON_KEY="$(printf '%s' "${SUPABASE_ANON_KEY:-}" | tr -d '\r\n\t')"
 GOOGLE_WEB_CLIENT_ID="$(printf '%s' "${GOOGLE_WEB_CLIENT_ID:-}" | tr -d '\r\n\t')"
+POLAR_CHECKOUT_LINK_ANNUAL="$(printf '%s' "${POLAR_CHECKOUT_LINK_ANNUAL:-}" | tr -d '\r\n\t')"
+POLAR_CHECKOUT_LINK_PRO_WEEKLY="$(printf '%s' "${POLAR_CHECKOUT_LINK_PRO_WEEKLY:-}" | tr -d '\r\n\t')"
+
+if [[ -z "${POLAR_CHECKOUT_LINK_ANNUAL}" && -f "$ROOT/.env.example" ]]; then
+  POLAR_CHECKOUT_LINK_ANNUAL="$(grep -E '^POLAR_CHECKOUT_LINK_ANNUAL=' "$ROOT/.env.example" | head -1 | cut -d= -f2- | tr -d '\r\n\t')"
+fi
+if [[ -z "${POLAR_CHECKOUT_LINK_PRO_WEEKLY}" && -f "$ROOT/.env.example" ]]; then
+  POLAR_CHECKOUT_LINK_PRO_WEEKLY="$(grep -E '^POLAR_CHECKOUT_LINK_PRO_WEEKLY=' "$ROOT/.env.example" | head -1 | cut -d= -f2- | tr -d '\r\n\t')"
+fi
 
 if [[ -f "$BUILD/js/auth-config.js" ]]; then
   sed -i "s|__SUPABASE_URL__|${SUPABASE_URL}|g" "$BUILD/js/auth-config.js" 2>/dev/null || \
@@ -63,6 +72,14 @@ if [[ -f "$BUILD/js/auth-config.js" ]]; then
     sed -i '' "s|__SUPABASE_ANON_KEY__|${SUPABASE_ANON_KEY}|g" "$BUILD/js/auth-config.js"
   sed -i "s|__GOOGLE_WEB_CLIENT_ID__|${GOOGLE_WEB_CLIENT_ID}|g" "$BUILD/js/auth-config.js" 2>/dev/null || \
     sed -i '' "s|__GOOGLE_WEB_CLIENT_ID__|${GOOGLE_WEB_CLIENT_ID}|g" "$BUILD/js/auth-config.js"
+  if [[ -n "${POLAR_CHECKOUT_LINK_ANNUAL}" ]]; then
+    sed -i "s|__POLAR_CHECKOUT_LINK_ANNUAL__|${POLAR_CHECKOUT_LINK_ANNUAL}|g" "$BUILD/js/auth-config.js" 2>/dev/null || \
+      sed -i '' "s|__POLAR_CHECKOUT_LINK_ANNUAL__|${POLAR_CHECKOUT_LINK_ANNUAL}|g" "$BUILD/js/auth-config.js"
+  fi
+  if [[ -n "${POLAR_CHECKOUT_LINK_PRO_WEEKLY}" ]]; then
+    sed -i "s|__POLAR_CHECKOUT_LINK_PRO_WEEKLY__|${POLAR_CHECKOUT_LINK_PRO_WEEKLY}|g" "$BUILD/js/auth-config.js" 2>/dev/null || \
+      sed -i '' "s|__POLAR_CHECKOUT_LINK_PRO_WEEKLY__|${POLAR_CHECKOUT_LINK_PRO_WEEKLY}|g" "$BUILD/js/auth-config.js"
+  fi
 fi
 
 cp -f "$ROOT/website/generated/home/index.html" "$BUILD/index.html"
