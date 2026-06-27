@@ -56,6 +56,9 @@ if [[ -n "${GOOGLE_WEB_CLIENT_ID}" ]]; then
 fi
 flutter "${BUILD_ARGS[@]}"
 
+# Flutter copies web/ verbatim — web/serve.json must never reach Wrangler (error 100324).
+rm -f "${ROOT}/build/web/_redirects" "${ROOT}/build/web/serve.json"
+
 BOOTSTRAP="${ROOT}/build/web/flutter_bootstrap.js"
 if [[ -f "${BOOTSTRAP}" ]]; then
   echo "==> Disable Flutter service worker (static hosting)"

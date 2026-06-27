@@ -1,7 +1,7 @@
 /**
  * Local static server for build/web — no proxy loop (http-server -P breaks on /app/*).
  * - / and marketing paths serve real HTML
- * - /app/* serves Flutter shell from 404.html (same as Cloudflare serve.json rewrite)
+ * - /app/* serves Flutter shell from 404.html (see scripts/local-dev-routes.json)
  */
 import http from "node:http";
 import fs from "node:fs";

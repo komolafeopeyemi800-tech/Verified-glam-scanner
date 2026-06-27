@@ -1,4 +1,5 @@
 {
+  "_comment": "Local dev reference only — NOT deployed. local-web-server.mjs implements /app/* inline. Wrangler uses wrangler.toml not_found_handling.",
   "cleanUrls": false,
   "redirects": [
     { "source": "/marketing/about.html", "destination": "/about", "type": 301 },
