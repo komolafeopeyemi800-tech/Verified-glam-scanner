@@ -149,12 +149,14 @@ if (Test-Path $generated) {
   }
 }
 
-foreach ($seoFile in @("sitemap.xml", "robots.txt", "llms.txt", "_redirects", "_headers")) {
+foreach ($seoFile in @("sitemap.xml", "robots.txt", "llms.txt", "_headers")) {
   $src = Join-Path $Root "website\$seoFile"
   if (Test-Path $src) {
     Copy-Item -Force $src (Join-Path $BuildWeb $seoFile)
   }
 }
+$staleRedirects = Join-Path $BuildWeb "_redirects"
+if (Test-Path $staleRedirects) { Remove-Item -Force $staleRedirects }
 
 $serveJson = Join-Path $Root "web\serve.json"
 if (Test-Path $serveJson) {

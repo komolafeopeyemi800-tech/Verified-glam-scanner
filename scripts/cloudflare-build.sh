@@ -66,13 +66,11 @@ fi
 echo "==> Overlay static marketing pages"
 bash "${ROOT}/scripts/sync-static-site.sh"
 
-if grep -qE '^/[^[:space:]]+[[:space:]]+/[^[:space:]]+/index\.html[[:space:]]+200' "$ROOT/website/_redirects" 2>/dev/null; then
-  echo "ERROR: website/_redirects contains /path -> /path/index.html 200 rules." >&2
-  echo "These loop with wrangler html_handling=drop-trailing-slash. Remove them." >&2
+echo "==> Verify build output"
+if [[ -f "build/web/_redirects" ]]; then
+  echo "ERROR: build/web/_redirects must not be deployed — wrangler html_handling loops on clean-URL redirects." >&2
   exit 1
 fi
-
-echo "==> Verify build output"
 REQUIRED=(
   "build/web/index.html"
   "build/web/pricing/index.html"
@@ -87,7 +85,6 @@ REQUIRED=(
   "build/web/flutter_bootstrap.js"
   "build/web/main.dart.js"
   "build/web/js/passkeys-bundle.js"
-  "build/web/_redirects"
   "build/web/sitemap.xml"
   "build/web/robots.txt"
   "build/web/llms.txt"

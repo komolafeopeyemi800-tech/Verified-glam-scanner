@@ -29,7 +29,6 @@ $required = @(
   "attractiveness-test\index.html",
   "face-golden-ratio\index.html",
   "404.html",
-  "_redirects",
   "sitemap.xml",
   "robots.txt",
   "llms.txt"

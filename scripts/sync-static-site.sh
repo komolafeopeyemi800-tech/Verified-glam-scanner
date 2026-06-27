@@ -78,11 +78,14 @@ if [[ -d "$ROOT/website/generated" ]]; then
   done
 fi
 
-for f in sitemap.xml robots.txt llms.txt _redirects _headers; do
+for f in sitemap.xml robots.txt llms.txt _headers; do
   if [[ -f "$ROOT/website/$f" ]]; then
     cp -f "$ROOT/website/$f" "$BUILD/$f"
   fi
 done
+# _redirects is intentionally omitted — wrangler html_handling serves */index.html;
+# any /path -> /other 301 to clean URLs loops with drop-trailing-slash (error 100324).
+rm -f "$BUILD/_redirects"
 
 if [[ -f "$ROOT/web/serve.json" ]]; then
   cp -f "$ROOT/web/serve.json" "$BUILD/serve.json"
