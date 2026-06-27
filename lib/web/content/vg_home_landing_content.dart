@@ -154,7 +154,7 @@ class VGHomeLandingContent {
     VGFaqItem(
       question: 'Who can use the app?',
       answer:
-          'Verified Glam Scanner is intended for users aged 13 and older. If you are under 18, please use the app with a parent or guardian’s permission.',
+          'Verified Glam Scanner is for adults aged 18 and older. You must be at least 18 to create an account or purchase a Pro subscription. The service is not directed at minors.',
     ),
   ];
 

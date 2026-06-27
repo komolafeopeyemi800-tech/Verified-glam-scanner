@@ -50,3 +50,36 @@ LLM index: https://scanner.verifiedglam.com/llms.txt
 1. Trigger a Cloudflare Pages / Workers deploy from `main`.
 2. Confirm `/pricing` returns **200** with HTML (not 404).
 3. Re-submit Polar appeal with these URLs.
+
+## Polar payment appeal (18+ eligibility)
+
+If Polar denies payment access for “users under 18”, our public pages previously said “13 and older”. That followed app-store age-rating wording, not our billing audience. **Pro subscriptions require 18+** — Terms and Privacy now state this explicitly.
+
+Paste this in Polar’s appeal form:
+
+---
+
+**Subject:** Appeal — Verified Glam Scanner is an 18+ adult product
+
+Hello Polar team,
+
+Our organization was flagged as targeting users under 18. That does not reflect our product or billing policy.
+
+**Verified Glam Scanner** (https://scanner.verifiedglam.com) is an AI beauty analysis service for **adults aged 18 and older**. Users must be 18+ to create an account or purchase a Pro subscription. The service is not marketed to minors.
+
+We previously included “13 and older” language in our FAQ following general mobile app age-rating conventions. That was misleading for payment compliance. We have updated all public pages:
+
+- Terms: https://scanner.verifiedglam.com/terms (Section 1: Eligibility — 18+)
+- Privacy: https://scanner.verifiedglam.com/privacy (Section 8: not directed at children or teens)
+- Pricing: https://scanner.verifiedglam.com/pricing
+- About: https://scanner.verifiedglam.com/about
+
+**Product:** Selfie-based AI beauty analysis (entertainment/wellness, not medical advice). **Billing:** Credit-based Pro plans via Polar. **Platforms:** Web + Android, synced through Supabase accounts.
+
+We do not sell to or target minors. Please re-review our organization with the updated policies.
+
+Thank you,  
+[Your name]  
+Verified Glam — support@verifiedglam.com
+
+---

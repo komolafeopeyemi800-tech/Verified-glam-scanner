@@ -66,6 +66,12 @@ fi
 echo "==> Overlay static marketing pages"
 bash "${ROOT}/scripts/sync-static-site.sh"
 
+if grep -qE '^/[^[:space:]]+[[:space:]]+/[^[:space:]]+/index\.html[[:space:]]+200' "$ROOT/website/_redirects" 2>/dev/null; then
+  echo "ERROR: website/_redirects contains /path -> /path/index.html 200 rules." >&2
+  echo "These loop with wrangler html_handling=drop-trailing-slash. Remove them." >&2
+  exit 1
+fi
+
 echo "==> Verify build output"
 REQUIRED=(
   "build/web/index.html"

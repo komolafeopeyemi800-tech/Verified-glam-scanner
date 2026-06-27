@@ -163,7 +163,7 @@ VGLegalBulletList([
       ]),
 VGLegalHeading('8. Children’s privacy'),
 VGLegalParagraph(
-        'Verified Glam Scanner is not directed at children under 13. We do not knowingly collect personal information from children under 13. Users aged 13–17 should use the app with a parent or guardian’s permission.',
+        'Verified Glam Scanner is not directed at children or teens. We do not knowingly collect personal information from anyone under 18. If you believe a minor has provided us information, contact support@verifiedglam.com and we will delete it.',
       ),
 VGLegalHeading('9. International users'),
 VGLegalParagraph(
@@ -193,7 +193,7 @@ VGLegalParagraph(
       ),
 VGLegalHeading('1. Eligibility'),
 VGLegalParagraph(
-        'You must be at least 13 years old to use Verified Glam Scanner. If you are between 13 and 17, you represent that you have your parent or guardian’s permission to use the Service.',
+        'You must be at least 18 years old to use Verified Glam Scanner, create an account, or purchase a Pro subscription. By using the Service, you represent that you meet this age requirement. The Service is not intended for minors.',
       ),
 VGLegalHeading('2. Entertainment and disclaimer — not medical advice'),
 VGLegalParagraph(
